@@ -17,3 +17,4 @@
 *.RTF	 diff=astextplain
 
 src/main/resources/static/* linguist-vendored
+out/* linguist-vendored
