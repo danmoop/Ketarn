@@ -52,7 +52,7 @@ public class User
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
         this.registerDate = new Date().getTime();
-        this.hasBoughtSubs = false;
+        this.hasBoughtSubs = true;
         this.banned = false;
     }
 
