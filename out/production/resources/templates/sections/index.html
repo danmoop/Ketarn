@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ketarn</title>
+    <link rel="stylesheet" href="css/uikit.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/mustard-ui.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <script src="js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.8/js/uikit-icons.min.js"></script>
+
+</head>
+<body>
+
+<nav class="uk-navbar uk-navbar-container uk-margin nn-nav">
+    <div class="uk-navbar-left left-menu">
+        <a href="#offcanvas-slide" class="uk-button uk-button-default" uk-toggle>
+            <span uk-icon="menu"></span>
+        </a>
+        <div id="offcanvas-slide" uk-offcanvas>
+            <div class="uk-offcanvas-bar">
+                <ul class="uk-nav uk-nav-default">
+                    <h3 class="eina"><span uk-icon="bolt"></span> Ketarn</h3>
+                    <hr class="uk-divider-icon">
+                    <li class="uk-active eina"><a href="/register">Register</a></li>
+                    <li class="uk-active eina"><a href="/signin">Sign in</a></li>
+                    <li class="uk-active eina"><a href="/signin">How it works</a></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="uk-navbar-center">
+        <a href="" class="uk-navbar-item uk-logo eina"><span uk-icon="bolt"></span> Ketarn</a>
+    </div>
+
+    <div class="uk-navbar-right right-menu">
+        <a href="/register" class="uk-button uk-button-text nav-btn b eina"><span uk-icon="users"></span> Register</a>
+        <a href="/signin" class="uk-button uk-button-text nav-btn b eina"><span uk-icon="user"></span> Sign in</a>
+    </div>
+</nav>
+
+<section class="text-center">
+    <div class="container">
+        <h1 class="big-header eina">Welcome to Ketarn</h1>
+        <hr/>
+        <p class="eina big-p">
+            Explore a beautiful place to have your work process organized and goals completed.
+        </p>
+        <div class="row">
+            <div class="col-sm-4" style="margin-top: 10px;">
+                <a href="/tutorial">
+                    <button class="button-primary-outlined"><span uk-icon="question"></span> Tutorial</button>
+                </a>
+            </div>
+            <div class="col-sm-4" style="margin-top: 10px;">
+                <a href="/register">
+                    <button class="button-primary-outlined"><span uk-icon="users"></span> Register</button>
+                </a>
+            </div>
+            <div class="col-sm-4" style="margin-top: 10px;">
+                <a href="/signin">
+                    <button class="button-primary-outlined"><span uk-icon="user"></span> Sign in</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

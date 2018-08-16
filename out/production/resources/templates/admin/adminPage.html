@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Ketarn - Admin</title>
+    <link rel="stylesheet" href="/css/bootstrap.css" />
+</head>
+<body>
+
+<div style="text-align: center;">
+    <a href="/dashboard">Home</a>
+    <h1 th:inline="text">Welcome to Ketarn admin page, <u>[[${LoggedUser.userName}]]</u></h1>
+    <hr/>
+    <h1 th:inline="text">Total users: [[${usersLength}]]</h1>
+    <h1 th:inline="text">Total project: [[${projectsLength}]]</h1>
+</div>
+
+</body>
+</html>

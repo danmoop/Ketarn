@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link rel="stylesheet" href="css/material.min.css" />
+    <link rel="stylesheet" href="css/uikit.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <script src="js/material.min.js"></script>
+    <script src="js/uikit.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.8/js/uikit-icons.min.js"></script>
+    <title>Ketarn - Dashboard</title>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+    <header class="mdl-layout__header mdl-layout__header--scroll">
+        <div class="mdl-layout__header-row">
+            <span class="mdl-layout-title eina">Your dashboard</span>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation">
+
+                <div class="uk-inline nav-btn">
+                    <a class="uk-button uk-button-text w eina btn-w" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="k-badge">[[${#lists.size(LoggedUser.messages)}]]</span></a>
+                </div>
+
+                <div class="uk-inline">
+                    <a class="uk-button uk-button-text w eina"><span uk-icon="user"></span> [[${LoggedUser.name}]] ([[${LoggedUser.userName}]])</a>
+                    <div uk-dropdown>
+                        <ul class="uk-nav uk-dropdown-nav">
+                            <li class="uk-active"><a href="#editInfo-modal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a></li>
+                            <li class="uk-active"><a href="/logout"><span uk-icon="sign-out"></span> Sign out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+<!--HEADER END-->
+
+<!--DRAWER -->
+    <div class="mdl-layout__drawer" style="position: fixed;">
+        <span class="mdl-layout-title eina" style="font-size: 2.1rem;"><span uk-icon="bolt"></span> Ketarn <span class="uk-badge">beta</span></span>
+        <br/>
+        <span class="mdl-layout-title eina" th:inline="text" style="font-size: 1rem; line-height:30px;"><span uk-icon="user"></span> [[${LoggedUser.name}]] ([[${LoggedUser.userName}]])</span>
+        <hr class="uk-divider-icon">
+        <nav class="mdl-navigation">
+            <a class="mdl-navigation__link eina" href="/createProject"><span uk-icon="file-edit"></span> Create project</a>
+            <a class="mdl-navigation__link eina" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="w" style="background: #e74c3c; padding-bottom: 5px; padding-top: 5px; padding-left: 10px; padding-right: 10px; border-radius: 255px;">[[${#lists.size(LoggedUser.messages)}]]</span></a>
+            <a class="mdl-navigation__link eina" href="#sendMsg-modal" uk-toggle><span uk-icon="comments"></span> Send a message</a>
+            <a class="mdl-navigation__link eina" href="#editInfo-modal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a>
+            <a th:if="${LoggedUser.role == 'Admin'}" class="mdl-navigation__link eina" href="/admin"><span uk-icon="world"></span> Admin page</a>
+            <hr class="uk-divider-icon">
+            <a class="mdl-navigation__link eina" href="/logout"><span uk-icon="sign-out"></span> Log Out</a>
+
+        </nav>
+    </div>
+<!--DRAWER END-->
+
+<!--MAIN CONTENT-->
+    <main class="mdl-layout__content">
+        <div class="page-content">
+            <div class="jumbotron pale_white">
+                <br />
+                <h2 class="text-center dashboardHint eina">Your Ketarn dashboard</h2>
+
+                <div th:if="${successMsg}" class="uk-alert-primary" uk-alert style="padding: 20px;">
+                    <a class="uk-alert-close" uk-close></a>
+                    <p class="eina text-center" th:text="${successMsg}" style="font-size: 1.2rem;"></p>
+                </div>
+
+                <div th:if="${errorMsg}" class="uk-alert-danger" uk-alert style="padding: 20px;">
+                    <a class="uk-alert-close" uk-close></a>
+                    <p class="eina text-center" th:text="${errorMsg}" style="font-size: 1.2rem;"></p>
+                </div>
+
+                <div th:if="${welcomeMsg}" class="uk-alert-primary" uk-alert>
+                    <a class="uk-alert-close" uk-close></a>
+                    <p class="eina text-center" th:text="${welcomeMsg}" style="font-size: 1.2rem;"></p>
+                </div>
+
+                <hr class="uk-divider-icon">
+
+                <div class="row text-center">
+                    <div class="col-sm-6 flex" style="margin-top: 10px;">
+                        <div class="uk-card uk-card-default uk-width-1-2@m usual-card">
+                            <div class="uk-card-header">
+                                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <h3 class="uk-card-title uk-margin-remove-bottom eina">Your projects</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-card-body">
+                                <ul class="uk-list uk-list-divider">
+                                    <li th:each="project: ${LoggedUser.projectsTakePartIn}" th:inline="text"><h4 class="eina">[[${project}]]<a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a></h4></li>
+                                    <h5 class="eina" th:if="${#lists.size(LoggedUser.projectsTakePartIn) == 0}">You don't take part at any project yet</h5>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 flex" style="margin-top: 10px;">
+                        <div class="uk-card uk-card-default uk-width-1-2@m usual-card">
+                            <div class="uk-card-header">
+                                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <h3 class="uk-card-title uk-margin-remove-bottom eina">Your tasks</h3>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <h5 class="eina" th:inline="text">Completed tasks: [[${#lists.size(LoggedUser.completedTasks)}]]</h5>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <h5 class="eina" th:inline="text" th:if="${workSuccess >= 50}">Work success: <b style="color: #27ae60;">[[${workSuccess}]]%</b></h5>
+                                                <h5 class="eina" th:inline="text" th:if="${workSuccess < 50}">Work success: <b style="color: #e74c3c;">[[${workSuccess}]]%</b></h5>
+                                            </div>
+                                        </div>
+
+                                        <button class="uk-button uk-button-text eina" type="button" uk-toggle="target: .taskToggle"><span uk-icon="info"></span> Toggle tasks</button><br/>
+                                        <br/>
+                                        <a th:if="${#lists.size(LoggedUser.tasks) != 0}" class="uk-button uk-button-text eina" href="#taskReview" uk-toggle><span uk-icon="check"></span> Submit task review</a><br/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-card-body">
+                                <ul class="uk-list uk-list-divider taskToggle">
+                                    <h4 th:if="${#lists.size(LoggedUser.tasks) == 0}" class="eina text-center" style="color: #888;">You don't have any tasks yet</h4>
+
+                                    <li th:each="task: ${LoggedUser.tasks}">
+                                        <h4 class="eina"><u>[[${task.key}]]</u> - [[${task.text}]] (project - <a th:href=" '/project/' + ${task.project}">[[${task.project}]])</a></h4>
+                                        <h4 class="eina">Given by <u>[[${task.authorName}]]</u> on [[${task.createdOn}]]</h4>
+                                        <h4 class="eina">Deadline: [[${task.deadline}]]</h4>
+                                    </li>
+                                </ul>
+                                <h4 class="eina text-center taskToggle" hidden style="color: #888;">Tasks are hidden</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="uk-divider-icon">
+            </div>
+
+            <!-- MODAL WITH INBOX MESSAGES -->
+            <div id="messages-modal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body" style="border-radius: 15px;">
+                    <div class="text-center">
+                        <h1 class="eina"><span uk-icon="mail"></span> Inbox</h1>
+
+                        <form class="inbox" th:action="@{/readAllInbox}" method="post">
+                            <input type="submit" class="uk-button uk-button-text btn" value="Read all" onclick="return confirm('Do you really want to mark all the messages as read?');"/>
+                        </form>
+
+                        <form class="inbox" th:action="@{/deleteAllInbox}" method="post" hidden>
+                            <input type="submit" class="uk-button uk-button-text btn" value="Delete all" onclick="return confirm('Do you really want to delete all the messages from archive?');"/>
+                        </form>
+                        
+                        <br/>
+                        <a class="uk-button uk-button-text btn inbox" href="#" uk-toggle="target: .inbox"><span uk-icon="info"></span> View archive</a>
+                        <a class="uk-button uk-button-text btn inbox" href="#" uk-toggle="target: .inbox" hidden><span uk-icon="info"></span> View inbox</a>
+                    </div>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="inbox">
+                        <div th:each="i : ${#numbers.sequence(LoggedUser.messages.size() - 1, 0, -1)}">
+                            <br/>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxMessage'}">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.messages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${LoggedUser.messages[i].timeDate}]]</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;font-size: 1.2rem;" class="eina" th:inline="text">[[${LoggedUser.messages[i].text}]]</p>
+                                    </div>
+                                    <hr class="uk-divider-icon">
+
+                                    <form th:action="@{/messageIsRead}" method="post">
+                                        <span uk-icon="check"></span>
+                                        <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.messages[i].messageKey}">
+                                        <input class="uk-button btn uk-button-text eina" type="submit" value="Mark as read">
+                                    </form>
+
+                                </article>
+                            </div>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxRequest'}">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.messages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${LoggedUser.messages[i].timeDate}]]</a></li>
+                                                <li><a href="#/">Reply</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;font-size: 1.2rem;" class="eina" th:inline="text">[[${LoggedUser.messages[i].text}]]</p>
+                                    </div>
+                                    <hr class="uk-divider-icon">
+
+                                    <ul class="uk-breadcrumb">
+                                        <li>
+                                            <form th:action="@{/acceptRequest}" method="post">
+                                                <span uk-icon="check"></span>
+
+                                                <input type="hidden" th:name="authorName" th:value="*{LoggedUser.messages[i].authorName}">
+                                                <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.messages[i].messageKey}">
+                                                <input type="hidden" th:name="projectName" th:value="*{LoggedUser.messages[i].details}">
+
+                                                <input class="uk-button btn uk-button-text eina" type="submit" value="Accept">
+                                            </form>
+                                        </li>
+
+                                        <li>
+                                            <form th:action="@{/rejectRequest}" method="post">
+                                                <span uk-icon="close"></span>
+
+                                                <input type="hidden" th:name="authorName" th:value="*{LoggedUser.messages[i].authorName}">
+                                                <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.messages[i].messageKey}">
+                                                <input type="hidden" th:name="projectName" th:value="*{LoggedUser.messages[i].details}">
+
+                                                <input class="uk-button btn uk-button-text eina" type="submit" value="Reject">
+                                            </form>
+                                        </li>
+                                    </ul>
+
+                                </article>
+                            </div>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxRequestToMember'}">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.messages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${LoggedUser.messages[i].timeDate}]]</a></li>
+                                                <li><a href="#/">Reply</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;font-size: 1.2rem;" class="eina" th:inline="text">[[${LoggedUser.messages[i].text}]]</p>
+                                    </div>
+                                    <hr class="uk-divider-icon">
+
+                                    <ul class="uk-breadcrumb">
+                                        <li>
+                                            <form th:action="@{/acceptProjectInvite}" method="post">
+                                                <span uk-icon="check"></span>
+
+                                                <input type="hidden" th:name="authorName" th:value="*{LoggedUser.messages[i].authorName}">
+                                                <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.messages[i].messageKey}">
+                                                <input type="hidden" th:name="projectName" th:value="*{LoggedUser.messages[i].details}">
+
+                                                <input class="uk-button btn uk-button-text eina" type="submit" value="Accept">
+                                            </form>
+                                        </li>
+
+                                        <li>
+                                            <form th:action="@{/rejectProjectInvite}" method="post">
+                                                <span uk-icon="close"></span>
+
+                                                <input type="hidden" th:name="authorName" th:value="*{LoggedUser.messages[i].authorName}">
+                                                <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.messages[i].messageKey}">
+                                                <input type="hidden" th:name="projectName" th:value="*{LoggedUser.messages[i].details}">
+
+                                                <input class="uk-button btn uk-button-text eina" type="submit" value="Reject">
+                                            </form>
+                                        </li>
+                                    </ul>
+
+                                </article>
+                            </div>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxTaskRequest'}">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.messages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${LoggedUser.messages[i].timeDate}]]</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;font-size: 1.2rem;" class="eina" th:inline="text">[[${LoggedUser.messages[i].text}]]</p>
+                                    </div>
+
+                                    <hr class="uk-divider-icon">
+
+                                    <h4 class="eina text-center">Accept task completion</h4>
+
+                                    <form th:action="@{/acceptTaskCompletion}" method="post">
+
+                                        <textarea th:name="messageText" class="uk-textarea" rows="4" th:placeholder="${'Any message to ' + LoggedUser.messages[i].authorName}"></textarea>
+
+                                        <br/><br/>
+
+                                        <select th:name="workSuccess" class="email-input" required>
+                                            <option value="placeholder" disabled selected>Work success (from 1 to 10)</option>
+                                            <option disabled>______________________________</option>
+
+                                            <option value="1" th:inline="text">1</option>
+                                            <option value="2" th:inline="text">2</option>
+                                            <option value="3" th:inline="text">3</option>
+                                            <option value="4" th:inline="text">4</option>
+                                            <option value="5" th:inline="text">5</option>
+                                            <option value="6" th:inline="text">6</option>
+                                            <option value="7" th:inline="text">7</option>
+                                            <option value="8" th:inline="text">8</option>
+                                            <option value="9" th:inline="text">9</option>
+                                            <option value="10" th:inline="text">10</option>
+                                        </select>
+
+                                        <input th:name="taskExecutor" type="hidden" th:value="*{LoggedUser.messages[i].authorName}">
+                                        <input th:name="taskKeyAndProjectName" type="hidden" th:value="*{LoggedUser.messages[i].details}">
+                                        <input th:name="msgKey" type="hidden" th:value="*{LoggedUser.messages[i].messageKey}">
+
+                                        <div class="text-center">
+                                            <span uk-icon="check"></span>
+                                            <input class="uk-button btn uk-button-text eina" type="submit" value="Accept">
+                                        </div>
+                                    </form>
+
+                                    <hr class="uk-divider-icon">
+
+                                    <h4 class="eina text-center">Reject task completion</h4>
+
+                                    <form th:action="@{/rejectTaskCompletion}" method="post">
+
+
+                                        <input th:name="taskExecutor" type="hidden" th:value="*{LoggedUser.messages[i].authorName}">
+                                        <input th:name="taskKeyAndProjectName" type="hidden" th:value="*{LoggedUser.messages[i].details}">
+                                        <input th:name="msgKey" type="hidden" th:value="*{LoggedUser.messages[i].messageKey}">
+
+                                        <textarea th:name="messageText" class="uk-textarea" rows="4" th:placeholder="${'If anything is not completed successfully, give any details on what should be improved. ' + LoggedUser.messages[i].authorName + ' will have to make all the changes and send task review again'}"></textarea>
+
+                                        <div class="text-center">
+                                            <span uk-icon="close"></span>
+                                            <input class="uk-button btn uk-button-text eina" type="submit" value="Reject">
+                                        </div>
+                                    </form>
+
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inbox" hidden>
+                        <div th:each="i : ${#numbers.sequence(LoggedUser.readMessages.size() - 1, 0, -1)}">
+                            <br/>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.readMessages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${LoggedUser.readMessages[i].timeDate}]]</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;font-size: 1.2rem;" class="eina" th:inline="text">[[${LoggedUser.readMessages[i].text}]]</p>
+                                    </div>
+                                    <hr class="uk-divider-icon">
+
+                                    <form th:action="@{/deleteMessage}" method="post">
+                                        <span uk-icon="trash"></span>
+                                        <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.readMessages[i].messageKey}">
+                                        <input class="uk-button btn uk-button-text eina" type="submit" value="Delete">
+                                    </form>
+
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class=" eina text-center" th:if="${#lists.size(LoggedUser.messages) == 0}" style="color: #b3b3b3;">
+                        No new messages yet!
+                    </h5>
+                </div>
+            </div>
+            <!--SENDING MESSAGE MODAL-->
+            <div id="sendMsg-modal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="comments"></span> Send a message</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/sendInboxMessage}" method="post">
+                        <input th:name="recipient" class="uk-input k-margin" type="text" placeholder="Recepient">
+
+                        <textarea th:name="messageText" class="uk-textarea k-margin" rows="5" placeholder="Message"></textarea>
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Send">
+                    </form>
+                </div>
+            </div>
+            <!--SENDING MESSAGES MODAL END-->
+
+            <!--EDIT PROFILE MODAL-->
+            <div id="editInfo-modal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="comments"></span> Edit profile info</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/editProfileInfo}" method="post">
+                        Name:
+                        <input required th:name="name" class="uk-input k-margin" type="text" th:value="${LoggedUser.name}" placeholder="Name">
+
+                        Email:
+                        <input required th:name="email" class="uk-input k-margin" type="email" th:value="${LoggedUser.email}" placeholder="Email">
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
+                    </form>
+
+                    <hr class="uk-divider-icon">
+
+                    <form th:action="@{/changePassword}" method="post">
+                        Change password
+                        <input required th:name="old_pass" class="uk-input k-margin" type="password" placeholder="Current password">
+
+                        <input required th:name="new_pass" class="uk-input k-margin" type="password" placeholder="New password">
+
+                        <input required th:name="confirm_pass" class="uk-input k-margin" type="password" placeholder="Confirm password">
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
+                    </form>
+                </div>
+            </div>
+            <!--SENDING MESSAGES MODAL END-->
+
+            <!-- SUBMIT TASK REVIEW -->
+            <div id="taskReview" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="comments"></span> Submit task review</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/submitTaskReview}" method="post">
+                        <select th:name="taskKey" class="email-input" required>
+                            <option value="placeholder" disabled selected>Choose task</option>
+                            <option disabled>______________________________</option>
+
+                            <div th:each="task: ${LoggedUser.tasks}">
+                                <option th:value="*{task.key}" th:inline="text">[[${task.key}]] - [[${task.text}]] ([[${task.project}]])</option>
+                            </div>
+                        </select>
+
+                        <br/>
+
+                        <textarea required th:name="taskMessage" class="uk-textarea" rows="5" placeholder="Message"></textarea>
+
+                        <br/><br/>
+
+                        <input class="uk-button uk-button-default eina" type="submit" value="Submit task review"/>
+                    </form>
+
+                    <hr class="uk-divider-icon">
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+<!--MAIN CONTENT END-->
+</div>
+
+</body>
+</html>

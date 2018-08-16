@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/uikit.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/mustard-ui.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <meta charset="UTF-8" />
+    <title>Ketarn - Register</title>
+</head>
+<body>
+    <div class="text-center uk-position-center container">
+        <h1 class="eina">Create Ketarn account</h1>
+
+        <div th:if="${errorMsg}" class="uk-alert-danger" uk-alert style="padding: 20px;">
+            <a class="uk-alert-close" uk-close></a>
+            <p class="eina text-center" th:text="${errorMsg}" style="font-size: 1.2rem;"></p>
+        </div>
+
+        <div th:if="${errorMessage}" class="uk-alert-danger" uk-alert style="padding: 10px;">
+            <a class="uk-alert-close" uk-close></a>
+            <p class="eina" th:text="${errorMessage}"></p>
+        </div>
+
+        <br/>
+        <form th:action="@{/register}" method="post">
+            <input required type="text" th:name="name" placeholder="Your name, for example: John Wick" />
+            <br/>
+            <input required type="text" th:name="userName" placeholder="Your nickname, for example: thegreatjohnny51" />
+            <br/>
+            <input class="email-input" required type="email" th:name="email" placeholder="Email, for example: JohnDoe@gmail.com" />
+            <br/>
+            <input required type="password" th:name="password" placeholder="Password, whatever" />
+            <br/>
+            <input type="submit" class="m-btn" value="Submit" />
+        </form>
+    </div>
+</body>
+</html>

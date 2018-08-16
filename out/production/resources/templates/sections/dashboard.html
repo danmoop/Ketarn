@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link rel="stylesheet" href="css/material.min.css" />
+    <link rel="stylesheet" href="css/uikit.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <script src="js/material.min.js"></script>
+    <script src="js/uikit.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.8/js/uikit-icons.min.js"></script>
+    <title>Ketarn - Dashboard</title>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+    <header class="mdl-layout__header mdl-layout__header--scroll">
+        <div class="mdl-layout__header-row">
+            <span class="mdl-layout-title eina">Your dashboard</span>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation">
+
+                <div class="uk-inline nav-btn">
+                    <a class="uk-button uk-button-text w eina btn-w" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="k-badge">[[${#lists.size(LoggedUser.messages)}]]</span></a>
+                </div>
+
+                <div class="uk-inline">
+                    <a class="uk-button uk-button-text w eina"><span uk-icon="user"></span> [[${LoggedUser.name}]] ([[${LoggedUser.userName}]])</a>
+                    <div uk-dropdown>
+                        <ul class="uk-nav uk-dropdown-nav">
+                            <li class="uk-active"><a href="#/"><span uk-icon="pencil"></span> Edit profile info</a></li>
+                            <li class="uk-nav-divider"></li>
+                            <li class="uk-active"><a href="/logout"><span uk-icon="sign-out"></span> Sign out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+<!--HEADER END-->
+
+<!--DRAWER -->
+    <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title eina" style="font-size: 2.1rem;"><span uk-icon="bolt"></span> Ketarn <span class="uk-badge">v 0.2</span></span>
+        <br/>
+        <span class="mdl-layout-title eina" th:inline="text" style="font-size: 1rem; line-height:30px;"><span uk-icon="user"></span> [[${LoggedUser.name}]] ([[${LoggedUser.userName}]])</span>
+        <hr class="uk-divider-icon">
+        <nav class="mdl-navigation">
+            <a class="mdl-navigation__link eina" href="/createProject"><span uk-icon="file-edit"></span> Create project</a>
+            <a class="mdl-navigation__link eina" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="w" style="background: #e74c3c; padding-bottom: 5px; padding-top: 5px; padding-left: 10px; padding-right: 10px; border-radius: 255px;">[[${#lists.size(LoggedUser.messages)}]]</span></a>
+            <a class="mdl-navigation__link eina" href="#sendMsg-modal" uk-toggle><span uk-icon="comments"></span> Send a message</a>
+            <a class="mdl-navigation__link eina" href=""><span uk-icon="pencil"></span> Edit profile info</a>
+            <a th:if="${LoggedUser.role == 'Admin'}" class="mdl-navigation__link eina" href="/admin"><span uk-icon="world"></span> Admin page</a>
+            <hr class="uk-divider-icon">
+            <a class="mdl-navigation__link eina" href="/logout"><span uk-icon="sign-out"></span> Log Out</a>
+
+        </nav>
+    </div>
+<!--DRAWER END-->
+
+<!--MAIN CONTENT-->
+    <main class="mdl-layout__content">
+        <div class="page-content">
+            <div class="jumbotron pale_white">
+                <br />
+                <h2 class="text-center dashboardHint eina">Your Ketarn dashboard</h2>
+                <hr class="uk-divider-icon">
+                <h1 class="eina text-center">Summary</h1>
+                <br/>
+                <div class="row text-center">
+                    <div class="col-sm-6 fl">
+                        <div class="uk-inline" style="width: 100%;">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m block-center dashboard-card">
+                                <h4 class="uk-card-title eina">Owner of</h4>
+                                <h1 class="big-header eina" th:inline="text">[[${#lists.size(LoggedUser.createdProjects)}]]</h1>
+                                <h4 class="eina">projects</h4>
+                            </div>
+                            <div th:if="${#lists.size(LoggedUser.createdProjects) > 0}" uk-drop="pos: bottom-justify">
+                                <div class="uk-card uk-card-body uk-card-default" th:inline="text">[[${LoggedUser.createdProjects}]]</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 fl">
+                        <div class="uk-inline" style="width: 100%;">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m block-center dashboard-card">
+                                <h4 class="uk-card-title eina">Taking part in</h4>
+                                <h1 class="big-header eina" th:inline="text">[[${#lists.size(LoggedUser.projectsTakePartIn)}]]</h1>
+                                <h4 class="eina">projects</h4>
+                            </div>
+                            <div th:if="${#lists.size(LoggedUser.createdProjects) > 0}" uk-drop="pos: bottom-justify">
+                                <div class="uk-card uk-card-body uk-card-default" th:inline="text">[[${LoggedUser.projectsTakePartIn}]]</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="uk-divider-icon" />
+
+                <h1 class="eina text-center">Projects</h1>
+                <br/>
+                <div class="row text-center">
+                    <div class="dashboard-card uk-card uk-card-default uk-card-body uk-width-1-2@m" th:each="project: ${LoggedUser.projectsTakePartIn}" style="margin-top: 10px;">
+                        <h1 th:inline="text">[[${project}]]</h1>
+                        <a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a>
+                    </div>
+                </div>
+                <h4 th:if="${#lists.size(LoggedUser.projectsTakePartIn) == 0}" class="eina text-center" style="color: #888;">You don't have any projects yet</h4>
+
+                <hr class="uk-divider-icon" />
+
+                <h1 class="eina text-center">Your tasks</h1>
+
+                <h4 th:if="${#lists.size(LoggedUser.tasks) == 0}" class="eina text-center" style="color: #888;">You don't have any tasks yet</h4>
+
+                <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m usual-card text-center" th:each="task: ${LoggedUser.tasks}" th:inline="text">
+                    <h3 class="uk-card-title">Task</h3>
+                    <h4>[[${task.text}]]</h4>
+                    <h4>Deadline: [[${task.deadline}]]</h4>
+                </div>
+
+            </div>
+
+            <!-- MODAL WITH INBOX MESSAGES -->
+            <div id="messages-modal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body" style="border-radius: 15px;">
+                    <div class="text-center">
+                        <h1 class="eina"><span uk-icon="mail"></span> Inbox</h1>
+                        <a class="uk-button uk-button-text btn" id="viewArchiveBtn" href="#"><span uk-icon="info"></span> View archive</a>
+                        <a class="uk-button uk-button-text btn" id="viewInboxBtn" href="#"><span uk-icon="info"></span> View inbox</a>
+                    </div>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div id="newMessages">
+                        <div th:each="i : ${#numbers.sequence(LoggedUser.messages.size() - 1, 0, -1)}">
+                            <br/>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.messages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${#dates.format(LoggedUser.messages[i].timeDate)}]]</a></li>
+                                                <li><a href="#/">Reply</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;font-size: 1.2rem;" class="eina" th:inline="text">[[${LoggedUser.messages[i].text}]]</p>
+                                    </div>
+                                    <hr class="uk-divider-icon">
+
+                                    <form th:action="@{/messageIsRead}" method="post">
+                                        <span uk-icon="check"></span>
+                                        <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.messages[i].messageKey}">
+                                        <input class="uk-button btn uk-button-text eina" type="submit" value="Mark as read">
+                                    </form>
+
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="archivedMessages">
+                        <div th:each="i : ${#numbers.sequence(LoggedUser.readMessages.size() - 1, 0, -1)}">
+                            <br/>
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-comment-avatar" src="../docs/images/avatar.jpg" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text">[[${LoggedUser.readMessages[i].authorName}]]</a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${#dates.format(LoggedUser.readMessages[i].timeDate)}]]</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <div class="uk-comment-body">
+                                        <p style="white-space: pre-line;" class="eina" th:inline="text">[[${LoggedUser.readMessages[i].text}]]</p>
+                                    </div>
+                                    <hr class="uk-divider-icon">
+
+                                    <form th:action="@{/deleteMessage}" method="post">
+                                        <span uk-icon="trash"></span>
+                                        <input type="hidden" th:name="messageKey" th:value="*{LoggedUser.readMessages[i].messageKey}">
+                                        <input class="uk-button btn uk-button-text eina" type="submit" value="Delete">
+                                    </form>
+
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class=" eina text-center" th:if="${#lists.size(LoggedUser.messages) == 0}" style="color: #b3b3b3;">
+                        No new messages yet!
+                    </h5>
+                </div>
+            </div>
+            <!--SENDING MESSAGE MODAL-->
+            <div id="sendMsg-modal" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="comments"></span> Send a message</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/sendInboxMessage}" method="post">
+                        <input th:name="recipient" class="uk-input k-margin" type="text" placeholder="Recepient">
+
+                        <textarea th:name="messageText" class="uk-textarea k-margin" rows="5" placeholder="Message"></textarea>
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Send">
+                    </form>
+                </div>
+            </div>
+            <!--SENDING MESSAGES MODAL END-->
+        </div>
+    </main>
+<!--MAIN CONTENT END-->
+</div>
+
+</body>
+</html>

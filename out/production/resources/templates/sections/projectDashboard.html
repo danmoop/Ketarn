@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <link rel="stylesheet" href="/css/material.min.css" />
+    <link rel="stylesheet" href="/css/uikit.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/bootstrap.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous" />
+
+
+    <script src="/js/material.min.js"></script>
+    <script src="/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.8/js/uikit-icons.min.js"></script>
+    <script src="https://use.fontawesome.com/releases/v5.1.1/js/all.js" integrity="sha384-BtvRZcyfv4r0x/phJt9Y9HhnN5ur1Z+kZbKVgzVBAlQZX4jvAuImlIz+bG7TS00a" crossorigin="anonymous"></script>
+
+    <title th:inline="text">Ketarn - [[${project.name}]] project</title>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+    <header class="mdl-layout__header mdl-layout__header--scroll">
+        <div class="mdl-layout__header-row" style="background: #1abc9c;">
+            <span class="mdl-layout-title eina" th:inline="text" th:if="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="hashtag"></span> [[${project.name}]] (Admin) <span uk-icon="check" th:if="${project.verificated}"></span></span>
+            <span class="mdl-layout-title eina" th:inline="text" th:unless="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="hashtag"></span> [[${project.name}]] (Member) <span uk-icon="check" th:if="${project.verificated}"></span></span>
+            <div uk-drop th:if="${project.verificated}">
+                <div class="uk-card uk-card-body uk-card-default eina">Official project <span uk-icon="check"></span></div>
+            </div>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation">
+                <div class="uk-inline">
+                    <a class="uk-button uk-button-text nav-btn w eina btn-w"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></span></a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <!--HEADER END-->
+
+    <!--DRAWER -->
+    <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title eina" style="font-size: 2.1rem;"><span uk-icon="bolt"></span> Ketarn <span class="uk-badge">v 0.2</span></span>
+        <br/>
+        <span class="mdl-layout-title eina" th:inline="text" style="font-size: 1rem; line-height:30px;"><span uk-icon="user"></span> [[${LoggedUser.name}]] ([[${LoggedUser.userName}]])</span>
+        <hr class="uk-divider-icon">
+
+        <!--NAV FOR ADMINS-->
+        <nav class="mdl-navigation" th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+            <a href="#project-inbox" uk-toggle class="mdl-navigation__link eina" th:inline="text"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></a>
+            <a class="mdl-navigation__link eina" href="#/"><span uk-icon="users"></span> Add members</a>
+            <a class="mdl-navigation__link eina"><span uk-icon="star"></span> Set users as admin</a>
+            <a class="mdl-navigation__link eina" href=""><span uk-icon="pencil"></span> Edit project info</a>
+            <a class="mdl-navigation__link eina" href="#setProjectNotification" uk-toggle><span uk-icon="pencil"></span> Set project notification</a>
+            <a class="mdl-navigation__link eina" href="#setProjectBudget" uk-toggle><span uk-icon="cart"></span> Set project budget</a>
+            <a th:if="${LoggedUser.role == 'Admin'}" class="mdl-navigation__link eina" href="/admin"><span uk-icon="world"></span> Admin page</a>
+
+            <hr class="uk-divider-icon">
+            <a class="mdl-navigation__link eina" href="/dashboard"><span uk-icon="sign-out"></span> Your dashboard</a>
+        </nav>
+
+        <!--NAV FOR MEMBERS-->
+        <nav class="mdl-navigation" th:unless="${#lists.contains(project.admins, LoggedUser.userName)}">
+            <a href="#project-inbox" uk-toggle class="mdl-navigation__link eina" th:inline="text"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></a>
+            <a class="mdl-navigation__link eina" href="/createProject"><span uk-icon="star"></span> View admins</a>
+            <a class="mdl-navigation__link eina"><span uk-icon="calendar"></span> View project plan</a>
+            <a class="mdl-navigation__link eina" href=""><span uk-icon="users"></span> View project responsibilities</a>
+            <a class="mdl-navigation__link eina" href="/admin"><span uk-icon="file-edit"></span> View project tasks</a>
+            <hr class="uk-divider-icon">
+            <a class="mdl-navigation__link eina" href="/dashboard"><span uk-icon="sign-out"></span> Your dashboard</a>
+        </nav>
+    </div>
+    <!--DRAWER END-->
+
+    <!--MAIN CONTENT-->
+    <main class="mdl-layout__content">
+        <div class="page-content">
+            <div class="jumbotron w">
+                <br />
+                <h2 class="text-center dashboardHint eina bl" th:inline="text">[[${project.name}]]</h2>
+                <hr class="uk-divider-icon">
+                <h1 class="eina text-center bl">Project information</h1>
+                <br/>
+                <div class="row text-center">
+                    <div class="col-sm-4">
+                        <div class="usual-card">
+                            <i class="fa fa-users bl icon-users"></i>
+                            <h4 class="bl eina" th:inline="text">[[${#lists.size(project.members)}]]</h4>
+                            <h6 class="eina pale-grey">Total members</h6>
+                        </div>
+                        <div uk-drop="pos: bottom-justify">
+                            <div class="uk-card uk-card-body uk-card-default" th:inline="text">[[${project.members}]]</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="usual-card">
+                            <i class="fa fa-money-bill-alt bl icon-money"></i>
+                            <h4 class="bl eina" th:inline="text">[[${budget}]]</h4>
+                            <h6 class="eina pale-grey">Project budget</h6>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="usual-card">
+                            <i class="fa fa-tasks bl icon-tasks"></i>
+                            <h4 class="bl eina" th:inline="text">[[${#lists.size(project.projectTasks)}]]</h4>
+                            <h6 class="eina pale-grey">Total tasks</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <br/>
+                <div class="row text-center">
+                    <div class="col-sm-6 fl">
+                        <div class="uk-card uk-card-default uk-width-1-2@m usual-card">
+                            <div class="uk-card-header">
+                                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <h3 class="uk-card-title uk-margin-remove-bottom eina">Project notification for members</h3>
+                                        <h2 th:if="${project.projectNotification != null}" th:inline="text">by <u>[[${project.projectNotification.authorName}]]</u></h2>
+                                        <p class="b" th:if="${project.projectNotification != null}"><span th:inline="text">Created on [[${#dates.format(project.projectNotification.createdOn)}]]</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-card-body ">
+                            <h4 class="eina" th:if="${project.projectNotification == null}">This project doesn't have any notification set by the project admin yet.</h4>
+                            <h4 class="eina" th:if="${project.projectNotification != null}" th:inline="text">[[${project.projectNotification.text}]]</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 fl">
+                        <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m block-center usual-card">
+                            <div class="uk-card-header">
+                                <h1 class="uk-card-title uk-margin-remove-bottom eina">Project tasks</h1>
+                                <button class="uk-button uk-button-text" type="button" uk-toggle="target: #taskList"><span uk-icon="info"></span> Toggle tasks</button><br/>
+                                <hr th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+                                <a class="uk-button uk-button-text" href="#addProjectTask" th:if="${#lists.contains(project.admins, LoggedUser.userName)}" uk-toggle><span uk-icon="check"></span> Add a new task</a>
+                            </div>
+                            <div class="uk-card-body" id="taskList">
+                                <ul class="uk-list uk-list-divider">
+                                    <h4 class="eina" th:if="${#lists.size(project.projectTasks) == 0}">No tasks created yet</h4>
+
+                                    <li style="font-size: 1.3rem;" th:each="i : ${#numbers.sequence(project.projectTasks.size() - 1, 0, -1)}" class="eina" th:inline="text">
+                                        Task: [[${project.projectTasks[i].text}]]
+                                        <br/> Executor: [[${project.projectTasks[i].executor}]]
+                                        <br/>(Deadline: [[${project.projectTasks[i].deadline}]])
+                                        <br/> Task created by [[${project.projectTasks[i].authorName}]] on [[${#dates.format(project.projectTasks[i].createdOn)}]]
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h1 class="eina bl text-center">Tasks information</h1>
+                <div class="row text-center">
+                    <div class="col-sm-4 usual-card">
+                        <div class="bl">1</div>
+                    </div>
+                    <div class="col-sm-4 usual-card">
+                        <div class="bl">2</div>
+                    </div>
+                    <div class="col-sm-4 usual-card">
+                        <div class="bl">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!--SET PROJECT NOTIFICATION MODAL-->
+            <div id="setProjectNotification" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="comments"></span> Set project notification</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/setProjectNotification}" method="post">
+                        <textarea th:name="messageText" class="uk-textarea k-margin" rows="5" placeholder="Message"></textarea>
+                        <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
+                    </form>
+                </div>
+            </div>
+            <!--SET PROJECT BUDGET MODAL-->
+            <div id="setProjectBudget" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="comments"></span> Set project budget</h1>
+                    <h4 class="eina text-center">Current budget: [[${budget}]]</h4>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/setProjectBudget}" method="post">
+                        <input class="email-input" required type="number" th:name="projectBudget" placeholder="New project budget" />
+                        <br/>
+                        <input class="email-input" required type="text" th:name="budgetChangeCause" placeholder="Explain cause of change (members will get notification about it)" />
+                        <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
+                    </form>
+                </div>
+            </div>
+
+            <!--MODAL WITH PROJECT INBOX MESSAGES-->
+            <div id="project-inbox" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body" style="border-radius: 15px;">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header">
+                        <h2 class="uk-modal-title text-center" th:inline="text">[[${project.name}]]'s inbox</h2>
+
+                        <form th:action="@{/deleteAllInboxMessages}" method="post" class="text-center" th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+                            <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                            <input class="uk-button uk-button-text" type="submit" value="Delete all" onclick="return confirm('Do you really want to delete all the messages?');">
+                        </form>
+
+                    </div>
+                    <div class="uk-modal-body">
+                        <div th:each="i : ${#numbers.sequence(project.projectInbox.size() - 1, 0, -1)}">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                                <article class="uk-comment">
+                                    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text"><u>[[${project.projectInbox[i].authorName}]]</u></a></h4>
+                                            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                                <li><a href="#/" th:inline="text">[[${#dates.format(project.projectInbox[i].timeDate)}]]</a></li>
+                                            </ul>
+                                        </div>
+                                    </header>
+                                    <hr>
+                                    <div class="uk-comment-body">
+                                        <h5 class="eina" th:inline="text" style="white-space: pre-line;">[[${project.projectInbox[i].text}]]</h5>
+                                    </div>
+                                </article>
+                            </div>
+                            <br/>
+                        </div>
+
+                        <h5 class=" eina text-center" th:if="${#lists.size(project.projectInbox) == 0}" style="color: #b3b3b3;">
+                            No new messages yet!
+                        </h5>
+                    </div>
+                </div>
+            </div>
+
+            <!--SET PROJECT BUDGET MODAL-->
+            <div id="addProjectTask" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="pencil"></span> Add a new project task</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/addProjectTask}" method="post">
+                        <input class="email-input" required type="text" th:name="taskDescription" placeholder="Task description" />
+                        <br/>
+
+                        <select th:name="taskExecutor" class="email-input" required>
+                            <option value="placeholder" disabled selected>Task executor</option>
+                            <option disabled>______________________________</option>
+                            <div th:each="member: ${project.members}">
+                                <option th:value="*{member}" th:inline="text">[[${member}]]</option>
+                            </div>
+                        </select>
+
+                        <br/>
+
+                        <input class="email-input" name="taskDeadline" required type="date" placeholder="Task deadline">
+
+                        <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <!--MAIN CONTENT END-->
+</div>
+
+</body>
+</html>
