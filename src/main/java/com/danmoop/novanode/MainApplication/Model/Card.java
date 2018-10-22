@@ -29,6 +29,18 @@ public class Card
             result += possible.charAt((int) Math.floor(Math.random() * possible.length()));
         }
 
-        return Encrypt.toSHA256(result);
+        return Encrypt.toMD5(result);
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

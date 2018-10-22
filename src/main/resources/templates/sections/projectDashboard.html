@@ -33,7 +33,7 @@
             <div class="mdl-layout-spacer"></div>
             <nav class="mdl-navigation">
                 <div class="uk-inline">
-                    <a class="uk-button uk-button-text nav-btn w eina btn-w"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></span></a>
+                    <a href="#project-inbox" class="uk-button uk-button-text nav-btn w eina btn-w" uk-toggle><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></span></a>
                 </div>
             </nav>
         </div>
@@ -49,7 +49,6 @@
 
         <!--NAV FOR ADMINS-->
         <nav class="mdl-navigation" th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
-            <a href="#project-inbox" uk-toggle class="mdl-navigation__link eina" th:inline="text"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></a>
             <a class="mdl-navigation__link eina" href="#addMembers" uk-toggle><span uk-icon="users"></span> Invite members</a>
             <a class="mdl-navigation__link eina" href="#setAsAdmin" uk-toggle><span uk-icon="star"></span> Set user as admin</a>
             <a class="mdl-navigation__link eina" href="#setProjectNotification" uk-toggle><span uk-icon="pencil"></span> Set project notification</a>
@@ -180,9 +179,9 @@
                         <a href="#/" th:if="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="plus-circle"></span></a>
                         <hr class="uk-divider-icon">
                         <ul class="uk-list uk-list-divider bl eina">
-                            <li>List item 1</li>
-                            <li>List item 2</li>
-                            <li>List item 3</li>
+                            <li th:each="card: ${project.toDoList}">
+                                [[${card.text}]]
+                            </li>
                         </ul>
                     </div>
                     <div class="col-sm-4 usual-card">
@@ -319,6 +318,13 @@
                         <input class="email-input" required type="text" th:name="memberName" placeholder="Member username" />
                         <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
                     </form>
+                </div>
+            </div>
+
+            <!-- ADD TODO MODAL-->
+            <div id="addToDo" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center">Add To-Do modal</h1>
                 </div>
             </div>
 

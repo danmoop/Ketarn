@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +22,7 @@ public class MessageController
     UserService userService;
 
     @PostMapping("/sendInboxMessage")
-    public String messageSent(@RequestParam("recipient") String recepient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public String messageSent(@RequestParam("recipient") String recepient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         User userRecepient = userService.findByUserName(recepient);
 
@@ -33,10 +34,13 @@ public class MessageController
 
             userService.save(userRecepient);
 
-            return "redirect:/";
+            redirectAttributes.addFlashAttribute("successMsg", "Message sent to " + recepient);
         }
 
-        return "redirect:/";
+        else
+            redirectAttributes.addFlashAttribute("errorMsg", recepient + " is not registered, can't send them a message");
+
+        return "redirect:/dashboard";
     }
 
     @PostMapping("/messageIsRead")

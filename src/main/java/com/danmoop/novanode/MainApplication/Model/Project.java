@@ -140,6 +140,18 @@ public class Project
         return admins;
     }
 
+    public List<Card> getToDoList() {
+        return toDoList;
+    }
+
+    public List<Card> getDoingList() {
+        return doingList;
+    }
+
+    public List<Card> getDoneList() {
+        return doneList;
+    }
+
     public List<InboxMessage> getProjectInbox()
     {
         return projectInbox;
@@ -238,4 +250,20 @@ public class Project
 
         return Encrypt.toSHA256(result);
     }
+
+    public void addCardToDo(Card card)
+    {
+        toDoList.add(card);
+    }
+
+    public void addCardInProgress(Card card)
+    {
+        doingList.add(card);
+    }
+
+    public void addCompletedCard(Card card)
+    {
+        doneList.add(card);
+    }
+
 }
