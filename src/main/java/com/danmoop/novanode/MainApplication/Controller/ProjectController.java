@@ -157,7 +157,7 @@ public class ProjectController
     {
         Project projectDB = projectService.findByName(projectName);
 
-        if(user.isAdmin(projectDB))
+        if(user.isAdmin(projectDB) && projectDB != null)
         {
             projectDB.emptyInbox();
 
@@ -179,7 +179,7 @@ public class ProjectController
         Project projectDB = projectService.findByName(projectName);
         User userDB = userService.findByUserName(user.getUserName());
 
-        if(projectDB != null)
+        if(projectDB != null && userDB != null)
         {
             if (userDB.isMember(projectDB))
             {
@@ -268,7 +268,7 @@ public class ProjectController
         Project projectDB = projectService.findByName(projectName);
         User member = userService.findByUserName(memberName);
 
-        if(user.isAdmin(projectDB) && !projectDB.getAdmins().contains(memberName))
+        if(user.isAdmin(projectDB) && !projectDB.getAdmins().contains(memberName) && member != null)
         {
             InboxMessage message = new InboxMessage(user.getUserName() + " has set " + memberName + " as project admin", user.getUserName(), "inboxMessage");
 
@@ -284,7 +284,24 @@ public class ProjectController
         }
 
         return "redirect:/project/" + projectName;
+    }
 
+    @PostMapping("/addToDoListItem")
+    public String addToDoItem(
+            @RequestParam("projectName") String projectName,
+            @RequestParam("itemDescription") String itemDescription,
+            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        Card card = new Card(itemDescription, projectName);
+        Project project = projectService.findByName(projectName);
+
+        if(project != null)
+        {
+            project.addCardToDo(card);
+            projectService.save(project);
+        }
+
+        return "redirect:/project/" + projectName;
     }
 
     private String moneyDifference(Project project, long before, long after)

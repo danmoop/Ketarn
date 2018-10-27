@@ -48,7 +48,10 @@ public class MessageController
     {
         User userDB = userService.findByUserName(user.getUserName());
 
-        userDB.markMessageAsRead(userDB.findMessageByMessageKey(messageID));
+        InboxMessage msg = userDB.findMessageByMessageKey(messageID);
+
+        if(msg != null)
+            userDB.markMessageAsRead(msg);
 
         userService.save(userDB);
 
@@ -60,7 +63,10 @@ public class MessageController
     {
         User userDB = userService.findByUserName(user.getUserName());
 
-        userDB.removeMessage(userDB.findReadMessageByMessageKey(messageID));
+        InboxMessage msg = userDB.findReadMessageByMessageKey(messageID);
+
+        if(msg != null)
+            userDB.removeMessage(msg);
 
         userService.save(userDB);
 
