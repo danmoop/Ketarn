@@ -266,4 +266,29 @@ public class Project
         doneList.add(card);
     }
 
+    public void deleteCardFromToDo(Card card)
+    {
+        toDoList.remove(card);
+    }
+
+    public void deleteCardFromInProgress(Card card)
+    {
+        doingList.remove(card);
+    }
+
+    public void deleteCardFromDone(Card card)
+    {
+        doneList.remove(card);
+    }
+
+    public Card getCardByNameFromToDo(String name)
+    {
+        for(int i = 0; i < toDoList.size(); i++)
+        {
+            if(toDoList.get(i).getText().equals(name))
+                return toDoList.get(i);
+        }
+
+        return null;
+    }
 }

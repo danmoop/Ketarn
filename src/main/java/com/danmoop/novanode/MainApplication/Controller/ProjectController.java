@@ -13,7 +13,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Document(collection = "projects")
@@ -73,11 +75,10 @@ public class ProjectController
             @RequestParam("messageText") String text,
             @RequestParam("projectName") String projectName)
     {
-
         User userDB = userService.findByUserName(user.getUserName());
         Project projectDB = projectService.findByName(projectName);
 
-        if(userDB.isAdmin(projectDB))
+        if(userDB.isAdmin(projectDB) && projectDB != null)
         {
             ProjectNotification projectNotification = new ProjectNotification(user.getUserName(), text);
 
@@ -102,9 +103,8 @@ public class ProjectController
         User userDB = userService.findByUserName(user.getUserName());
         Project projectDB = projectService.findByName(projectName);
 
-        if(userDB.isAdmin(projectDB))
+        if(userDB.isAdmin(projectDB) && projectDB != null)
         {
-
             String difference = moneyDifference(projectDB, projectDB.getBudget(), budget);
 
             InboxMessage notification = new InboxMessage(userDB.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + reason+"\n\nSummary: (" + difference+")", userDB.getUserName(), "inboxMessage");
@@ -127,28 +127,34 @@ public class ProjectController
             @RequestParam("projectName") String projectName,
             @RequestParam("taskDeadline") String deadline,
             @RequestParam("taskExecutor") String taskExecutor,
-            @RequestParam("taskDescription") String description) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            @RequestParam("taskDescription") String description,
+            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         Project projectDB = projectService.findByName(projectName);
         User executor = userService.findByUserName(taskExecutor);
 
-        if(user.isAdmin(projectDB))
+        if(user.isAdmin(projectDB) && executor != null)
         {
-            Task task = new Task(user.getUserName(), description, taskExecutor, deadline, projectName);
-            InboxMessage notification = new InboxMessage(user.getUserName() + " created a new task, set " + executor.getUserName() + " (" + executor.getName() + ") as executor\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
-            projectDB.addTask(task);
+            if (!executor.getUserName().equals(executor.getUserName()))
+            {
+                Task task = new Task(user.getUserName(), description, taskExecutor, deadline, projectName);
+                InboxMessage notification = new InboxMessage(user.getUserName() + " created a new task, set " + executor.getUserName() + " (" + executor.getName() + ") as executor\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
+                projectDB.addTask(task);
 
-            projectDB.addMessage(notification);
+                projectDB.addMessage(notification);
 
-            projectService.save(projectDB);
+                projectService.save(projectDB);
 
-            InboxMessage message = new InboxMessage("Hello, " + executor.getName() + ". You have got a new task in " + projectName + " project.\n\nTask description: " + description+"\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
+                InboxMessage message = new InboxMessage("Hello, " + executor.getName() + ". You have got a new task in " + projectName + " project.\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
 
-            executor.addTask(task);
-            executor.addMessage(message);
-            userService.save(executor);
+                executor.addTask(task);
+                executor.addMessage(message);
+                userService.save(executor);
+            }
+
+            else
+                redirectAttributes.addFlashAttribute("errorMsg", "You can't give a task to yourself. Only other member can do that");
         }
-
         return "redirect:/project/" + projectName;
     }
 
@@ -300,6 +306,37 @@ public class ProjectController
             project.addCardToDo(card);
             projectService.save(project);
         }
+
+        return "redirect:/project/" + projectName;
+    }
+
+    @PostMapping("/moveItemFromToDo")
+    public String moveItem(
+            @RequestParam("projectName") String projectName,
+            @RequestParam("taskName") String taskName,
+            @RequestParam("directoryFrom") String directoryFrom,
+            @RequestParam("taskDirectory") String taskDirectory)
+    {
+        Map<String, List> map = new HashMap<>();
+
+        Project project = projectService.findByName(projectName);
+        Card card = project.getCardByNameFromToDo(taskName);
+
+        if(directoryFrom.equals("toDo") && card != null)
+        {
+            project.getToDoList().remove(card);
+
+            switch (taskDirectory)
+            {
+                case "toDoList": project.addCardToDo(card); break;
+
+                case "doingList": project.addCardInProgress(card); break;
+
+                case "doneList": project.addCompletedCard(card); break;
+            }
+        }
+
+        projectService.save(project);
 
         return "redirect:/project/" + projectName;
     }
