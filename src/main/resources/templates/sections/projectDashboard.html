@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -173,45 +173,38 @@
                 <hr>
                 <br/>
                 <h1 class="eina bl text-center">Project desk</h1><br/>
+                <h5 class="eina bl text-center"><a href="#editCards" uk-toggle>Add</a></h5>
+
                 <div class="row text-center">
-                    <div class="col-sm-4 usual-card">
-                        <div class="bl eina">To-do</div>
-                        <a href="#addToDo" uk-toggle th:if="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="plus-circle"></span></a>
-                        <hr class="uk-divider-icon">
-                        <ul class="uk-list uk-list-divider bl eina">
-                            <li th:each="card: ${project.toDoList}">
-                                [[${card.text}]]
-                                <a href="#moveTaskItemFromToDo" uk-toggle style="float:right;"><span uk-icon="more-vertical"></span></a>
-                            </li>
+                    <div class="col-sm-6">
+                        <h3 class="bl eina">Active items</h3>
+                        <div class="bl b eina" th:if="${#lists.size(project.activeCards) == 0}">No items yet</div>
 
-                            <li th:if="${#lists.size(project.toDoList) == 0}" style="color: #444;">There is no items yet</li>
-                        </ul>
+                        <h5 class="bl b eina" th:each="card: ${project.activeCards}" th:inline="text">
+                            <hr/>
+                            [[${card.text}]]
+                            <form th:action="@{/removeCard}" method="post">
+                                <input type="hidden" name="projectName" th:value="*{project.name}">
+                                <input type="hidden" name="cardKey" th:value="*{card.key}">
+
+                                <input style="color: red;" type="submit" class="uk-button uk-button-text" value="Remove" />
+                            </form>
+                        </h5>
                     </div>
-                    <div class="col-sm-4 usual-card">
-                        <div class="bl eina">Doing</div>
-                        <a href="#addDoing" uk-toggle th:if="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="plus-circle"></span></a>
-                        <hr class="uk-divider-icon">
-                        <ul class="uk-list uk-list-divider bl eina">
-                            <li th:each="card: ${project.doingList}">
-                                [[${card.text}]]
-                                <a href="#/" style="float:right;;"><span uk-icon="more-vertical"></span></a>
-                            </li>
+                    <div class="col-sm-6">
+                        <h3 class="bl eina">Done items</h3>
+                        <div class="bl b eina" th:if="${#lists.size(project.doneCards) == 0}">No items yet</div>
 
-                            <li th:if="${#lists.size(project.doingList) == 0}" style="color: #444;">There is no items yet</li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 usual-card">
-                        <div class="bl eina">Done</div>
-                        <a href="#/" th:if="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="plus-circle"></span></a>
-                        <hr class="uk-divider-icon">
-                        <ul class="uk-list uk-list-divider bl eina">
-                            <li th:each="card: ${project.doneList}">
-                                [[${card.text}]]
-                                <a href="#/" style="float:right;"><span uk-icon="more-vertical"></span></a>
-                            </li>
+                        <h5 class="bl b eina" th:each="card: ${project.doneCards}" th:inline="text">
+                            <hr/>
+                            [[${card.text}]]
+                            <form th:action="@{/removeCard}" method="post">
+                                <input type="hidden" name="projectName" th:value="*{project.name}">
+                                <input type="hidden" name="cardKey" th:value="*{card.key}">
 
-                            <li th:if="${#lists.size(project.doneList) == 0}" style="color: #444;">There is no items yet</li>
-                        </ul>
+                                <input style="color: red;" type="submit" class="uk-button uk-button-text" value="Remove" />
+                            </form>
+                        </h5>
                     </div>
                 </div>
             </div>
@@ -247,7 +240,6 @@
                     </form>
                 </div>
             </div>
-
             <!--MODAL WITH PROJECT INBOX MESSAGES-->
             <div id="project-inbox" uk-modal>
                 <div class="uk-modal-dialog uk-modal-body" style="border-radius: 15px;">
@@ -330,30 +322,27 @@
                 </div>
             </div>
 
-            <!-- ADD TODO MODAL-->
-            <div id="addToDo" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+
+            <!-- EDIT CARDS MODAL -->
+            <div id="editCards" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
                 <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
-                    <h1 class="eina text-center">Add 'To-Do' item</h1>
+                    <h1 class="eina text-center" th:inline="text">Edit <i>"[[${project.name}]]"</i> cards</h1>
                     <hr class="uk-divider-icon">
-                    <form th:action="@{/addToDoListItem}" method="post">
-                        <input type="hidden" th:name="projectName" th:value="*{project.name}"/>
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
 
-                        <input class="email-input" th:name="itemDescription" required type="text" placeholder="Item description" />
-                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
-                    </form>
-                </div>
-            </div>
+                    <form th:action="@{/addNewCard}" method="post">
 
-            <!-- ADD DOING MODAL-->
-            <div id="addDoing" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
-                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
-                    <h1 class="eina text-center">Add 'Doing' item</h1>
-                    <hr class="uk-divider-icon">
-                    <form th:action="@{/addDoingListItem}" method="post">
-                        <input type="hidden" th:name="projectName" th:value="*{project.name}"/>
+                        <input type="hidden" th:name="projectName" th:value="*{project.name}" />
+                        <input type="text" class="email-input" th:name="itemText" required placeholder="Item text" />
 
-                        <input class="email-input" th:name="itemDescription" required type="text" placeholder="Item description" />
-                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
+                        <br/>
+
+                        <select th:name="directoryName" class="email-input" required>
+                            <option value="current">Current items list</option>
+                            <option value="done">Done items list</option>
+                        </select>
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Add">
                     </form>
                 </div>
             </div>
@@ -377,37 +366,6 @@
                             </div>
                         </select>
 
-                        <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
-                    </form>
-                </div>
-            </div>
-
-            <div id="moveTaskItemFromToDo" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
-                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
-                    <h1 class="eina text-center">Move item</h1>
-                    <hr class="uk-divider-icon">
-
-                    <form th:action="@{/moveItemFromToDo}" method="post">
-                        <select th:name="taskName" class="email-input" required>
-                            <option value="placeholder" disabled selected>Task</option>
-                            <option disabled>______________________________</option>
-                            <div th:each="task: ${project.toDoList}">
-                                <option th:value="*{task.text}" th:inline="text">[[${task.text}]]</option>
-                            </div>
-                        </select>
-
-                        <br/>
-
-                        <select th:name="taskDirectory" class="email-input" required>
-                            <option value="placeholder" disabled selected>Directory</option>
-                            <option disabled>______________________________</option>
-                            <option th:value="toDoList">To-Do list</option>
-                            <option th:value="doingList">Doing list</option>
-                            <option th:value="doneList">Done list</option>
-                        </select>
-
-                        <input type="hidden" th:name="projectName" th:value="*{project.name}">
-                        <input type="hidden" th:name="directoryFrom" th:value="toDo">
                         <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
                     </form>
                 </div>

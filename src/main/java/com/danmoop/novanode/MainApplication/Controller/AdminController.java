@@ -14,7 +14,7 @@ import java.util.UUID;
 public class AdminController
 {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/BanUser")
     public String banUser(@RequestParam("ban_userName") String userName)

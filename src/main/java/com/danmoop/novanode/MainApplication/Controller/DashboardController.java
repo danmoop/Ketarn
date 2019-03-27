@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 public class DashboardController
 {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/readAllInbox")
     public String readAllInbox(@ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)

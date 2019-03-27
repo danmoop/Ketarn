@@ -24,10 +24,10 @@ import java.util.Map;
 public class ProjectController
 {
     @Autowired
-    ProjectService projectService;
+    private ProjectService projectService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @GetMapping("/createProject")
     public String createProject(@ModelAttribute("LoggedUser") User user)
@@ -208,7 +208,10 @@ public class ProjectController
     }
 
     @PostMapping("/sendARequest")
-    public String joinRequest(@RequestParam("projectName") String projectName, @RequestParam("userName") String userName, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public String joinRequest(
+            @RequestParam("projectName") String projectName,
+            @RequestParam("userName") String userName,
+            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         Project projectDB = projectService.findByName(projectName);
 
@@ -292,51 +295,43 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
-    @PostMapping("/addToDoListItem")
-    public String addToDoItem(
+    @PostMapping("/addNewCard")
+    public String newCard(
             @RequestParam("projectName") String projectName,
-            @RequestParam("itemDescription") String itemDescription,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            @RequestParam("itemText") String itemText,
+            @RequestParam("directoryName") String directoryName,
+            @ModelAttribute("LoggedUser") User user) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        Card card = new Card(itemDescription, projectName);
+        Card card = new Card(itemText, projectName);
         Project project = projectService.findByName(projectName);
 
-        if(project != null)
+        if(project.getAdmins().contains(user.getUserName()))
         {
-            project.addCardToDo(card);
+            project.addCard(card, directoryName);
+
             projectService.save(project);
         }
 
         return "redirect:/project/" + projectName;
     }
 
-    @PostMapping("/moveItemFromToDo")
-    public String moveItem(
+    @PostMapping("/removeCard")
+    public String removeCard(
             @RequestParam("projectName") String projectName,
-            @RequestParam("taskName") String taskName,
-            @RequestParam("directoryFrom") String directoryFrom,
-            @RequestParam("taskDirectory") String taskDirectory)
+            @RequestParam("cardKey") String cardKey,
+            @ModelAttribute("LoggedUser") User user
+    )
     {
-        Map<String, List> map = new HashMap<>();
-
         Project project = projectService.findByName(projectName);
-        Card card = project.getCardByNameFromToDo(taskName);
 
-        if(directoryFrom.equals("toDo") && card != null)
+        if(project.getAdmins().contains(user.getUserName()))
         {
-            project.getToDoList().remove(card);
+            Card card = project.getCardByKey(cardKey);
 
-            switch (taskDirectory)
-            {
-                case "toDoList": project.addCardToDo(card); break;
+            project.removeCard(card);
 
-                case "doingList": project.addCardInProgress(card); break;
-
-                case "doneList": project.addCompletedCard(card); break;
-            }
+            projectService.save(project);
         }
-
-        projectService.save(project);
 
         return "redirect:/project/" + projectName;
     }

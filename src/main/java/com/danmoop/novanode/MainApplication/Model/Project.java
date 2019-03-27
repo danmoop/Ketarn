@@ -26,10 +26,8 @@ public class Project
     private List<Task> projectTasks;
     private List<Task> completedTasks;
 
-    private List<Card> toDoList;
-    private List<Card> doingList;
-    private List<Card> doneList;
-
+    private List<Card> activeCards;
+    private List<Card> doneCards;
 
     private boolean verificated;
 
@@ -47,9 +45,8 @@ public class Project
         this.projectTasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
 
-        this.toDoList = new ArrayList<>();
-        this.doingList = new ArrayList<>();
-        this.doneList = new ArrayList<>();
+        this.activeCards = new ArrayList<>();
+        this.doneCards = new ArrayList<>();
 
         this.verificated = false;
 
@@ -115,6 +112,16 @@ public class Project
         return projectTasks;
     }
 
+    public List<Card> getActiveCards()
+    {
+        return activeCards;
+    }
+
+    public List<Card> getDoneCards()
+    {
+        return doneCards;
+    }
+
     public void setProjectTasks(List<Task> projectTasks)
     {
         this.projectTasks = projectTasks;
@@ -138,18 +145,6 @@ public class Project
     public List<String> getAdmins()
     {
         return admins;
-    }
-
-    public List<Card> getToDoList() {
-        return toDoList;
-    }
-
-    public List<Card> getDoingList() {
-        return doingList;
-    }
-
-    public List<Card> getDoneList() {
-        return doneList;
     }
 
     public List<InboxMessage> getProjectInbox()
@@ -251,44 +246,61 @@ public class Project
         return Encrypt.toSHA256(result);
     }
 
-    public void addCardToDo(Card card)
+    public void addCard(Card card, String listName)
     {
-        toDoList.add(card);
-    }
-
-    public void addCardInProgress(Card card)
-    {
-        doingList.add(card);
-    }
-
-    public void addCompletedCard(Card card)
-    {
-        doneList.add(card);
-    }
-
-    public void deleteCardFromToDo(Card card)
-    {
-        toDoList.remove(card);
-    }
-
-    public void deleteCardFromInProgress(Card card)
-    {
-        doingList.remove(card);
-    }
-
-    public void deleteCardFromDone(Card card)
-    {
-        doneList.remove(card);
-    }
-
-    public Card getCardByNameFromToDo(String name)
-    {
-        for(int i = 0; i < toDoList.size(); i++)
+        switch (listName)
         {
-            if(toDoList.get(i).getText().equals(name))
-                return toDoList.get(i);
+            case "current":
+                activeCards.add(card);
+                break;
+            case "done":
+                doneCards.add(card);
+                break;
+        }
+    }
+
+    public void removeCard(Card card)
+    {
+        activeCards.remove(card);
+        doneCards.remove(card);
+    }
+
+    public Card getCardByKey(String key)
+    {
+        for (Card doneCard : doneCards)
+        {
+            if (doneCard.getKey().equals(key))
+                return doneCard;
+        }
+
+        for (Card currentCard: activeCards)
+        {
+            if(currentCard.getKey().equals(key))
+                return currentCard;
         }
 
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Project{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", projectKey='" + projectKey + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", admins=" + admins +
+                ", members=" + members +
+                ", projectNotification=" + projectNotification +
+                ", budget=" + budget +
+                ", currencySign='" + currencySign + '\'' +
+                ", projectInbox=" + projectInbox +
+                ", projectTasks=" + projectTasks +
+                ", completedTasks=" + completedTasks +
+                ", activeCards=" + activeCards +
+                ", doneCards=" + doneCards +
+                ", verificated=" + verificated +
+                '}';
     }
 }

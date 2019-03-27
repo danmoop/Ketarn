@@ -22,10 +22,10 @@ import java.security.NoSuchAlgorithmException;
 public class UserController
 {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    ProjectService projectService;
+    private ProjectService projectService;
 
     @PostMapping("/editProfileInfo")
     public String editProfileInfo(

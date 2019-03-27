@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 public class MessageController
 {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/sendInboxMessage")
     public String messageSent(@RequestParam("recipient") String recepient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException

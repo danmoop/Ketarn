@@ -29,10 +29,10 @@ public class IndexController
     }
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    ProjectService projectService;
+    private ProjectService projectService;
 
     @GetMapping("/")
     public String indexPage(@ModelAttribute(value = "LoggedUser") User user, SessionStatus status)
