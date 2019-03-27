@@ -19,4 +19,4 @@
 src/main/resources/static/* linguist-vendored
 out/* linguist-vendored
 src/main/resources/static/* linguist-vendored
-*.rb linguist-language=Java
+*.css linguist-language=Java
