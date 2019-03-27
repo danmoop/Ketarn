@@ -13,9 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @Document(collection = "projects")
@@ -302,12 +300,12 @@ public class ProjectController
             @RequestParam("directoryName") String directoryName,
             @ModelAttribute("LoggedUser") User user) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        Card card = new Card(itemText, projectName);
+        ProjectItem projectItem = new ProjectItem(itemText, projectName);
         Project project = projectService.findByName(projectName);
 
         if(project.getAdmins().contains(user.getUserName()))
         {
-            project.addCard(card, directoryName);
+            project.addCard(projectItem, directoryName);
 
             projectService.save(project);
         }
@@ -326,9 +324,9 @@ public class ProjectController
 
         if(project.getAdmins().contains(user.getUserName()))
         {
-            Card card = project.getCardByKey(cardKey);
+            ProjectItem projectItem = project.getCardByKey(cardKey);
 
-            project.removeCard(card);
+            project.removeCard(projectItem);
 
             projectService.save(project);
         }

@@ -5,13 +5,13 @@ import com.danmoop.novanode.MainApplication.Service.Encrypt;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
-public class Card
+public class ProjectItem
 {
     private String text;
     private String projectName;
     private String key;
 
-    public Card(String text, String projectName) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public ProjectItem(String text, String projectName) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         this.text = text;
         this.projectName = projectName;

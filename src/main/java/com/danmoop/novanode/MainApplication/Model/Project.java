@@ -26,8 +26,8 @@ public class Project
     private List<Task> projectTasks;
     private List<Task> completedTasks;
 
-    private List<Card> activeCards;
-    private List<Card> doneCards;
+    private List<ProjectItem> activeProjectItems;
+    private List<ProjectItem> doneProjectItems;
 
     private boolean verificated;
 
@@ -45,8 +45,8 @@ public class Project
         this.projectTasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
 
-        this.activeCards = new ArrayList<>();
-        this.doneCards = new ArrayList<>();
+        this.activeProjectItems = new ArrayList<>();
+        this.doneProjectItems = new ArrayList<>();
 
         this.verificated = false;
 
@@ -112,14 +112,14 @@ public class Project
         return projectTasks;
     }
 
-    public List<Card> getActiveCards()
+    public List<ProjectItem> getActiveProjectItems()
     {
-        return activeCards;
+        return activeProjectItems;
     }
 
-    public List<Card> getDoneCards()
+    public List<ProjectItem> getDoneProjectItems()
     {
-        return doneCards;
+        return doneProjectItems;
     }
 
     public void setProjectTasks(List<Task> projectTasks)
@@ -246,37 +246,37 @@ public class Project
         return Encrypt.toSHA256(result);
     }
 
-    public void addCard(Card card, String listName)
+    public void addCard(ProjectItem projectItem, String listName)
     {
         switch (listName)
         {
             case "current":
-                activeCards.add(card);
+                activeProjectItems.add(projectItem);
                 break;
             case "done":
-                doneCards.add(card);
+                doneProjectItems.add(projectItem);
                 break;
         }
     }
 
-    public void removeCard(Card card)
+    public void removeCard(ProjectItem projectItem)
     {
-        activeCards.remove(card);
-        doneCards.remove(card);
+        activeProjectItems.remove(projectItem);
+        doneProjectItems.remove(projectItem);
     }
 
-    public Card getCardByKey(String key)
+    public ProjectItem getCardByKey(String key)
     {
-        for (Card doneCard : doneCards)
+        for (ProjectItem doneProjectItem : doneProjectItems)
         {
-            if (doneCard.getKey().equals(key))
-                return doneCard;
+            if (doneProjectItem.getKey().equals(key))
+                return doneProjectItem;
         }
 
-        for (Card currentCard: activeCards)
+        for (ProjectItem currentProjectItem : activeProjectItems)
         {
-            if(currentCard.getKey().equals(key))
-                return currentCard;
+            if(currentProjectItem.getKey().equals(key))
+                return currentProjectItem;
         }
 
         return null;
@@ -298,8 +298,8 @@ public class Project
                 ", projectInbox=" + projectInbox +
                 ", projectTasks=" + projectTasks +
                 ", completedTasks=" + completedTasks +
-                ", activeCards=" + activeCards +
-                ", doneCards=" + doneCards +
+                ", activeProjectItems=" + activeProjectItems +
+                ", doneProjectItems=" + doneProjectItems +
                 ", verificated=" + verificated +
                 '}';
     }

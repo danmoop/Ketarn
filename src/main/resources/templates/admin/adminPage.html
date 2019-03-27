@@ -20,8 +20,8 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-4">
-                <div class="uk-card uk-card-default uk-card-body" style="border: 1px solid #888;">
-                    <h3 class="uk-card-title">Ban user</h3>
+                <div class="uk-projectItem uk-projectItem-default uk-projectItem-body" style="border: 1px solid #888;">
+                    <h3 class="uk-projectItem-title">Ban user</h3>
 
                     <form th:action="@{/BanUser}" method="post">
                         <input th:name="ban_userName" type="text" placeholder="username">
@@ -31,8 +31,8 @@
                 </div>
             </div>
             <div class="col-sm-4">
-                <div class="uk-card uk-card-default uk-card-body" style="border: 1px solid #888;">
-                    <h3 class="uk-card-title">Unban user</h3>
+                <div class="uk-projectItem uk-projectItem-default uk-projectItem-body" style="border: 1px solid #888;">
+                    <h3 class="uk-projectItem-title">Unban user</h3>
                     <form th:action="@{/UnbanUser}" method="post">
                         <input th:name="unban_userName" type="text" placeholder="username">
                         <input type="submit" value="Unban">
@@ -40,8 +40,8 @@
                 </div>
             </div>
             <div class="col-sm-4">
-                <div class="uk-card uk-card-default uk-card-body" style="border: 1px solid #888;">
-                    <h3 class="uk-card-title">Give sub</h3>
+                <div class="uk-projectItem uk-projectItem-default uk-projectItem-body" style="border: 1px solid #888;">
+                    <h3 class="uk-projectItem-title">Give sub</h3>
                     <form th:action="@{/givesub}" method="post">
                         <input th:name="sub_userName" type="text" placeholder="username">
                         <input type="submit" value="Submit">
@@ -50,9 +50,9 @@
             </div>
         </div>
         <br/>
-        <div class="uk-card uk-card-default uk-card-body" style="border: 1px solid #888;">
+        <div class="uk-projectItem uk-projectItem-default uk-projectItem-body" style="border: 1px solid #888;">
             <h4 th:if="${uuid}" th:text="${uuid}"></h4>
-            <h3 class="uk-card-title">Generate UUID</h3>
+            <h3 class="uk-projectItem-title">Generate UUID</h3>
             <form th:action="@{/giveuuid}" method="post">
                 <input type="submit" value="Generate">
             </form>

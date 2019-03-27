@@ -74,25 +74,25 @@
                 <div class="row text-center">
                     <div class="col-sm-6 fl">
                         <div class="uk-inline" style="width: 100%;">
-                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m block-center dashboard-card">
-                                <h4 class="uk-card-title eina">Owner of</h4>
+                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m block-center dashboard-projectItem">
+                                <h4 class="uk-projectItem-title eina">Owner of</h4>
                                 <h1 class="big-header eina" th:inline="text">[[${#lists.size(LoggedUser.createdProjects)}]]</h1>
                                 <h4 class="eina">projects</h4>
                             </div>
                             <div th:if="${#lists.size(LoggedUser.createdProjects) > 0}" uk-drop="pos: bottom-justify">
-                                <div class="uk-card uk-card-body uk-card-default" th:inline="text">[[${LoggedUser.createdProjects}]]</div>
+                                <div class="uk-projectItem uk-projectItem-body uk-projectItem-default" th:inline="text">[[${LoggedUser.createdProjects}]]</div>
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-6 fl">
                         <div class="uk-inline" style="width: 100%;">
-                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m block-center dashboard-card">
-                                <h4 class="uk-card-title eina">Taking part in</h4>
+                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m block-center dashboard-projectItem">
+                                <h4 class="uk-projectItem-title eina">Taking part in</h4>
                                 <h1 class="big-header eina" th:inline="text">[[${#lists.size(LoggedUser.projectsTakePartIn)}]]</h1>
                                 <h4 class="eina">projects</h4>
                             </div>
                             <div th:if="${#lists.size(LoggedUser.createdProjects) > 0}" uk-drop="pos: bottom-justify">
-                                <div class="uk-card uk-card-body uk-card-default" th:inline="text">[[${LoggedUser.projectsTakePartIn}]]</div>
+                                <div class="uk-projectItem uk-projectItem-body uk-projectItem-default" th:inline="text">[[${LoggedUser.projectsTakePartIn}]]</div>
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                 <h1 class="eina text-center">Projects</h1>
                 <br/>
                 <div class="row text-center">
-                    <div class="dashboard-card uk-card uk-card-default uk-card-body uk-width-1-2@m" th:each="project: ${LoggedUser.projectsTakePartIn}" style="margin-top: 10px;">
+                    <div class="dashboard-projectItem uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" th:each="project: ${LoggedUser.projectsTakePartIn}" style="margin-top: 10px;">
                         <h1 th:inline="text">[[${project}]]</h1>
                         <a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a>
                     </div>
@@ -116,8 +116,8 @@
 
                 <h4 th:if="${#lists.size(LoggedUser.tasks) == 0}" class="eina text-center" style="color: #888;">You don't have any tasks yet</h4>
 
-                <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m usual-card text-center" th:each="task: ${LoggedUser.tasks}" th:inline="text">
-                    <h3 class="uk-card-title">Task</h3>
+                <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m usual-projectItem text-center" th:each="task: ${LoggedUser.tasks}" th:inline="text">
+                    <h3 class="uk-projectItem-title">Task</h3>
                     <h4>[[${task.text}]]</h4>
                     <h4>Deadline: [[${task.deadline}]]</h4>
                 </div>
@@ -137,7 +137,7 @@
                     <div id="newMessages">
                         <div th:each="i : ${#numbers.sequence(LoggedUser.messages.size() - 1, 0, -1)}">
                             <br/>
-                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">
@@ -169,7 +169,7 @@
                     <div id="archivedMessages">
                         <div th:each="i : ${#numbers.sequence(LoggedUser.readMessages.size() - 1, 0, -1)}">
                             <br/>
-                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">
