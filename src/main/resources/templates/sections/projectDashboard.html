@@ -28,7 +28,7 @@
             <span class="mdl-layout-title eina" th:inline="text" th:if="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="hashtag"></span> [[${project.name}]] (Admin) <span uk-icon="check" th:if="${project.verificated}"></span></span>
             <span class="mdl-layout-title eina" th:inline="text" th:unless="${#lists.contains(project.admins, LoggedUser.userName)}"><span uk-icon="hashtag"></span> [[${project.name}]] (Member) <span uk-icon="check" th:if="${project.verificated}"></span></span>
             <div uk-drop th:if="${project.verificated}">
-                <div class="uk-projectItem uk-projectItem-body uk-projectItem-default eina">Official project <span uk-icon="check"></span></div>
+                <div class="uk-card uk-card-body uk-card-default eina">Official project <span uk-icon="check"></span></div>
             </div>
             <div class="mdl-layout-spacer"></div>
             <nav class="mdl-navigation">
@@ -49,6 +49,8 @@
 
         <!--NAV FOR ADMINS-->
         <nav class="mdl-navigation" th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
+            <a href="#project-inbox" uk-toggle class="mdl-navigation__link eina" th:inline="text"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></a>
+            <a class="mdl-navigation__link eina" href="#viewAdmins" uk-toggle><span uk-icon="star"></span> View admins</a>
             <a class="mdl-navigation__link eina" href="#addMembers" uk-toggle><span uk-icon="users"></span> Invite members</a>
             <a class="mdl-navigation__link eina" href="#setAsAdmin" uk-toggle><span uk-icon="star"></span> Set user as admin</a>
             <a class="mdl-navigation__link eina" href="#setProjectNotification" uk-toggle><span uk-icon="pencil"></span> Set project notification</a>
@@ -63,7 +65,7 @@
         <!--NAV FOR MEMBERS-->
         <nav class="mdl-navigation" th:unless="${#lists.contains(project.admins, LoggedUser.userName)}">
             <a href="#project-inbox" uk-toggle class="mdl-navigation__link eina" th:inline="text"><span uk-icon="mail"></span> [[${project.name}]]'s Inbox <span class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></a>
-            <a class="mdl-navigation__link eina" href="/createProject"><span uk-icon="star"></span> View admins</a>
+            <a class="mdl-navigation__link eina" href="#viewAdmins" uk-toggle><span uk-icon="star"></span> View admins</a>
             <a class="mdl-navigation__link eina"><span uk-icon="calendar"></span> View project plan</a>
             <a class="mdl-navigation__link eina" href=""><span uk-icon="users"></span> View project responsibilities</a>
             <a class="mdl-navigation__link eina" href="/admin"><span uk-icon="file-edit"></span> View project tasks</a>
@@ -96,28 +98,28 @@
                 <br/>
                 <div class="row text-center">
                     <div class="col-sm-3">
-                        <div class="usual-projectItem">
+                        <div class="usual-card">
                             <i class="fa fa-users bl icon-users"></i>
                             <h4 class="bl eina" th:inline="text">[[${#lists.size(project.members)}]]</h4>
                             <h6 class="eina pale-grey">Total members</h6>
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="usual-projectItem">
+                        <div class="usual-card">
                             <i class="fa fa-money-bill-alt bl icon-money"></i>
                             <h4 class="bl eina" th:inline="text">[[${budget}]]</h4>
                             <h6 class="eina pale-grey">Project budget</h6>
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="usual-projectItem">
+                        <div class="usual-card">
                             <i class="fa fa-tasks bl icon-tasks"></i>
                             <h4 class="bl eina" th:inline="text">[[${#lists.size(project.projectTasks)}]]</h4>
                             <h6 class="eina pale-grey">Total tasks</h6>
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="usual-projectItem">
+                        <div class="usual-card">
                             <i class="fa fa-tasks bl icon-tasks-completed"></i>
                             <h4 class="bl eina" th:inline="text">[[${#lists.size(project.completedTasks)}]]</h4>
                             <h6 class="eina pale-grey">Total completed tasks</h6>
@@ -128,31 +130,31 @@
                 <br/>
                 <div class="row text-center">
                     <div class="col-sm-6 fl">
-                        <div class="uk-projectItem uk-projectItem-default uk-width-1-2@m usual-projectItem">
-                            <div class="uk-projectItem-header">
+                        <div class="uk-card uk-card-default uk-width-1-2@m usual-card">
+                            <div class="uk-card-header">
                                 <div class="uk-grid-small uk-flex-middle" uk-grid>
                                     <div class="uk-width-expand">
-                                        <h3 class="uk-projectItem-title uk-margin-remove-bottom eina">Project notification for members</h3>
+                                        <h3 class="uk-card-title uk-margin-remove-bottom eina">Project notification for members</h3>
                                         <h2 class="eina" th:if="${project.projectNotification != null}" th:inline="text">by <u>[[${project.projectNotification.authorName}]]</u></h2>
                                         <p class="eina" th:if="${project.projectNotification != null}"><span th:inline="text">Created on [[${project.projectNotification.createdOn}]]</span></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="uk-projectItem-body ">
+                            <div class="uk-card-body ">
                             <h4 class="eina" th:if="${project.projectNotification == null}">This project doesn't have any notification set by the project admin yet.</h4>
                             <h4 class="eina" th:if="${project.projectNotification != null}" th:inline="text">[[${project.projectNotification.text}]]</h4>
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-6 fl">
-                        <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m block-center usual-projectItem">
-                            <div class="uk-projectItem-header">
-                                <h1 class="uk-projectItem-title uk-margin-remove-bottom eina">Project tasks</h1>
+                        <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m block-center usual-card">
+                            <div class="uk-card-header">
+                                <h1 class="uk-card-title uk-margin-remove-bottom eina">Project tasks</h1>
                                 <button class="uk-button uk-button-text eina" type="button" uk-toggle="target: .taskList"><span uk-icon="info"></span> Toggle tasks</button><br/>
                                 <hr th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
                                 <a class="uk-button uk-button-text" href="#addProjectTask" th:if="${#lists.contains(project.admins, LoggedUser.userName)}" uk-toggle><span uk-icon="check"></span> Add a new task</a>
                             </div>
-                            <div class="uk-projectItem-body">
+                            <div class="uk-card-body">
                                 <ul class="uk-list uk-list-divider taskList">
                                     <h4 class="eina" th:if="${#lists.size(project.projectTasks) == 0}">No tasks created yet</h4>
 
@@ -173,36 +175,40 @@
                 <hr>
                 <br/>
                 <h1 class="eina bl text-center">Project desk</h1><br/>
-                <h5 class="eina bl text-center"><a href="#editCards" uk-toggle>Add</a></h5>
+                <h5 class="eina bl text-center"><a href="#editCards" th:if="${#lists.contains(project.admins, LoggedUser.userName)}" uk-toggle>Add</a></h5>
 
                 <div class="row text-center">
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 usual-card uk-card uk-card-usual">
                         <h3 class="bl eina">Active items</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.activeProjectItems) == 0}">No items yet</div>
 
-                        <h5 class="bl b eina" th:each="projectItem: ${project.activeProjectItems}" th:inline="text">
-                            <hr/>
-                            [[${projectItem.text}]]
-                            <form th:action="@{/removeCard}" method="post">
+                        <h5 class="bl b eina" th:each="projectItem, iter: ${project.activeProjectItems}" th:inline="text">
+                            <hr class="uk-divider-icon">
+
+                            [[${iter.index + 1}]]. [[${projectItem.text}]]
+
+                            <form th:action="@{/markItemAsDone}" method="post">
                                 <input type="hidden" name="projectName" th:value="*{project.name}">
                                 <input type="hidden" name="itemKey" th:value="*{projectItem.key}">
 
-                                <input style="color: red;" type="submit" class="uk-button uk-button-text" value="Remove" />
+                                <input style="color: #1abc9c;" type="submit" th:if="${#lists.contains(project.admins, LoggedUser.userName)}" class="uk-button uk-button-text" value="Done" />
                             </form>
                         </h5>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 usual-card uk-card uk-card-usual">
                         <h3 class="bl eina">Done items</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.doneProjectItems) == 0}">No items yet</div>
 
-                        <h5 class="bl b eina" th:each="projectItem: ${project.doneProjectItems}" th:inline="text">
-                            <hr/>
-                            [[${projectItem.text}]]
-                            <form th:action="@{/removeCard}" method="post">
+                        <h5 class="bl b eina" th:each="projectItem, iter: ${project.doneProjectItems}" th:inline="text">
+                            <hr class="uk-divider-icon">
+
+                            [[${iter.index + 1}]]. [[${projectItem.text}]]
+
+                            <form th:action="@{/removeItem}" method="post">
                                 <input type="hidden" name="projectName" th:value="*{project.name}">
                                 <input type="hidden" name="itemKey" th:value="*{projectItem.key}">
 
-                                <input style="color: red;" type="submit" class="uk-button uk-button-text" value="Remove" />
+                                <input style="color: #e74c3c;" type="submit" th:if="${#lists.contains(project.admins, LoggedUser.userName)}" class="uk-button uk-button-text" value="Remove" />
                             </form>
                         </h5>
                     </div>
@@ -252,7 +258,7 @@
                             <input class="uk-button uk-button-text" type="submit" value="Delete all" onclick="return confirm('Do you really want to delete all the messages?');">
                         </form>
                     </div>
-                    <div th:each="i : ${#numbers.sequence(project.projectInbox.size() - 1, 0, -1)}" class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                    <div th:each="i : ${#numbers.sequence(project.projectInbox.size() - 1, 0, -1)}" class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
                         <article class="uk-comment">
                             <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                 <div class="uk-width-expand">
@@ -368,6 +374,19 @@
 
                         <input type="submit" class="uk-button uk-button-default k-margin" value="Submit">
                     </form>
+                </div>
+            </div>
+
+            <!-- VIEW ADMINS MODAL -->
+            <div id="viewAdmins" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center"><span uk-icon="star"></span> Admins</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <li style="list-style: none;" th:each="admin, iter: ${project.admins}" th:inline="text">
+                        <h5 class="b">[[${iter.index + 1}]]. [[${admin}]]</h5>
+                    </li>
                 </div>
             </div>
 

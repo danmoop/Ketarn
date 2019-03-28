@@ -87,15 +87,15 @@
 
                 <div class="row text-center">
                     <div class="col-sm-6 flex" style="margin-top: 10px;">
-                        <div class="uk-projectItem uk-projectItem-default uk-width-1-2@m usual-projectItem">
-                            <div class="uk-projectItem-header">
+                        <div class="uk-card uk-card-default uk-width-1-2@m usual-card">
+                            <div class="uk-card-header">
                                 <div class="uk-grid-small uk-flex-middle" uk-grid>
                                     <div class="uk-width-expand">
-                                        <h3 class="uk-projectItem-title uk-margin-remove-bottom eina">Your projects</h3>
+                                        <h3 class="uk-card-title uk-margin-remove-bottom eina">Your projects</h3>
                                     </div>
                                 </div>
                             </div>
-                            <div class="uk-projectItem-body">
+                            <div class="uk-card-body">
                                 <ul class="uk-list uk-list-divider">
                                     <li th:each="project: ${LoggedUser.projectsTakePartIn}" th:inline="text"><h4 class="eina">[[${project}]]<a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a></h4></li>
                                     <h5 class="eina" th:if="${#lists.size(LoggedUser.projectsTakePartIn) == 0}">You don't take part at any project yet</h5>
@@ -104,11 +104,11 @@
                         </div>
                     </div>
                     <div class="col-sm-6 flex" style="margin-top: 10px;">
-                        <div class="uk-projectItem uk-projectItem-default uk-width-1-2@m usual-projectItem">
-                            <div class="uk-projectItem-header">
+                        <div class="uk-card uk-card-default uk-width-1-2@m usual-card">
+                            <div class="uk-card-header">
                                 <div class="uk-grid-small uk-flex-middle" uk-grid>
                                     <div class="uk-width-expand">
-                                        <h3 class="uk-projectItem-title uk-margin-remove-bottom eina">Your tasks</h3>
+                                        <h3 class="uk-card-title uk-margin-remove-bottom eina">Your tasks</h3>
 
                                         <div class="row">
                                             <div class="col-sm-6">
@@ -126,7 +126,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="uk-projectItem-body">
+                            <div class="uk-card-body">
                                 <ul class="uk-list uk-list-divider taskToggle">
                                     <h4 th:if="${#lists.size(LoggedUser.tasks) == 0}" class="eina text-center" style="color: #888;">You don't have any tasks yet</h4>
 
@@ -168,7 +168,7 @@
                     <div class="inbox">
                         <div th:each="i : ${#numbers.sequence(LoggedUser.messages.size() - 1, 0, -1)}">
                             <br/>
-                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxMessage'}">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxMessage'}">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">
@@ -194,7 +194,7 @@
 
                                 </article>
                             </div>
-                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxRequest'}">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxRequest'}">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">
@@ -241,7 +241,7 @@
 
                                 </article>
                             </div>
-                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxRequestToMember'}">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxRequestToMember'}">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">
@@ -288,7 +288,7 @@
 
                                 </article>
                             </div>
-                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxTaskRequest'}">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;" th:if="${LoggedUser.messages[i].type == 'inboxTaskRequest'}">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">
@@ -367,7 +367,7 @@
                     <div class="inbox" hidden>
                         <div th:each="i : ${#numbers.sequence(LoggedUser.readMessages.size() - 1, 0, -1)}">
                             <br/>
-                            <div class="uk-projectItem uk-projectItem-default uk-projectItem-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                            <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
                                 <article class="uk-comment">
                                     <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                                         <div class="uk-width-auto">

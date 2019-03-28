@@ -246,7 +246,7 @@ public class Project
         return Encrypt.toSHA256(result);
     }
 
-    public void addCard(ProjectItem projectItem, String listName)
+    public void addItem(ProjectItem projectItem, String listName)
     {
         switch (listName)
         {
@@ -265,7 +265,7 @@ public class Project
         doneProjectItems.remove(projectItem);
     }
 
-    public ProjectItem getCardByKey(String key)
+    public ProjectItem getItemByKey(String key)
     {
         for (ProjectItem doneProjectItem : doneProjectItems)
         {

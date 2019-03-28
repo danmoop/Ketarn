@@ -133,7 +133,7 @@ public class ProjectController
 
         if(user.isAdmin(projectDB) && executor != null)
         {
-            if (!executor.getUserName().equals(executor.getUserName()))
+            if (!executor.getUserName().equals(user.getUserName()))
             {
                 Task task = new Task(user.getUserName(), description, taskExecutor, deadline, projectName);
                 InboxMessage notification = new InboxMessage(user.getUserName() + " created a new task, set " + executor.getUserName() + " (" + executor.getName() + ") as executor\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
@@ -289,6 +289,9 @@ public class ProjectController
 
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been set as " + projectName + "'s admin");
         }
+        else
+            redirectAttributes.addFlashAttribute("errorMsg", "An error has occured");
+
 
         return "redirect:/project/" + projectName;
     }
@@ -305,7 +308,7 @@ public class ProjectController
 
         if(project.getAdmins().contains(user.getUserName()))
         {
-            project.addCard(projectItem, directoryName);
+            project.addItem(projectItem, directoryName);
 
             projectService.save(project);
         }
@@ -313,20 +316,43 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
-    @PostMapping("/removeCard")
+    @PostMapping("/removeItem")
     public String removeCard(
             @RequestParam("projectName") String projectName,
-            @RequestParam("cardKey") String cardKey,
+            @RequestParam("itemKey") String cardKey,
             @ModelAttribute("LoggedUser") User user
     )
     {
         Project project = projectService.findByName(projectName);
 
-        if(project.getAdmins().contains(user.getUserName()))
+        if(project != null && project.getAdmins().contains(user.getUserName()))
         {
-            ProjectItem projectItem = project.getCardByKey(cardKey);
+            ProjectItem projectItem = project.getItemByKey(cardKey);
 
             project.removeCard(projectItem);
+
+            projectService.save(project);
+        }
+
+        return "redirect:/project/" + projectName;
+    }
+
+    @PostMapping("/markItemAsDone")
+    public String markItemAsDone(
+            @RequestParam("projectName") String projectName,
+            @RequestParam("itemKey") String itemKey,
+            @ModelAttribute("LoggedUser") User user
+    )
+    {
+        Project project = projectService.findByName(projectName);
+
+        if(project != null && project.getAdmins().contains(user.getUserName()))
+        {
+            ProjectItem projectItem = project.getItemByKey(itemKey);
+
+            project.removeCard(projectItem);
+
+            project.addItem(projectItem, "done");
 
             projectService.save(project);
         }
