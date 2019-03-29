@@ -142,7 +142,7 @@
                             </div>
                             <div class="uk-card-body ">
                             <h4 class="eina" th:if="${project.projectNotification == null}">This project doesn't have any notification set by the project admin yet.</h4>
-                            <h4 class="eina" th:if="${project.projectNotification != null}" th:inline="text">[[${project.projectNotification.text}]]</h4>
+                            <h4 class="eina" th:if="${project.projectNotification != null}" th:inline="text" style="white-space: pre-wrap;">[[${project.projectNotification.text}]]</h4>
                             </div>
                         </div>
                     </div>
@@ -332,7 +332,7 @@
             <!-- EDIT CARDS MODAL -->
             <div id="editCards" uk-modal th:if="${#lists.contains(project.admins, LoggedUser.userName)}">
                 <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
-                    <h1 class="eina text-center" th:inline="text">Edit <i>"[[${project.name}]]"</i> cards</h1>
+                    <h1 class="eina text-center" th:inline="text">Edit <i>"[[${project.name}]]"</i> items</h1>
                     <hr class="uk-divider-icon">
                     <button class="uk-modal-close-default" type="button" uk-close></button>
 
