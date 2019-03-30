@@ -45,7 +45,7 @@ public class IndexController
                 return "redirect:/dashboard";
             else
             {
-                status.setComplete();
+                status.setComplete(); // log out user
                 return "handlingPages/youarebanned";
             }
         }
@@ -104,7 +104,6 @@ public class IndexController
         {
             if(userService.findByUserName(user.getUserName()).getRole().equals("Admin"))
             {
-
                 List<User> users = userService.findAll();
                 List<Project> projects = projectService.findAll();
 

@@ -24,13 +24,13 @@ public class DashboardController
     @PostMapping("/readAllInbox")
     public String readAllInbox(@ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
     {
-        User userDB = userService.findByUserName(user.getUserName());
+        User userDB = userService.findByUserName(user.getUserName()); // find user in database by username
 
-        userDB.readAllInboxMessages();
+        userDB.readAllInboxMessages(); // empty messages array
 
-        userService.save(userDB);
+        userService.save(userDB); // save user to database
 
-        redirectAttributes.addFlashAttribute("successMsg", "All inbox marked as read!");
+        redirectAttributes.addFlashAttribute("successMsg", "All inbox marked as read!"); // notify user on their page
 
         return "redirect:/dashboard";
     }
@@ -59,6 +59,10 @@ public class DashboardController
     {
         User userDB = userService.findByUserName(user.getUserName());
 
+        /*
+            We compare an old password to a current password, so with new pass and confirmation
+            If everything is fine, we proceed and rewrite user's information
+        */
         if(Encrypt.toMD5(oldPass).equals(userDB.getPassword()) && newPass.equals(confirmPass))
         {
             userDB.setPassword(Encrypt.toMD5(newPass));

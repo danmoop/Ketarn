@@ -30,12 +30,7 @@ public class ProjectController
     @GetMapping("/createProject")
     public String createProject(@ModelAttribute("LoggedUser") User user)
     {
-        User userDB = userService.findByUserName(user.getUserName());
-
-        if(userDB.isHasBoughtSubs())
-            return "sections/createProject";
-        else
-            return "handlingPages/buysubs";
+        return "sections/createProject";
     }
 
     @PostMapping("/createProject")
@@ -76,7 +71,7 @@ public class ProjectController
         User userDB = userService.findByUserName(user.getUserName());
         Project projectDB = projectService.findByName(projectName);
 
-        if(userDB.isAdmin(projectDB) && projectDB != null)
+        if(userDB.isProjectAdmin(projectDB) && projectDB != null)
         {
             ProjectNotification projectNotification = new ProjectNotification(user.getUserName(), text);
 
@@ -101,7 +96,7 @@ public class ProjectController
         User userDB = userService.findByUserName(user.getUserName());
         Project projectDB = projectService.findByName(projectName);
 
-        if(userDB.isAdmin(projectDB) && projectDB != null)
+        if(userDB.isProjectAdmin(projectDB) && projectDB != null)
         {
             String difference = moneyDifference(projectDB, projectDB.getBudget(), budget);
 
@@ -131,7 +126,7 @@ public class ProjectController
         Project projectDB = projectService.findByName(projectName);
         User executor = userService.findByUserName(taskExecutor);
 
-        if(user.isAdmin(projectDB) && executor != null)
+        if(user.isProjectAdmin(projectDB) && executor != null)
         {
             if (!executor.getUserName().equals(user.getUserName()))
             {
@@ -161,7 +156,7 @@ public class ProjectController
     {
         Project projectDB = projectService.findByName(projectName);
 
-        if(user.isAdmin(projectDB) && projectDB != null)
+        if(user.isProjectAdmin(projectDB) && projectDB != null)
         {
             projectDB.emptyInbox();
 
@@ -275,7 +270,7 @@ public class ProjectController
         Project projectDB = projectService.findByName(projectName);
         User member = userService.findByUserName(memberName);
 
-        if(user.isAdmin(projectDB) && !projectDB.getAdmins().contains(memberName) && member != null)
+        if(user.isProjectAdmin(projectDB) && !projectDB.getAdmins().contains(memberName) && member != null)
         {
             InboxMessage message = new InboxMessage(user.getUserName() + " has set " + memberName + " as project admin", user.getUserName(), "inboxMessage");
 

@@ -20,6 +20,7 @@ public class InboxMessage
 
     private String timeDate;
 
+    // key is very useful - it is the way we find message in array and manipulate with it
     private String messageKey;
 
     private String details;

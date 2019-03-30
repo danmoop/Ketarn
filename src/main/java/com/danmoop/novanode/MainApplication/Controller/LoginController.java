@@ -21,8 +21,9 @@ public class LoginController
     @Autowired
     private UserService userService;
 
-    @PostMapping("/")
-    public String loginAttempt(Model model, RedirectAttributes redirectAttributes, @RequestParam("userName") String userName, @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException, InterruptedException {
+    @PostMapping("/loginAttempt")
+    public String loginAttempt(Model model, RedirectAttributes redirectAttributes, @RequestParam("userName") String userName, @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
         User userInDB = userService.findByUserName(userName);
 
         if(userInDB != null)
@@ -31,7 +32,7 @@ public class LoginController
             {
                 model.addAttribute("LoggedUser", userInDB);
 
-                redirectAttributes.addFlashAttribute("welcomeMsg", "Hello, " + userInDB.getName() + "!");
+                redirectAttributes.addFlashAttribute("welcomeMsg", "Hello, " + userInDB.getName().split(" ")[0] + "!");
 
                 return "redirect:/dashboard";
             }

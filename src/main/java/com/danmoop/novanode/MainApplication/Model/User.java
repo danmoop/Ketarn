@@ -211,35 +211,27 @@ public class User
         readMessages.add(message);
     }
 
-    public boolean isAdmin(Project project)
+    public boolean isProjectAdmin(Project project)
     {
-        for (int i = 0; i < project.getAdmins().size(); i++)
-        {
-            if(userName.equals(project.getAdmins().get(i)))
-                return true;
-        }
+        return project.getAdmins().contains(userName);
+    }
 
-        return false;
+    public boolean isRoleAdmin()
+    {
+        return role.equals("Admin");
     }
 
     public boolean isMember(Project project)
     {
-
-        for (int i = 0; i < project.getMembers().size(); i++)
-        {
-            if(userName.equals(project.getMembers().get(i)))
-                return true;
-        }
-
-        return false;
+        return project.getMembers().contains(userName);
     }
 
     public InboxMessage findMessageByMessageKey(String key)
     {
-        for (int i = 0; i < messages.size(); i++)
+        for (InboxMessage message : messages)
         {
-            if(messages.get(i).getMessageKey().equals(key))
-                return messages.get(i);
+            if (message.getMessageKey().equals(key))
+                return message;
         }
 
         return null;
@@ -247,10 +239,10 @@ public class User
 
     public InboxMessage findReadMessageByMessageKey(String key)
     {
-        for (int i = 0; i < readMessages.size(); i++)
+        for (InboxMessage readMessage : readMessages)
         {
-            if(readMessages.get(i).getMessageKey().equals(key))
-                return readMessages.get(i);
+            if (readMessage.getMessageKey().equals(key))
+                return readMessage;
         }
 
         return null;
@@ -273,7 +265,7 @@ public class User
         readMessages.clear();
     }
 
-    public boolean isAdmin()
+    public boolean isProjectAdmin()
     {
         if(getRole().equals("Admin"))
             return true;
@@ -327,5 +319,29 @@ public class User
     public void addCompletedTask(Task task)
     {
         completedTasks.add(task);
+    }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ",\n userName='" + userName + '\'' +
+                ",\n name='" + name + '\'' +
+                ",\n email='" + email + '\'' +
+                ",\n password='" + password + '\'' +
+                ",\n role='" + role + '\'' +
+                ",\n note='" + note + '\'' +
+                ",\n registerDate=" + registerDate +
+                ",\n hasBoughtSubs=" + hasBoughtSubs +
+                ",\n banned=" + banned +
+                ",\n messages=" + messages +
+                ",\n readMessages=" + readMessages +
+                ",\n tasks=" + tasks +
+                ",\n createdProjects=" + createdProjects +
+                ",\n projectsTakePartIn=" + projectsTakePartIn +
+                ",\n workSuccessPoints=" + workSuccessPoints +
+                ",\n completedTasks=" + completedTasks +
+                '}';
     }
 }

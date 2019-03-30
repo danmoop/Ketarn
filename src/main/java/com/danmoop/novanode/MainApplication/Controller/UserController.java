@@ -59,7 +59,7 @@ public class UserController
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
 
-        if(userDB.isAdmin(projectDB))
+        if(userDB.isProjectAdmin(projectDB))
         {
             projectDB.addMember(authorName);
 

@@ -287,20 +287,20 @@ public class Project
     {
         return "Project{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", projectKey='" + projectKey + '\'' +
-                ", authorName='" + authorName + '\'' +
-                ", admins=" + admins +
-                ", members=" + members +
-                ", projectNotification=" + projectNotification +
-                ", budget=" + budget +
-                ", currencySign='" + currencySign + '\'' +
-                ", projectInbox=" + projectInbox +
-                ", projectTasks=" + projectTasks +
-                ", completedTasks=" + completedTasks +
-                ", activeProjectItems=" + activeProjectItems +
-                ", doneProjectItems=" + doneProjectItems +
-                ", verificated=" + verificated +
+                ",\n name='" + name + '\'' +
+                ",\n projectKey='" + projectKey + '\'' +
+                ",\n authorName='" + authorName + '\'' +
+                ",\n admins=" + admins +
+                ",\n members=" + members +
+                ",\n projectNotification=" + projectNotification +
+                ",\n budget=" + budget +
+                ",\n currencySign='" + currencySign + '\'' +
+                ",\n projectInbox=" + projectInbox +
+                ",\n projectTasks=" + projectTasks +
+                ",\n completedTasks=" + completedTasks +
+                ",\n activeProjectItems=" + activeProjectItems +
+                ",\n doneProjectItems=" + doneProjectItems +
+                ",\n verificated=" + verificated +
                 '}';
     }
 }
