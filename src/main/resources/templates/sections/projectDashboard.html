@@ -17,7 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.8/js/uikit-icons.min.js"></script>
     <script src="https://use.fontawesome.com/releases/v5.1.1/js/all.js" integrity="sha384-BtvRZcyfv4r0x/phJt9Y9HhnN5ur1Z+kZbKVgzVBAlQZX4jvAuImlIz+bG7TS00a" crossorigin="anonymous"></script>
 
-    <title th:inline="text">Ketarn - [[${project.name}]] project</title>
+    <title th:inline="text">Ketarn - [[${project.name}]]</title>
 </head>
 <body>
 
@@ -182,6 +182,11 @@
                         <h3 class="bl eina">Active items</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.activeProjectItems) == 0}">No items yet</div>
 
+                        <form th:if="${#lists.size(project.activeProjectItems) != 0}" th:action="@{/currentItemsAllDone}" method="post">
+                            <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                            <input class="uk-button uk-button-text b" style="color: #1abc9c;" type="submit" value="Mark all as done"/>
+                        </form>
+
                         <h5 class="bl b eina" th:each="projectItem, iter: ${project.activeProjectItems}" th:inline="text">
                             <hr class="uk-divider-icon">
 
@@ -198,6 +203,11 @@
                     <div class="col-sm-6 usual-card uk-card uk-card-usual">
                         <h3 class="bl eina">Done items</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.doneProjectItems) == 0}">No items yet</div>
+
+                        <form th:if="${#lists.size(project.doneProjectItems) != 0}" th:action="@{/doneItemsAllDone}" method="post">
+                            <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                            <input class="uk-button uk-button-text b" style="color: #e74c3c;" type="submit" value="Remove all"/>
+                        </form>
 
                         <h5 class="bl b eina" th:each="projectItem, iter: ${project.doneProjectItems}" th:inline="text">
                             <hr class="uk-divider-icon">
@@ -258,21 +268,25 @@
                             <input class="uk-button uk-button-text" type="submit" value="Delete all" onclick="return confirm('Do you really want to delete all the messages?');">
                         </form>
                     </div>
-                    <div th:each="i : ${#numbers.sequence(project.projectInbox.size() - 1, 0, -1)}" class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
-                        <article class="uk-comment">
-                            <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
-                                <div class="uk-width-expand">
-                                    <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text"><u>[[${project.projectInbox[i].authorName}]]</u></a></h4>
-                                    <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
-                                        <li><a href="#/" th:inline="text">[[${project.projectInbox[i].timeDate}]]</a></li>
-                                    </ul>
+
+                    <div th:each="i : ${#numbers.sequence(project.projectInbox.size() - 1, 0, -1)}">
+                        <div class="uk-card uk-card-default uk-card-body uk-width-1-2@m" style="border: 1px solid #bebebe;">
+                            <article class="uk-comment">
+                                <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#/" th:inline="text"><u>[[${project.projectInbox[i].authorName}]]</u></a></h4>
+                                        <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                                            <li><a href="#/" th:inline="text">[[${project.projectInbox[i].timeDate}]]</a></li>
+                                        </ul>
+                                    </div>
+                                </header>
+                                <hr>
+                                <div class="uk-comment-body">
+                                    <h5 class="eina" th:inline="text" style="white-space: pre-line;">[[${project.projectInbox[i].text}]]</h5>
                                 </div>
-                            </header>
-                            <hr>
-                            <div class="uk-comment-body">
-                                <h5 class="eina" th:inline="text" style="white-space: pre-line;">[[${project.projectInbox[i].text}]]</h5>
-                            </div>
-                        </article>
+                            </article>
+                        </div>
+                        <br/>
                     </div>
 
                     <br/>
@@ -385,7 +399,15 @@
                     <button class="uk-modal-close-default" type="button" uk-close></button>
 
                     <li style="list-style: none;" th:each="admin, iter: ${project.admins}" th:inline="text">
-                        <h5 class="b">[[${iter.index + 1}]]. [[${admin}]]</h5>
+                        <h5 class="b" style="display: inline-flex;">
+                            [[${iter.index + 1}]]. [[${admin}]] 
+
+                            <form th:if="${#lists.contains(project.admins, LoggedUser.userName)}" th:action="@{/unAdmin}" method="post">
+                                <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                                <input type="hidden" th:name="currentAdmin" th:value="*{admin}">
+                                <input class="uk-button uk-button-text" style="color:red;" type="submit" value="Un-admin">
+                            </form>
+                        </h5>
                     </li>
                 </div>
             </div>

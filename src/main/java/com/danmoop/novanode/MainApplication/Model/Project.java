@@ -171,6 +171,11 @@ public class Project
         admins.add(admin);
     }
 
+    public void removeAdmin(String admin)
+    {
+        admins.remove(admin);
+    }
+
     public ProjectNotification getProjectNotification()
     {
         return projectNotification;
@@ -257,6 +262,17 @@ public class Project
                 doneProjectItems.add(projectItem);
                 break;
         }
+    }
+
+    public void markAllCurrentItemsAsDone()
+    {
+        doneProjectItems.addAll(activeProjectItems);
+        activeProjectItems.clear();
+    }
+
+    public void removeAllDoneItems()
+    {
+        doneProjectItems.clear();
     }
 
     public void removeCard(ProjectItem projectItem)

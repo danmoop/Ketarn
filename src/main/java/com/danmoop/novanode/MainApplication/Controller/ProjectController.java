@@ -285,8 +285,35 @@ public class ProjectController
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been set as " + projectName + "'s admin");
         }
         else
-            redirectAttributes.addFlashAttribute("errorMsg", "An error has occured");
+            redirectAttributes.addFlashAttribute("errorMsg", "An error has occurred");
 
+
+        return "redirect:/project/" + projectName;
+    }
+
+    @PostMapping("/unAdmin")
+    public String unAdminUser(
+            @RequestParam("projectName") String projectName,
+            @RequestParam("currentAdmin") String currentAdmin,
+            @ModelAttribute("LoggedUser") User user,
+            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        Project projectDB = projectService.findByName(projectName);
+
+        if (projectDB != null && projectDB.getAdmins().contains(user.getUserName()) && !user.getUserName().equals(currentAdmin))
+        {
+            projectDB.removeAdmin(currentAdmin);
+
+            InboxMessage message = new InboxMessage(user.getUserName() + " has taken admin right from " + currentAdmin, user.getUserName(), "inboxMessage");
+            projectDB.addMessage(message);
+
+            projectService.save(projectDB);
+
+            redirectAttributes.addFlashAttribute("successMsg", currentAdmin + " is not an admin anymore!");
+        }
+
+        else
+            redirectAttributes.addFlashAttribute("errorMsg", "An error has occurred");
 
         return "redirect:/project/" + projectName;
     }
@@ -349,6 +376,34 @@ public class ProjectController
 
             project.addItem(projectItem, "done");
 
+            projectService.save(project);
+        }
+
+        return "redirect:/project/" + projectName;
+    }
+
+    @PostMapping("/currentItemsAllDone")
+    public String currentItemsAllDone(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
+    {
+        Project project = projectService.findByName(projectName);
+
+        if(project != null && project.getAdmins().contains(user.getUserName()))
+        {
+            project.markAllCurrentItemsAsDone();
+            projectService.save(project);
+        }
+
+        return "redirect:/project/" + projectName;
+    }
+
+    @PostMapping("/doneItemsAllDone")
+    public String doneItemsAllDone(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
+    {
+        Project project = projectService.findByName(projectName);
+
+        if(project != null && project.getAdmins().contains(user.getUserName()))
+        {
+            project.removeAllDoneItems();
             projectService.save(project);
         }
 

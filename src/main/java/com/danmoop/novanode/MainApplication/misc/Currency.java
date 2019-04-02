@@ -1,10 +1,10 @@
 package com.danmoop.novanode.MainApplication.misc;
 
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+// This class is a part of JMoney, I had to use only this Currency class
 public class Currency
 {
     public static String[] currencies = {"USD", "CAD", "AUD", "GBP", "RUB", "EUR"};

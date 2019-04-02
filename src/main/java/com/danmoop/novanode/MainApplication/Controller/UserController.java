@@ -17,10 +17,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
+// This controller mostly manipulates with project tasks: completion, sending requests etc.
 @Controller
 @SessionAttributes(value = "LoggedUser")
 public class UserController
 {
+
     @Autowired
     private UserService userService;
 
@@ -66,7 +68,7 @@ public class UserController
             projectDB.addMessage(new InboxMessage(user.getUserName() + " has accepted a new member - " + authorName, user.getUserName(), "inboxMessage"));
 
             authorDB.addProjectTakingPartIn(projectName);
-            InboxMessage message = new InboxMessage(user.getUserName() + " has accepted your request in " + projectName + " project!", "✔ Ketarn notification system ✔", "inboxMessage");
+            InboxMessage message = new InboxMessage(user.getUserName() + " has accepted your request in " + projectName + " project!", user.getUserName(), "inboxMessage");
             authorDB.addMessage(message);
             userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(messageKey));
 
@@ -91,7 +93,7 @@ public class UserController
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
 
-        InboxMessage message = new InboxMessage(user.getUserName() + " has rejected your request in " + projectName + " project.", "✔ Ketarn notification system ✔", "inboxMessage");
+        InboxMessage message = new InboxMessage(user.getUserName() + " has rejected your request in " + projectName + " project.", user.getUserName(), "inboxMessage");
 
         authorDB.addMessage(message);
 
@@ -116,7 +118,7 @@ public class UserController
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
 
-        InboxMessage message = new InboxMessage(user.getUserName() + " has accepted your request in " + projectName + " project.", "✔ Ketarn notification system ✔", "inboxMessage");
+        InboxMessage message = new InboxMessage(user.getUserName() + " has accepted your request in " + projectName + " project.", user.getUserName(), "inboxMessage");
 
         authorDB.addMessage(message);
 
@@ -148,7 +150,7 @@ public class UserController
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
 
-        InboxMessage message = new InboxMessage(user.getUserName() + " has rejected your request in " + projectName + " project.", "✔ Ketarn notification system ✔", "inboxMessage");
+        InboxMessage message = new InboxMessage(user.getUserName() + " has rejected your request in " + projectName + " project.", user.getUserName(), "inboxMessage");
 
         authorDB.addMessage(message);
 
