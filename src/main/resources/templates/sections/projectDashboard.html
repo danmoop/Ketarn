@@ -204,7 +204,7 @@
                         <h3 class="bl eina">Done items</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.doneProjectItems) == 0}">No items yet</div>
 
-                        <form th:if="${#lists.size(project.doneProjectItems) != 0}" th:action="@{/doneItemsAllDone}" method="post">
+                        <form th:if="${#lists.size(project.doneProjectItems) != 0}" th:action="@{/removeDoneItems}" method="post">
                             <input type="hidden" th:name="projectName" th:value="*{project.name}">
                             <input class="uk-button uk-button-text b" style="color: #e74c3c;" type="submit" value="Remove all"/>
                         </form>
@@ -309,8 +309,6 @@
                         <br/>
 
                         <select th:name="taskExecutor" class="email-input" required>
-                            <option value="placeholder" disabled selected>Task executor</option>
-                            <option disabled>______________________________</option>
                             <div th:each="member: ${project.members}">
                                 <option th:value="*{member}" th:inline="text">[[${member}]]</option>
                             </div>
@@ -379,8 +377,6 @@
                         <input type="hidden" th:name="projectName" th:value="*{project.name}" />
 
                         <select th:name="memberName" class="email-input" required>
-                            <option value="placeholder" disabled selected>Member's name</option>
-                            <option disabled>______________________________</option>
                             <div th:each="member: ${project.members}">
                                 <option th:value="*{member}" th:inline="text">[[${member}]]</option>
                             </div>

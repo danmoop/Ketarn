@@ -396,8 +396,8 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
-    @PostMapping("/doneItemsAllDone")
-    public String doneItemsAllDone(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
+    @PostMapping("/removeDoneItems")
+    public String removeDoneItems(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
     {
         Project project = projectService.findByName(projectName);
 

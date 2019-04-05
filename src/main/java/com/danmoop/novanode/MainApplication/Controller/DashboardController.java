@@ -80,4 +80,15 @@ public class DashboardController
         }
 
     }
+
+    @PostMapping("/editUserNotes")
+    public String editUserNotes(@RequestParam("noteText") String noteText, @ModelAttribute("LoggedUser") User user)
+    {
+        User userDB = userService.findByUserName(user.getUserName());
+
+        userDB.setNote(noteText);
+        userService.save(userDB);
+
+        return "redirect:/dashboard";
+    }
 }

@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class Project
 {
@@ -25,13 +26,14 @@ public class Project
     private List<InboxMessage> projectInbox;
     private List<Task> projectTasks;
     private List<Task> completedTasks;
+    private List<ChatMessage> chatMessages;
 
     private List<ProjectItem> activeProjectItems;
     private List<ProjectItem> doneProjectItems;
 
     private boolean verificated;
 
-    public Project(String name, String authorName, long budget, String currencySign) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public Project(String name, String authorName, long budget, String currencySign)
     {
         this.name = name;
         this.authorName = authorName;
@@ -44,6 +46,8 @@ public class Project
         this.projectInbox = new ArrayList<>();
         this.projectTasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
+
+        this.chatMessages = new ArrayList<>();
 
         this.activeProjectItems = new ArrayList<>();
         this.doneProjectItems = new ArrayList<>();
@@ -166,6 +170,11 @@ public class Project
         return members;
     }
 
+    public List<ChatMessage> getChatMessages()
+    {
+        return chatMessages;
+    }
+
     public void addAdmin(String admin)
     {
         admins.add(admin);
@@ -235,20 +244,9 @@ public class Project
         completedTasks.add(task);
     }
 
-    private String generateKey() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    private String generateKey()
     {
-        String result = "";
-
-        String possible = "qwertyuiopasdfghjklzxcvbnm1234567890";
-
-        for(int i = 0; i < 15; i++)
-        {
-            result += possible.charAt((int) (Math.random() * possible.length()));
-        }
-
-        result += new Date().getTime();
-
-        return Encrypt.toSHA256(result);
+        return UUID.randomUUID().toString();
     }
 
     public void addItem(ProjectItem projectItem, String listName)
@@ -296,6 +294,16 @@ public class Project
         }
 
         return null;
+    }
+
+    public void addChatMessage(ChatMessage message)
+    {
+        chatMessages.add(message);
+    }
+
+    public void removeChatMessage(ChatMessage message)
+    {
+        chatMessages.remove(message);
     }
 
     @Override

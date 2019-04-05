@@ -140,6 +140,20 @@
                             </div>
                         </div>
                     </div>
+                    <div class="uk-card uk-card-default uk-width-1-2@m usual-card" style="margin-top: 15px;">
+                        <div class="uk-card-header">
+                            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom eina">Your notes</h3>
+                                    <a href="#editNotes" uk-toggle>Edit</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-card-body">
+                            <p class="eina big-p" th:unless="${LoggedUser.note == ''}" th:text="${LoggedUser.note}" style="white-space: pre;"></p>
+                            <p class="eina big-p" th:if="${LoggedUser.note == ''}">No notes yet</p>
+                        </div>
+                    </div>
                 </div>
 
                 <hr class="uk-divider-icon">
@@ -419,6 +433,24 @@
             </div>
             <!--SENDING MESSAGES MODAL END-->
 
+
+            <!--SENDING MESSAGE MODAL-->
+            <div id="editNotes" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center">Edit notes</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/editUserNotes}" method="post">
+
+                        <textarea th:name="noteText" th:value="*{LoggedUser.note}" class="uk-textarea k-margin" rows="5" placeholder="Notes"></textarea>
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Apply">
+                    </form>
+                </div>
+            </div>
+            <!--SENDING MESSAGES MODAL END-->
+
             <!--EDIT PROFILE MODAL-->
             <div id="editInfo-modal" uk-modal>
                 <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
@@ -461,9 +493,6 @@
 
                     <form th:action="@{/submitTaskReview}" method="post">
                         <select th:name="taskKey" class="email-input" required>
-                            <option value="placeholder" disabled selected>Choose task</option>
-                            <option disabled>______________________________</option>
-
                             <div th:each="task: ${LoggedUser.tasks}">
                                 <option th:value="*{task.key}" th:inline="text">[[${task.key}]] - [[${task.text}]] ([[${task.project}]])</option>
                             </div>

@@ -34,7 +34,7 @@ public class InboxMessage
 
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
-    public InboxMessage(String text, String authorName, String type) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public InboxMessage(String text, String authorName, String type)
     {
         this.text = text;
         this.authorName = authorName;
@@ -104,10 +104,8 @@ public class InboxMessage
         this.details = details;
     }
 
-    private String generateMessageKey() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    private String generateMessageKey()
     {
-        String finalString = this.authorName + this.text + this.timeDate + UUID.randomUUID();
-
-        return Encrypt.toMD5(finalString);
+        return UUID.randomUUID().toString();
     }
 }
