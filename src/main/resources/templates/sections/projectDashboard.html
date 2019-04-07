@@ -55,7 +55,7 @@
             <a class="mdl-navigation__link eina" href="#setAsAdmin" uk-toggle><span uk-icon="star"></span> Set user as admin</a>
             <a class="mdl-navigation__link eina" href="#setProjectNotification" uk-toggle><span uk-icon="pencil"></span> Set project notification</a>
             <a class="mdl-navigation__link eina" href="#setProjectBudget" uk-toggle><span uk-icon="cart"></span> Set project budget</a>
-            <a class="mdl-navigation__link eina" href="#/"><span uk-icon="commenting"></span> Project chat</a>
+            <a class="mdl-navigation__link eina" th:href="${'/project/' + project.name + '/chat'}"><span uk-icon="commenting"></span> Project chat <span class="k-badge"> [[${#lists.size(project.chatMessages)}]]</span></a>
             <a th:if="${LoggedUser.role == 'Admin'}" class="mdl-navigation__link eina" href="/admin"><span uk-icon="world"></span> Admin page</a>
 
             <hr class="uk-divider-icon">
@@ -69,7 +69,7 @@
             <a class="mdl-navigation__link eina"><span uk-icon="calendar"></span> View project plan</a>
             <a class="mdl-navigation__link eina" href=""><span uk-icon="users"></span> View project responsibilities</a>
             <a class="mdl-navigation__link eina" href="/admin"><span uk-icon="file-edit"></span> View project tasks</a>
-            <a class="mdl-navigation__link eina" href="#/"><span uk-icon="commenting"></span> Project chat</a>
+            <a class="mdl-navigation__link eina" th:href="${'/project/' + project.name + '/chat'}"><span uk-icon="commenting"></span> Project chat <span class="k-badge"> [[${#lists.size(project.chatMessages)}]]</span></a>
             <hr class="uk-divider-icon">
             <a class="mdl-navigation__link eina" href="/dashboard"><span uk-icon="sign-out"></span> Your dashboard</a>
         </nav>

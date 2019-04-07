@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -198,6 +199,22 @@ public class ProjectController
         }
 
         return "error/404";
+    }
+
+    @GetMapping("/project/{projectName}/chat")
+    public String projectChat(
+            @PathVariable("projectName") String projectName,
+            @ModelAttribute("LoggedUser") User user,
+            Model model)
+    {
+        Project project = projectService.findByName(projectName);
+
+        if(project != null && project.getMembers().contains(user.getUserName()))
+            model.addAttribute("project", project);
+        else
+            return "redirect:/dashboard";
+
+        return "sections/projectChat";
     }
 
     @PostMapping("/sendARequest")
@@ -408,6 +425,22 @@ public class ProjectController
         }
 
         return "redirect:/project/" + projectName;
+    }
+
+    @PostMapping("/sendMessageToChat")
+    public String sendMessageToChat(@RequestParam("projectName") String projectName, @RequestParam("message") String message, @ModelAttribute("LoggedUser") User user)
+    {
+        Project project = projectService.findByName(projectName);
+
+        if (project != null && project.getAdmins().contains(user.getUserName()) && !message.equals(""))
+        {
+            ChatMessage chatMessage = new ChatMessage(message, user.getUserName(), new Date().toString());
+            project.addChatMessage(chatMessage);
+
+            projectService.save(project);
+        }
+
+        return "redirect:/project/" + projectName + "/chat";
     }
 
     private String moneyDifference(Project project, long before, long after)

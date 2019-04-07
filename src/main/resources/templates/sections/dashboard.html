@@ -443,9 +443,10 @@
 
                     <form th:action="@{/editUserNotes}" method="post">
 
-                        <textarea th:name="noteText" th:value="*{LoggedUser.note}" class="uk-textarea k-margin" rows="5" placeholder="Notes"></textarea>
+                        <textarea id="editNotesTextField" th:name="noteText" class="uk-textarea k-margin" rows="10" th:field="${LoggedUser.note}" placeholder="Notes"></textarea>
 
                         <input type="submit" class="uk-button uk-button-default k-margin" value="Apply">
+                        <a href="#/" class="uk-button uk-button-default k-margin" onclick="emptyNotesTF();">Empty textfield</a>
                     </form>
                 </div>
             </div>
