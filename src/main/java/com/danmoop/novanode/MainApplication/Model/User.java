@@ -216,6 +216,12 @@ public class User
         return project.getAdmins().contains(userName);
     }
 
+    public void removeProject(String projectName)
+    {
+        projectsTakePartIn.remove(projectName);
+        createdProjects.remove(projectName);
+    }
+
     public boolean isRoleAdmin()
     {
         return role.equals("Admin");
@@ -263,14 +269,6 @@ public class User
     public void emptyArchive()
     {
         readMessages.clear();
-    }
-
-    public boolean isProjectAdmin()
-    {
-        if(getRole().equals("Admin"))
-            return true;
-
-        return false;
     }
 
     public Task findTaskByKey(String key)

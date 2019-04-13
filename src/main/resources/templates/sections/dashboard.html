@@ -32,7 +32,7 @@
                     <a class="uk-button uk-button-text w eina"><span uk-icon="user"></span> [[${LoggedUser.name}]] ([[${LoggedUser.userName}]])</a>
                     <div uk-dropdown>
                         <ul class="uk-nav uk-dropdown-nav">
-                            <li class="uk-active"><a href="#editInfo-modal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a></li>
+                            <li class="uk-active"><a href="#editInfoModal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a></li>
                             <li class="uk-active"><a href="/logout"><span uk-icon="sign-out"></span> Sign out</a></li>
                         </ul>
                     </div>
@@ -52,7 +52,7 @@
             <a class="mdl-navigation__link eina" href="/createProject"><span uk-icon="file-edit"></span> Create project</a>
             <a class="mdl-navigation__link eina" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="w" style="background: #e74c3c; padding-bottom: 5px; padding-top: 5px; padding-left: 10px; padding-right: 10px; border-radius: 255px;">[[${#lists.size(LoggedUser.messages)}]]</span></a>
             <a class="mdl-navigation__link eina" href="#sendMsg-modal" uk-toggle><span uk-icon="comments"></span> Send a message</a>
-            <a class="mdl-navigation__link eina" href="#editInfo-modal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a>
+            <a class="mdl-navigation__link eina" href="#editInfoModal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a>
             <a th:if="${LoggedUser.role == 'Admin'}" class="mdl-navigation__link eina" href="/admin"><span uk-icon="world"></span> Admin page</a>
             <hr class="uk-divider-icon">
             <a class="mdl-navigation__link eina" href="/logout"><span uk-icon="sign-out"></span> Log Out</a>
@@ -92,12 +92,17 @@
                                 <div class="uk-grid-small uk-flex-middle" uk-grid>
                                     <div class="uk-width-expand">
                                         <h3 class="uk-card-title uk-margin-remove-bottom eina">Your projects</h3>
+                                        <a th:if="${#lists.size(LoggedUser.projectsTakePartIn) != 0}" class="uk-button uk-button-text btn" href="#projectSettings" uk-toggle><span uk-icon="cog"></span> Settings</a>
                                     </div>
                                 </div>
                             </div>
                             <div class="uk-card-body">
                                 <ul class="uk-list uk-list-divider">
-                                    <li th:each="project: ${LoggedUser.projectsTakePartIn}" th:inline="text"><h4 class="eina">[[${project}]]<a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a></h4></li>
+                                    <li th:each="project: ${LoggedUser.projectsTakePartIn}" th:inline="text">
+                                        <h4 class="eina">[[${project}]]
+                                            <a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a>
+                                        </h4>
+                                    </li>
                                     <h5 class="eina" th:if="${#lists.size(LoggedUser.projectsTakePartIn) == 0}">You don't take part at any project yet</h5>
                                 </ul>
                             </div>
@@ -452,8 +457,29 @@
             </div>
             <!--SENDING MESSAGES MODAL END-->
 
+            <!--PROJECT SETTINGS MODAL-->
+            <div id="projectSettings" uk-modal th:if="${#lists.size(LoggedUser.projectsTakePartIn) != 0}">
+                <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
+                    <h1 class="eina text-center">Project settings</h1>
+                    <hr class="uk-divider-icon">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                    <form th:action="@{/removeProject}" method="post">
+                        <select th:name="projectName" class="email-input" required>
+                            <div th:each="project: ${LoggedUser.projectsTakePartIn}">
+                                <option th:value="*{project}" th:text="${project}"></option>
+                            </div>
+                        </select>
+
+                        <input type="submit" class="uk-button uk-button-default k-margin" value="Remove project">
+
+                    </form>
+                </div>
+            </div>
+            <!--PROJECT SETTINGS MODAL END-->
+
             <!--EDIT PROFILE MODAL-->
-            <div id="editInfo-modal" uk-modal>
+            <div id="editInfoModal" uk-modal>
                 <div class="uk-modal-dialog uk-modal-body text-center" style="border-radius: 15px;">
                     <h1 class="eina text-center"><span uk-icon="comments"></span> Edit profile info</h1>
                     <hr class="uk-divider-icon">

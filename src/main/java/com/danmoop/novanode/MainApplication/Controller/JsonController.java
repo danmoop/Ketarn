@@ -19,9 +19,6 @@ public class JsonController
     {
         Project project = projectService.findByName(projectName);
 
-        System.out.println(project.getAuthorName());
-        System.out.println(user.getUserName());
-
         if(project.getAuthorName().equals(user.getUserName()))
             return project.toString();
 

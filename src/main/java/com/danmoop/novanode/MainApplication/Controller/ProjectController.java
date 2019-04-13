@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -432,7 +433,7 @@ public class ProjectController
     {
         Project project = projectService.findByName(projectName);
 
-        if (project != null && project.getAdmins().contains(user.getUserName()) && !message.equals(""))
+        if (project != null && project.getMembers().contains(user.getUserName()) && !message.equals(""))
         {
             ChatMessage chatMessage = new ChatMessage(message, user.getUserName(), new Date().toString());
             project.addChatMessage(chatMessage);
@@ -441,6 +442,38 @@ public class ProjectController
         }
 
         return "redirect:/project/" + projectName + "/chat";
+    }
+
+    @PostMapping("/removeProject")
+    public String removeProject(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes)
+    {
+        Project project  = projectService.findByName(projectName);
+
+        if(project != null && project.getAdmins().contains(user.getUserName()))
+        {
+            List<String> usersList = project.getMembers();
+
+            List<User> users = new ArrayList<>();
+
+            for (String user1: usersList)
+                users.add(userService.findByUserName(user1));
+
+            for (User user1: users)
+            {
+                user1.removeProject(projectName);
+                user1.addMessage(new InboxMessage(user.getUserName() + " has removed project you take part in - " + projectName, user.getUserName(), "inboxMessage"));
+                userService.save(user1);
+            }
+
+            projectService.delete(project);
+
+            redirectAttributes.addFlashAttribute("successMsg", projectName + " has been removed!");
+        }
+
+        else
+            redirectAttributes.addFlashAttribute("errorMsg", "Unable to delete " + projectName + "!");
+
+        return "redirect:/dashboard";
     }
 
     private String moneyDifference(Project project, long before, long after)

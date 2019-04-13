@@ -38,8 +38,6 @@ public class RegisterController
 
             User newUser = new User(userName, name, email, Encrypt.toMD5(password));
 
-            System.out.println(newUser.toString());
-
             userService.save(newUser);
 
             redirectAttributes.addFlashAttribute("successMsg", "Registered successfully! Now you can sign in using your login and password!");
