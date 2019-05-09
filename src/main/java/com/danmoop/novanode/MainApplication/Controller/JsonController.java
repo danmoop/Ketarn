@@ -1,6 +1,5 @@
 package com.danmoop.novanode.MainApplication.Controller;
 
-
 import com.danmoop.novanode.MainApplication.Model.Project;
 import com.danmoop.novanode.MainApplication.Model.User;
 import com.danmoop.novanode.MainApplication.Service.ProjectService;

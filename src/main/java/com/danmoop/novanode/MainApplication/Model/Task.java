@@ -2,7 +2,6 @@ package com.danmoop.novanode.MainApplication.Model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class Task
 {

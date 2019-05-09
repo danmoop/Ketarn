@@ -234,24 +234,18 @@ public class User
 
     public InboxMessage findMessageByMessageKey(String key)
     {
-        for (InboxMessage message : messages)
-        {
-            if (message.getMessageKey().equals(key))
-                return message;
-        }
-
-        return null;
+        return messages.stream()
+                .filter(message -> message.getMessageKey().equals(key))
+                .findFirst()
+                .orElse(null);
     }
 
     public InboxMessage findReadMessageByMessageKey(String key)
     {
-        for (InboxMessage readMessage : readMessages)
-        {
-            if (readMessage.getMessageKey().equals(key))
-                return readMessage;
-        }
-
-        return null;
+        return readMessages.stream()
+                .filter(message -> message.getMessageKey().equals(key))
+                .findFirst()
+                .orElse(null);
     }
 
     public void addTask(Task task)
@@ -273,12 +267,10 @@ public class User
 
     public Task findTaskByKey(String key)
     {
-        for (Task task : tasks) {
-            if (task.getKey().equals(key))
-                return task;
-        }
-
-        return null;
+        return tasks.stream()
+                .filter(task -> task.getKey().equals(key))
+                .findFirst()
+                .orElse(null);
     }
 
     public double getWorkSuccessAverage()
@@ -292,12 +284,7 @@ public class User
 
         double r = (double) i / (double) workSuccessPoints.size();
 
-        System.out.println(r);
-
-        double result = Math.round((r * 10) * 10) / 10.0;
-
-        return result;
-
+        return Math.round((r * 10) * 10) / 10.0;
     }
 
     public void addWorkSuccessPoint(int point)
@@ -307,39 +294,11 @@ public class User
 
     public void deleteTaskByKey(String key)
     {
-        for(int i = 0; i < tasks.size(); i++)
-        {
-            if(tasks.get(i).getKey().equals(key))
-                tasks.remove(i);
-        }
+        tasks.removeIf(task -> task.getKey().equals(key));
     }
 
     public void addCompletedTask(Task task)
     {
         completedTasks.add(task);
-    }
-
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
-                ",\n userName='" + userName + '\'' +
-                ",\n name='" + name + '\'' +
-                ",\n email='" + email + '\'' +
-                ",\n password='" + password + '\'' +
-                ",\n role='" + role + '\'' +
-                ",\n note='" + note + '\'' +
-                ",\n registerDate=" + registerDate +
-                ",\n hasBoughtSubs=" + hasBoughtSubs +
-                ",\n banned=" + banned +
-                ",\n messages=" + messages +
-                ",\n readMessages=" + readMessages +
-                ",\n tasks=" + tasks +
-                ",\n createdProjects=" + createdProjects +
-                ",\n projectsTakePartIn=" + projectsTakePartIn +
-                ",\n workSuccessPoints=" + workSuccessPoints +
-                ",\n completedTasks=" + completedTasks +
-                '}';
     }
 }

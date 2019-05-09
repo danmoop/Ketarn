@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ProjectService extends MongoRepository<Project, String>
 {
-    public Project findByName(String name);
-    public List<Project> findAll();
+    Project findByName(String name);
+    List<Project> findAll();
 }

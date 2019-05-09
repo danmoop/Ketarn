@@ -1,12 +1,7 @@
 package com.danmoop.novanode.MainApplication.Model;
 
-import com.danmoop.novanode.MainApplication.Service.Encrypt;
 import org.springframework.data.annotation.Id;
-
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -221,22 +216,15 @@ public class Project
 
     public Task getTaskByKey(String key)
     {
-        for(int i = 0; i < projectTasks.size(); i++)
-        {
-            if(projectTasks.get(i).getKey().equals(key))
-               return projectTasks.get(i);
-        }
-
-        return null;
+        return projectTasks.stream()
+                .filter(task -> task.getKey().equals(key))
+                .findFirst()
+                .orElse(null);
     }
 
     public void removeTaskByKey(String key)
     {
-        for(int i = 0; i < projectTasks.size(); i++)
-        {
-            if(projectTasks.get(i).getKey().equals(key))
-                projectTasks.remove(i);
-        }
+        projectTasks.removeIf(task -> task.getKey().equals(key));
     }
 
     public void addCompletedTask(Task task)
@@ -299,32 +287,5 @@ public class Project
     public void addChatMessage(ChatMessage message)
     {
         chatMessages.add(message);
-    }
-
-    public void removeChatMessage(ChatMessage message)
-    {
-        chatMessages.remove(message);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Project{" +
-                "id='" + id + '\'' +
-                ",\n name='" + name + '\'' +
-                ",\n projectKey='" + projectKey + '\'' +
-                ",\n authorName='" + authorName + '\'' +
-                ",\n admins=" + admins +
-                ",\n members=" + members +
-                ",\n projectNotification=" + projectNotification +
-                ",\n budget=" + budget +
-                ",\n currencySign='" + currencySign + '\'' +
-                ",\n projectInbox=" + projectInbox +
-                ",\n projectTasks=" + projectTasks +
-                ",\n completedTasks=" + completedTasks +
-                ",\n activeProjectItems=" + activeProjectItems +
-                ",\n doneProjectItems=" + doneProjectItems +
-                ",\n verificated=" + verificated +
-                '}';
     }
 }

@@ -1,12 +1,8 @@
 package com.danmoop.novanode.MainApplication.Model;
-import com.danmoop.novanode.MainApplication.Service.Encrypt;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.UUID;
 
 @Document(collection = "messages")

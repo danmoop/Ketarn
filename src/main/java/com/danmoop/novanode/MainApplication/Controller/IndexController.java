@@ -15,8 +15,6 @@ import org.springframework.web.bind.support.SessionStatus;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 
-import static java.lang.Double.NaN;
-
 @Controller
 @SessionAttributes(value = "LoggedUser")
 public class IndexController

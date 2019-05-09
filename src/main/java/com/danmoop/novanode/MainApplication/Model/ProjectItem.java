@@ -1,9 +1,5 @@
 package com.danmoop.novanode.MainApplication.Model;
 
-import com.danmoop.novanode.MainApplication.Service.Encrypt;
-
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 public class ProjectItem
