@@ -179,7 +179,7 @@
 
                 <div class="row text-center">
                     <div class="col-sm-6 usual-card uk-card uk-card-usual">
-                        <h3 class="bl eina">Active items</h3>
+                        <h3 class="bl eina" th:inline="text">Active items ([[${#lists.size(project.activeProjectItems)}]])</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.activeProjectItems) == 0}">No items yet</div>
 
                         <form th:if="${#lists.size(project.activeProjectItems) != 0}" th:action="@{/currentItemsAllDone}" method="post">
@@ -201,7 +201,7 @@
                         </h5>
                     </div>
                     <div class="col-sm-6 usual-card uk-card uk-card-usual">
-                        <h3 class="bl eina">Done items</h3>
+                        <h3 class="bl eina" th:inline="text">Done items ([[${#lists.size(project.doneProjectItems)}]])</h3>
                         <div class="bl b eina" th:if="${#lists.size(project.doneProjectItems) == 0}">No items yet</div>
 
                         <form th:if="${#lists.size(project.doneProjectItems) != 0}" th:action="@{/removeDoneItems}" method="post">

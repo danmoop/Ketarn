@@ -11,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,7 +39,7 @@ public class ProjectController
             @RequestParam("projectName") String projectName,
             @RequestParam("projectBudget") long projectBudget,
             @RequestParam("currencySign") String currencySign
-    ) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    )
 
     {
         if(projectService.findByName(projectName) == null)
@@ -92,7 +90,7 @@ public class ProjectController
             @ModelAttribute("LoggedUser") User user,
             @RequestParam("projectBudget") long budget,
             @RequestParam("projectName") String projectName,
-            @RequestParam("budgetChangeCause") String reason) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            @RequestParam("budgetChangeCause") String reason)
     {
 
         User userDB = userService.findByUserName(user.getUserName());
@@ -123,7 +121,7 @@ public class ProjectController
             @RequestParam("taskDeadline") String deadline,
             @RequestParam("taskExecutor") String taskExecutor,
             @RequestParam("taskDescription") String description,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         Project projectDB = projectService.findByName(projectName);
         User executor = userService.findByUserName(taskExecutor);
@@ -154,7 +152,7 @@ public class ProjectController
     }
 
     @PostMapping("/deleteAllInboxMessages")
-    public String deleteAllInbox(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public String deleteAllInbox(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes)
     {
         Project projectDB = projectService.findByName(projectName);
 
@@ -222,7 +220,7 @@ public class ProjectController
     public String joinRequest(
             @RequestParam("projectName") String projectName,
             @RequestParam("userName") String userName,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         Project projectDB = projectService.findByName(projectName);
 
@@ -251,7 +249,7 @@ public class ProjectController
             @ModelAttribute("LoggedUser") User user,
             @RequestParam("projectName") String projectName,
             @RequestParam("memberName") String recepient,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
 
         InboxMessage message = new InboxMessage(user.getUserName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", user.getUserName(), "inboxRequestToMember");
@@ -283,7 +281,7 @@ public class ProjectController
             @RequestParam("projectName") String projectName,
             @RequestParam("memberName") String memberName,
             @ModelAttribute("LoggedUser") User user,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         Project projectDB = projectService.findByName(projectName);
         User member = userService.findByUserName(memberName);
@@ -314,7 +312,7 @@ public class ProjectController
             @RequestParam("projectName") String projectName,
             @RequestParam("currentAdmin") String currentAdmin,
             @ModelAttribute("LoggedUser") User user,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         Project projectDB = projectService.findByName(projectName);
 
@@ -341,7 +339,7 @@ public class ProjectController
             @RequestParam("projectName") String projectName,
             @RequestParam("itemText") String itemText,
             @RequestParam("directoryName") String directoryName,
-            @ModelAttribute("LoggedUser") User user) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            @ModelAttribute("LoggedUser") User user)
     {
         ProjectItem projectItem = new ProjectItem(itemText, projectName);
         Project project = projectService.findByName(projectName);

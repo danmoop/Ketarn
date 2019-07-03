@@ -1,8 +1,10 @@
 package com.danmoop.novanode.MainApplication.Model;
 
 import org.springframework.data.annotation.Id;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Project
@@ -269,19 +271,17 @@ public class Project
 
     public ProjectItem getItemByKey(String key)
     {
-        for (ProjectItem doneProjectItem : doneProjectItems)
-        {
-            if (doneProjectItem.getKey().equals(key))
-                return doneProjectItem;
-        }
+        // we try to find an item in the first list - 'doneProjectItems'
+        Optional<ProjectItem> doneItem = doneProjectItems.stream()
+                .filter(item -> item.getKey().equals(key))
+                .findFirst();
 
-        for (ProjectItem currentProjectItem : activeProjectItems)
-        {
-            if(currentProjectItem.getKey().equals(key))
-                return currentProjectItem;
-        }
+        // If there is no such item, then it is in the second
+        Optional<ProjectItem> activeItem = activeProjectItems.stream()
+                .filter(item -> item.getKey().equals(key))
+                .findFirst();
 
-        return null;
+        return doneItem.orElseGet(activeItem::get);
     }
 
     public void addChatMessage(ChatMessage message)

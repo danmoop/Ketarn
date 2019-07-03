@@ -275,12 +275,7 @@ public class User
 
     public double getWorkSuccessAverage()
     {
-        int i = 0;
-
-        for (int point: workSuccessPoints)
-        {
-            i += point;
-        }
+        int i = workSuccessPoints.stream().mapToInt(Integer::intValue).sum();
 
         double r = (double) i / (double) workSuccessPoints.size();
 
