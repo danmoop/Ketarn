@@ -12,20 +12,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
-import java.lang.instrument.Instrumentation;
 import java.util.List;
 
 @Controller
 @SessionAttributes(value = "LoggedUser")
 public class IndexController
 {
-    private static Instrumentation instrumentation;
-
-    public static void premain(String args, Instrumentation inst)
-    {
-        instrumentation = inst;
-    }
-
     @Autowired
     private UserService userService;
 
@@ -36,11 +28,15 @@ public class IndexController
     public String indexPage(@ModelAttribute(value = "LoggedUser") User user, SessionStatus status)
     {
         if(user == null)
+        {
             return "sections/index";
+        }
         else
         {
             if(!user.isBanned())
+            {
                 return "redirect:/dashboard";
+            }
             else
             {
                 status.setComplete(); // log out user
@@ -59,7 +55,9 @@ public class IndexController
     public String dashBoardPage(@ModelAttribute(value = "LoggedUser") User user, Model model, SessionStatus status)
     {
         if(user == null)
+        {
             return "redirect:/";
+        }
         else
         {
             if(!user.isBanned())
@@ -92,7 +90,7 @@ public class IndexController
         if(user == null)
             return "sections/signInPage";
         else
-            return "redirect:/";
+            return "redirect:/dashboard";
     }
 
     @GetMapping("/admin")

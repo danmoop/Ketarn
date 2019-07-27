@@ -288,4 +288,27 @@ public class Project
     {
         chatMessages.add(message);
     }
+
+    @Override
+    public String toString()
+    {
+        return "Project{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", projectKey='" + projectKey + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", admins=" + admins +
+                ", members=" + members +
+                ", projectNotification=" + projectNotification +
+                ", budget=" + budget +
+                ", currencySign='" + currencySign + '\'' +
+                ", projectInbox=" + projectInbox +
+                ", projectTasks=" + projectTasks +
+                ", completedTasks=" + completedTasks +
+                ", chatMessages=" + chatMessages +
+                ", activeProjectItems=" + activeProjectItems +
+                ", doneProjectItems=" + doneProjectItems +
+                ", verificated=" + verificated +
+                '}';
+    }
 }

@@ -22,23 +22,23 @@ public class MessageController
     private UserService userService;
 
     @PostMapping("/sendInboxMessage")
-    public String messageSent(@RequestParam("recipient") String recepient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public String messageSent(@RequestParam("recipient") String recipient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        User userRecepient = userService.findByUserName(recepient);
+        User userRecipient = userService.findByUserName(recipient);
 
-        if(userRecepient != null)
+        if(userRecipient != null)
         {
             InboxMessage inboxMessage = new InboxMessage(message, authorUser.getUserName(), "inboxMessage");
 
-            userRecepient.addMessage(inboxMessage);
+            userRecipient.addMessage(inboxMessage);
 
-            userService.save(userRecepient);
+            userService.save(userRecipient);
 
-            redirectAttributes.addFlashAttribute("successMsg", "Message sent to " + recepient);
+            redirectAttributes.addFlashAttribute("successMsg", "Message sent to " + recipient);
         }
 
         else
-            redirectAttributes.addFlashAttribute("errorMsg", recepient + " is not registered, can't send them a message");
+            redirectAttributes.addFlashAttribute("errorMsg", recipient + " is not registered, can't send them a message");
 
         return "redirect:/dashboard";
     }
@@ -66,9 +66,10 @@ public class MessageController
         InboxMessage msg = userDB.findReadMessageByMessageKey(messageID);
 
         if(msg != null)
+        {
             userDB.removeMessage(msg);
-
-        userService.save(userDB);
+            userService.save(userDB);
+        }
 
         return "redirect:/";
     }

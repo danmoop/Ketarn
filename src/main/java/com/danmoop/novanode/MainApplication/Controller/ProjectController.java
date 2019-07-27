@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Document(collection = "projects")
@@ -254,15 +255,15 @@ public class ProjectController
 
         InboxMessage message = new InboxMessage(user.getUserName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", user.getUserName(), "inboxRequestToMember");
 
-        User userRecepient = userService.findByUserName(recepient);
+        User userRecipient = userService.findByUserName(recepient);
 
-        if(userRecepient != null)
+        if(userRecipient != null)
         {
             message.setDetails(projectName);
 
-            userRecepient.addMessage(message);
+            userRecipient.addMessage(message);
 
-            userService.save(userRecepient);
+            userService.save(userRecipient);
 
             redirectAttributes.addFlashAttribute("successMsg", recepient + " has been invited!");
         }
@@ -302,7 +303,6 @@ public class ProjectController
         }
         else
             redirectAttributes.addFlashAttribute("errorMsg", "An error has occurred");
-
 
         return "redirect:/project/" + projectName;
     }
@@ -449,14 +449,11 @@ public class ProjectController
 
         if(project != null && project.getAdmins().contains(user.getUserName()))
         {
-            List<String> usersList = project.getMembers();
+            List<User> users = project.getMembers().stream()
+                    .map(member -> userService.findByUserName(member))
+                    .collect(Collectors.toList());
 
-            List<User> users = new ArrayList<>();
-
-            for (String user1: usersList)
-                users.add(userService.findByUserName(user1));
-
-            for (User user1: users)
+            for (User user1 : users)
             {
                 user1.removeProject(projectName);
                 user1.addMessage(new InboxMessage(user.getUserName() + " has removed project you take part in - " + projectName, user.getUserName(), "inboxMessage"));

@@ -55,13 +55,13 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
 
-        if(userDB.isProjectAdmin(projectDB))
+        if (userDB.isProjectAdmin(projectDB))
         {
             projectDB.addMember(authorName);
 
@@ -88,7 +88,7 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
@@ -112,7 +112,7 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
@@ -145,7 +145,7 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
@@ -169,17 +169,18 @@ public class UserController
             @ModelAttribute("LoggedUser") User user,
             @RequestParam("taskKey") String key,
             @RequestParam("taskMessage") String taskMessage,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+            RedirectAttributes redirectAttributes)
+    {
 
         Task task = user.findTaskByKey(key);
 
         Project projectDB = projectService.findByName(task.getProject());
 
-        for(String admin: projectDB.getAdmins())
+        for (String admin : projectDB.getAdmins())
         {
             User adminUser = userService.findByUserName(admin);
 
-            InboxMessage msg = new InboxMessage(user.getUserName() + " has requested task review.\n\nTask ID: " + task.getKey() + "\n\nTask description: " + task.getText()+"\n\nTask deadline: " + task.getDeadline() + "\n\n" + user.getUserName() + " has given details on this task: " + taskMessage, user.getUserName(), "inboxTaskRequest");
+            InboxMessage msg = new InboxMessage(user.getUserName() + " has requested task review.\n\nTask ID: " + task.getKey() + "\n\nTask description: " + task.getText() + "\n\nTask deadline: " + task.getDeadline() + "\n\n" + user.getUserName() + " has given details on this task: " + taskMessage, user.getUserName(), "inboxTaskRequest");
 
             msg.setDetails(key + "," + projectDB.getName());
 
@@ -201,7 +202,7 @@ public class UserController
             @RequestParam("taskExecutor") String taskExecutor,
             @RequestParam("msgKey") String msgKey,
             @ModelAttribute("LoggedUser") User user,
-            RedirectAttributes redirectAttributes ) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         String key = keyAndProj.split(",")[0];
         String projectName = keyAndProj.split(",")[1];
@@ -243,7 +244,7 @@ public class UserController
             @RequestParam("msgKey") String msgKey,
             @RequestParam("messageText") String messageText,
             @ModelAttribute("LoggedUser") User user,
-            RedirectAttributes redirectAttributes ) throws UnsupportedEncodingException, NoSuchAlgorithmException
+            RedirectAttributes redirectAttributes)
     {
         String taskKey = taskKeyAndProjectName.split(",")[0];
         String projectName = taskKeyAndProjectName.split(",")[1];
