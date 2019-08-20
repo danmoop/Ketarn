@@ -18,12 +18,25 @@ import java.util.UUID;
 @SessionAttributes(value = "LoggedUser")
 public class AdminController
 {
+    /**
+     *  @see User, all users have role = 'User' by default, role 'Admin' can be changed only via database editor
+     */
+
     @Autowired
     private UserService userService;
 
     @Autowired
     private ProjectService projectService;
 
+
+    /**
+     * This is a really cruel move, this is handled when Ketarn admin wants to ban a sinful soul
+     *
+     * @param userName is a user's username who is going to be banned
+     * @param user is an admin user object, who is logged in
+     *
+     * @return admin page
+     */
     @PostMapping("/BanUser")
     public String banUser(@RequestParam("ban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
     {
@@ -39,6 +52,15 @@ public class AdminController
         return "redirect:/admin";
     }
 
+
+    /**
+     * This is handled when admin wants to Unban a user
+     *
+     * @param userName is a user's username who is going to be Unbanned
+     * @param user is an admin user object, who is logged in
+     *
+     * @return admin page
+     */
     @PostMapping("/UnbanUser")
     public String unbanUser(@RequestParam("unban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
     {
@@ -54,6 +76,15 @@ public class AdminController
         return "redirect:/admin";
     }
 
+
+    /**
+     * This is handled when admin wants to know everything about user, it will show JSON object
+     *
+     * @param username is user's username
+     * @param user is an admin, who is logged in
+     *
+     * @return some user's data
+     */
     @PostMapping("/getUserInfo")
     public String userInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("username") String username, RedirectAttributes redirectAttributes)
     {
@@ -67,6 +98,15 @@ public class AdminController
         return "redirect:/admin";
     }
 
+
+    /**
+     * This is handled when admin wants to know everything about some project, it will show JSON object
+     *
+     * @param projectName is project's name
+     * @param user is an admin, who is logged in
+     *
+     * @return some project's data
+     */
     @PostMapping("/getProjectInfo")
     public String projectInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes)
     {
@@ -80,6 +120,10 @@ public class AdminController
         return "redirect:/admin";
     }
 
+
+    /**
+     * @return random UUID
+     */
     @PostMapping("/giveuuid")
     public String giveuuid(RedirectAttributes redirectAttributes)
     {

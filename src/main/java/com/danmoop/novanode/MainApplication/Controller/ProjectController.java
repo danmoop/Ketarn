@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,12 +27,30 @@ public class ProjectController
     @Autowired
     private UserService userService;
 
+
+    /**
+     * This request is handled when user redirects to project creation page
+     *
+     * @return project creation html page
+     */
     @GetMapping("/createProject")
     public String createProject(@ModelAttribute("LoggedUser") User user)
     {
         return "sections/createProject";
     }
 
+
+    /**
+     * This request is handled when user fills in project info and submits it
+     * Project is created and saved to database
+     *
+     * @param user is a logged-in user object
+     * @param projectBudget is a project budget. It is taken from html textfield
+     * @param projectName is a project name, taken from html textfield
+     * @param currencySign is a budget currency sign (USD, EUR...), taken from html select field
+     *
+     * @return dashboard page with new project and other user's information
+     */
     @PostMapping("/createProject")
     public String createProjectPOST(
             @ModelAttribute("LoggedUser") User user,
@@ -63,6 +80,18 @@ public class ProjectController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * @see ProjectNotification
+     *
+     * This request is handled when project admin wants to set a notification for other members
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from html textfield
+     * @param text is a notification text message
+     *
+     * @return project page with new notification
+     */
     @PostMapping("/setProjectNotification")
     public String notificationSubmitted(
             @ModelAttribute("LoggedUser") User user,
@@ -86,6 +115,19 @@ public class ProjectController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when project admin wants to set a new project budget
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from html textfield
+     * @param budget is a new project budget
+     * @param reason states why budget is changed. It will be seen to everybody
+     *
+     * @return project page with new budget
+     */
     @PostMapping("/setProjectBudget")
     public String setBudget(
             @ModelAttribute("LoggedUser") User user,
@@ -115,6 +157,19 @@ public class ProjectController
         return "redirect:/dashboard";
     }
 
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when project admin wants to add a new project task
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from html textfield
+     * @param deadline is a task deadline, it can be chosen from a calendar input on html page
+     * @param description is a task description
+     * @param taskExecutor is a person who will be doing the task
+     *
+     * @return project page with new task
+     */
     @PostMapping("/addProjectTask")
     public String addProjectTask(
             @ModelAttribute("LoggedUser") User user,
@@ -152,6 +207,17 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when project admin wants to clear project inbox
+     * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from html textfield
+     *
+     * @return project page with an empty inbox
+     */
     @PostMapping("/deleteAllInboxMessages")
     public String deleteAllInbox(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes)
     {
@@ -173,6 +239,16 @@ public class ProjectController
         return "redirect:/dashboard";
     }
 
+    /**
+     * @see Currency
+     *
+     * This request is handled when user wants to open a project page
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
+     *
+     * @return project page if user is a member of the project, otherwise redirect to not-a-member page
+     */
     @GetMapping("/project/{projectName}")
     public String projectPage(@PathVariable String projectName, Model model, @ModelAttribute("LoggedUser") User user)
     {
@@ -201,6 +277,15 @@ public class ProjectController
         return "error/404";
     }
 
+
+    /**
+     * This request is handled when user wants to open a project chat
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
+
+     * @return project chat page
+     */
     @GetMapping("/project/{projectName}/chat")
     public String projectChat(
             @PathVariable("projectName") String projectName,
@@ -217,6 +302,17 @@ public class ProjectController
         return "sections/projectChat";
     }
 
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when user opened a project page and saw that they are not a part of project's team
+     * They can press a button -> 'send request to join' and all project admins will get that request
+     *
+     * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
+     * @param userName is a name of the user who wants to join the project
+
+     * @return dashboard page
+     */
     @PostMapping("/sendARequest")
     public String joinRequest(
             @RequestParam("projectName") String projectName,
@@ -245,17 +341,29 @@ public class ProjectController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when project admin wants to invite specific user to the project
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+     * @param recipient is the user who gets the invitation
+
+     * @return project page
+     */
     @PostMapping("/inviteMemberToProject")
     public String inviteMemberToProject(
             @ModelAttribute("LoggedUser") User user,
             @RequestParam("projectName") String projectName,
-            @RequestParam("memberName") String recepient,
+            @RequestParam("memberName") String recipient,
             RedirectAttributes redirectAttributes)
     {
 
         InboxMessage message = new InboxMessage(user.getUserName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", user.getUserName(), "inboxRequestToMember");
 
-        User userRecipient = userService.findByUserName(recepient);
+        User userRecipient = userService.findByUserName(recipient);
 
         if(userRecipient != null)
         {
@@ -265,18 +373,30 @@ public class ProjectController
 
             userService.save(userRecipient);
 
-            redirectAttributes.addFlashAttribute("successMsg", recepient + " has been invited!");
+            redirectAttributes.addFlashAttribute("successMsg", recipient + " has been invited!");
         }
 
         else
         {
-            redirectAttributes.addFlashAttribute("errorMsg", "There is no user with such username: " + recepient);
+            redirectAttributes.addFlashAttribute("errorMsg", "There is no user with such username: " + recipient);
         }
 
 
         return "redirect:/project/" + projectName;
     }
 
+
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when project admin wants to make another user admin
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+     * @param memberName is a name of the user who becomes an admin
+
+     * @return project page
+     */
     @PostMapping("/setMemberAsAdmin")
     public String setAsAdmin(
             @RequestParam("projectName") String projectName,
@@ -307,6 +427,19 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+
+    /**
+     * @see InboxMessage
+     *
+     * This request is handled when project admin wants to take another user's admin right
+     * That user will no longer be an admin
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+     * @param currentAdmin is a name of the user who no longer will be an admin
+
+     * @return project page
+     */
     @PostMapping("/unAdmin")
     public String unAdminUser(
             @RequestParam("projectName") String projectName,
@@ -334,6 +467,18 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+
+    /**
+     * @see ProjectItem
+     * This request is handled when project admin wants to add another project item to project
+     * This item will be added to project to it's directory and saved
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+     * @param directoryName is a directory name where that item belongs
+
+     * @return project page
+     */
     @PostMapping("/addNewCard")
     public String newCard(
             @RequestParam("projectName") String projectName,
@@ -354,6 +499,17 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+    /**
+     * @see ProjectItem
+     *
+     * This request is handled when project admin wants to remove a project item
+     * It will be removed
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+
+     * @return project page
+     */
     @PostMapping("/removeItem")
     public String removeCard(
             @RequestParam("projectName") String projectName,
@@ -375,6 +531,17 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+    /**
+     * @see ProjectItem
+     *
+     * This request is handled when project admin wants to mark the item as done
+     * The item will be moved to 'done' category
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+
+     * @return project page
+     */
     @PostMapping("/markItemAsDone")
     public String markItemAsDone(
             @RequestParam("projectName") String projectName,
@@ -398,6 +565,16 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+
+    /**
+     * This request is handled when project admin wants to mark all current items as done
+     * All of them will be moved to 'done' category
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+
+     * @return project page
+     */
     @PostMapping("/currentItemsAllDone")
     public String currentItemsAllDone(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
     {
@@ -412,6 +589,16 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+
+    /**
+     * This request is handled when project admin wants to mark all done items as done
+     * All of them will be removed
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+
+     * @return project page
+     */
     @PostMapping("/removeDoneItems")
     public String removeDoneItems(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
     {
@@ -426,6 +613,16 @@ public class ProjectController
         return "redirect:/project/" + projectName;
     }
 
+
+    /**
+     * This request is handled when project member wants to send a message to chat
+     * It will be saved and visible to everyone else in the chat
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+
+     * @return project page
+     */
     @PostMapping("/sendMessageToChat")
     public String sendMessageToChat(@RequestParam("projectName") String projectName, @RequestParam("message") String message, @ModelAttribute("LoggedUser") User user)
     {
@@ -442,6 +639,17 @@ public class ProjectController
         return "redirect:/project/" + projectName + "/chat";
     }
 
+
+    /**
+     * @see InboxMessage
+     * This request is handled when project admin wants to remove a project
+     * All members will be notified about it in their inbox
+     *
+     * @param user is a logged-in user object
+     * @param projectName is a project name, taken from a hidden html input field
+
+     * @return dashboard page
+     */
     @PostMapping("/removeProject")
     public String removeProject(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes)
     {
@@ -471,6 +679,10 @@ public class ProjectController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * @return difference between old budget an a new budget
+     */
     private String moneyDifference(Project project, long before, long after)
     {
         if(after - before > 0)

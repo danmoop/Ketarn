@@ -21,6 +21,14 @@ public class DashboardController
     @Autowired
     private UserService userService;
 
+
+    /**
+     * This request is handled when user wants to read all inbox and move all messages to 'Read' folder
+
+     * @param user is a logged-in user object
+     *
+     * @return dashboard page
+     */
     @PostMapping("/readAllInbox")
     public String readAllInbox(@ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
     {
@@ -35,6 +43,14 @@ public class DashboardController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when user wants to delete all 'Read' messages
+     *
+     * @param user is a logged-in user object
+     *
+     * @return dashboard page
+     */
     @PostMapping("/deleteAllInbox")
     public String deleteAllInbox(@ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
     {
@@ -49,6 +65,17 @@ public class DashboardController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when user wants to change password
+     *
+     * @param user is a logged-in user object
+     * @param oldPass is an old password, taken from html input field
+     * @param newPass is a new password, taken from html input field
+     * @param confirmPass is a new password, taken from html input field
+     *
+     * @return dashboard page
+     */
     @PostMapping("/changePassword")
     public String changePassword(
             @ModelAttribute("LoggedUser") User user,
@@ -81,6 +108,15 @@ public class DashboardController
 
     }
 
+
+    /**
+     * This request is handled when user wants to edit dashboard notes
+     *
+     * @param user is a logged-in user object
+     * @param noteText is a note text
+     *
+     * @return dashboard page
+     */
     @PostMapping("/editUserNotes")
     public String editUserNotes(@RequestParam("noteText") String noteText, @ModelAttribute("LoggedUser") User user)
     {

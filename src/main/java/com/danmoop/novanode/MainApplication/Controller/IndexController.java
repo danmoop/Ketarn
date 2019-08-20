@@ -24,6 +24,24 @@ public class IndexController
     @Autowired
     private ProjectService projectService;
 
+
+    /**
+     * @return LoggedUser which is null by default in order to prevent Spring from displaying error
+     */
+    @ModelAttribute(value = "LoggedUser")
+    public User nullUser() {
+        return null;
+    }
+
+
+    /**
+     * This request displays index page if user is not banned
+     *
+     * @param user is a logged-in user object
+     * @param status is a session status, assigned automatically by Spring
+     *
+     * @return index page
+     */
     @GetMapping("/")
     public String indexPage(@ModelAttribute(value = "LoggedUser") User user, SessionStatus status)
     {
@@ -45,12 +63,25 @@ public class IndexController
         }
     }
 
+    /**
+     * This request displays register page with all the textfields
+     *
+     * @return register page
+     */
     @GetMapping("/register")
     public String registerPage()
     {
         return "sections/registerPage";
     }
 
+
+    /**
+     * This request displays user's dashboard if user is not banned
+     *
+     * @param user is a logged-in user object
+     *
+     * @return dashboard page
+     */
     @GetMapping("/dashboard")
     public String dashBoardPage(@ModelAttribute(value = "LoggedUser") User user, Model model, SessionStatus status)
     {
@@ -78,11 +109,14 @@ public class IndexController
         }
     }
 
-    @ModelAttribute(value = "LoggedUser")
-    public User nullUser() {
-        return null;
-    }
 
+    /**
+     * This request displays sign in page if not authorized
+     *
+     * @param user is a logged-in user object
+     *
+     * @return required page
+     */
     @GetMapping("/signin")
     public String signInPage(Model model, @ModelAttribute(value = "LoggedUser") User user)
     {
@@ -93,6 +127,14 @@ public class IndexController
             return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request displays admin page where you can control the world of Ketarn
+     *
+     * @param user is a logged-in user object
+     *
+     * @return admin page if user is really an admin
+     */
     @GetMapping("/admin")
     public String adminPage(@ModelAttribute("LoggedUser") User user, Model model)
     {

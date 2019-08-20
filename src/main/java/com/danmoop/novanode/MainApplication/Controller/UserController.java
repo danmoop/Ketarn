@@ -14,21 +14,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-
 // This controller mostly manipulates with project tasks: completion, sending requests etc.
 @Controller
 @SessionAttributes(value = "LoggedUser")
 public class UserController
 {
-
     @Autowired
     private UserService userService;
 
     @Autowired
     private ProjectService projectService;
 
+
+    /**
+     * This request is handled when user wants to change their info - username and email
+     *
+     * @param user is a logged-in user object
+     * @param name is taken from html textfield
+     * @param email is taken from html textfield
+     * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
+     *
+     * @return dashboard page with a message added to @param redirectAttributes
+     */
     @PostMapping("/editProfileInfo")
     public String editProfileInfo(
             @ModelAttribute("LoggedUser") User user,
@@ -49,6 +56,17 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when project's admin accepts the request sent by a user to join their project
+     *
+     * @param user is a logged-in user object
+     * @param authorName is taken from html textfield
+     * @param projectName is taken from html textfield
+     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     *
+     * @return dashboard page. Add member to project, add message about new member, save project and member objects
+     */
     @PostMapping("/acceptRequest")
     public String requestAccepted(
             @ModelAttribute("LoggedUser") User user,
@@ -82,6 +100,17 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when project's admin rejected the join request sent by a user
+     *
+     * @param user is a logged-in user object
+     * @param authorName is taken from html textfield
+     * @param projectName is taken from html textfield
+     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     *
+     * @return dashboard page. Send a rejection message and save user object
+     */
     @PostMapping("/rejectRequest")
     public String requestRejected(
             @ModelAttribute("LoggedUser") User user,
@@ -106,6 +135,17 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when user accepts an invitation to a project sent before by project's admin
+     *
+     * @param user is a logged-in user object
+     * @param authorName is taken from html textfield
+     * @param projectName is taken from html textfield
+     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     *
+     * @return dashboard page. Add member to project, add message about new member, save project and member objects
+     */
     @PostMapping("/acceptProjectInvite")
     public String acceptProjectInvite(
             @ModelAttribute("LoggedUser") User user,
@@ -139,6 +179,17 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when user rejects an invitation to a project sent before by project's admin
+     *
+     * @param user is a logged-in user object
+     * @param authorName is taken from html textfield
+     * @param projectName is taken from html textfield
+     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     *
+     * @return dashboard page and notify users about rejection
+     */
     @PostMapping("/rejectProjectInvite")
     public String rejectProjectInvite(
             @ModelAttribute("LoggedUser") User user,
@@ -164,6 +215,17 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+
+    /**
+     * This request is handled when user sends a task review to project's admins
+     * Admins will see this review request in their inbox
+     *
+     * @param user is a logged-in user object
+     * @param key is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param taskMessage is taken from a user's textarea. It is something user can say about task completion.
+     *
+     * @return dashboard page. Send admins a task review message
+     */
     @PostMapping("/submitTaskReview")
     public String submitTaskReview(
             @ModelAttribute("LoggedUser") User user,
@@ -194,6 +256,21 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+    /**
+     * This request is handled when project admins accept task review that was sent before
+     * It removes task from active tasks list, sends messages stating that the work is done
+     * @param workSuccess is added to task executor's stats, it is used later for evaluating overall success
+     *
+     * @param user is a logged-in user object
+     * @param taskMessage is taken from a user's textarea. It is something user can say about task completion
+     * @param workSuccess is an integer from 1 to 10 meaning the value of completion (1-really bad, 10-excellent)
+     * @param keyAndProj has task key and project name, they are stored in a single string, then divided
+     * @param taskExecutor is a task executor's username
+     * @param msgKey is a message key
+     * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
+     *
+     * @return dashboard page with all new information.
+     */
     @PostMapping("/acceptTaskCompletion")
     public String acceptTaskCompletion(
             @RequestParam("messageText") String taskMessage,
@@ -237,6 +314,18 @@ public class UserController
         return "redirect:/dashboard";
     }
 
+    /**
+     * This request is handled when project admins rejects task review that was sent before
+     * Request sends a message with some advices to task executor
+     *
+     * @param user is a logged-in user object
+     * @param taskExecutor is a task executor's username
+     * @param messageText is a message sent by admin. There may be some advices how to do the job right
+     * @param msgKey is a message key
+     * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
+     *
+     * @return dashboard page with all new information.
+     */
     @PostMapping("/rejectTaskCompletion")
     public String rejectTaskCompletion(
             @RequestParam("taskExecutor") String taskExecutor,

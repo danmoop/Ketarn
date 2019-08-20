@@ -17,10 +17,18 @@ import java.security.NoSuchAlgorithmException;
 @SessionAttributes(value = "LoggedUser")
 public class LoginController
 {
-
     @Autowired
     private UserService userService;
 
+    /**
+     * This request handles authorization
+     * if username and password (compared to MD5 database version) are valid -> log in
+     *
+     * @param userName is a user's username
+     * @param password is a user's password
+     *
+     * @return dashboard page if authorized
+     */
     @PostMapping("/loginAttempt")
     public String loginAttempt(Model model, RedirectAttributes redirectAttributes, @RequestParam("userName") String userName, @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
@@ -50,6 +58,12 @@ public class LoginController
         }
     }
 
+
+    /**
+     * This request handles removes user's session
+     *
+     * @return index page
+     */
     @GetMapping("/logout")
     public String logout(SessionStatus sessionStatus)
     {

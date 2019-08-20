@@ -13,6 +13,14 @@ public class JsonController
     @Autowired
     private ProjectService projectService;
 
+    /**
+     * This request displays project JSON object
+     *
+     * @param projectName is a project name
+     * @param user is a logged-in user object
+     *
+     * @return project JSON
+     */
     @GetMapping("/getProjectJson/{projectName}")
     public String json(@PathVariable("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
     {

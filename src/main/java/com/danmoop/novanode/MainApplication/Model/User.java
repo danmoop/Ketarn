@@ -20,7 +20,6 @@ public class User
     private String role;
     private String note;
     private long registerDate;
-    private boolean hasBoughtSubs;
     private boolean banned;
     private List<InboxMessage> messages;
     private List<InboxMessage> readMessages;
@@ -52,7 +51,6 @@ public class User
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
         this.registerDate = new Date().getTime();
-        this.hasBoughtSubs = true;
         this.banned = false;
     }
 
@@ -128,16 +126,6 @@ public class User
     public void setUserName(String userName)
     {
         this.userName = userName;
-    }
-
-    public boolean isHasBoughtSubs()
-    {
-        return hasBoughtSubs;
-    }
-
-    public void setHasBoughtSubs(boolean hasBoughtSubs)
-    {
-        this.hasBoughtSubs = hasBoughtSubs;
     }
 
     public String getPassword()
