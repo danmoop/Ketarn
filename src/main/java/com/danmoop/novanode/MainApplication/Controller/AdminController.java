@@ -16,10 +16,9 @@ import java.util.UUID;
 
 @Controller
 @SessionAttributes(value = "LoggedUser")
-public class AdminController
-{
+public class AdminController {
     /**
-     *  @see User, all users have role = 'User' by default, role 'Admin' can be changed only via database editor
+     * @see User, all users have role = 'User' by default, role 'Admin' can be changed only via database editor
      */
 
     @Autowired
@@ -33,17 +32,14 @@ public class AdminController
      * This is a really cruel move, this is handled when Ketarn admin wants to ban a sinful soul
      *
      * @param userName is a user's username who is going to be banned
-     * @param user is an admin user object, who is logged in
-     *
+     * @param user     is an admin user object, who is logged in
      * @return admin page
      */
     @PostMapping("/BanUser")
-    public String banUser(@RequestParam("ban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
-    {
+    public String banUser(@RequestParam("ban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(userName);
 
-        if(user.isRoleAdmin() && userDB != null)
-        {
+        if (user.isRoleAdmin() && userDB != null) {
             userDB.setBanned(true);
             userService.save(userDB);
             redirectAttributes.addFlashAttribute("msg", userDB.getUserName() + " has been banned");
@@ -57,17 +53,14 @@ public class AdminController
      * This is handled when admin wants to Unban a user
      *
      * @param userName is a user's username who is going to be Unbanned
-     * @param user is an admin user object, who is logged in
-     *
+     * @param user     is an admin user object, who is logged in
      * @return admin page
      */
     @PostMapping("/UnbanUser")
-    public String unbanUser(@RequestParam("unban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes)
-    {
+    public String unbanUser(@RequestParam("unban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(userName);
 
-        if(user.isRoleAdmin() && userDB != null)
-        {
+        if (user.isRoleAdmin() && userDB != null) {
             userDB.setBanned(false);
             userService.save(userDB);
             redirectAttributes.addFlashAttribute("msg", userDB.getUserName() + " has been unbanned");
@@ -81,16 +74,14 @@ public class AdminController
      * This is handled when admin wants to know everything about user, it will show JSON object
      *
      * @param username is user's username
-     * @param user is an admin, who is logged in
-     *
+     * @param user     is an admin, who is logged in
      * @return some user's data
      */
     @PostMapping("/getUserInfo")
-    public String userInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("username") String username, RedirectAttributes redirectAttributes)
-    {
+    public String userInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("username") String username, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(username);
 
-        if(user.isRoleAdmin() && userDB != null)
+        if (user.isRoleAdmin() && userDB != null)
             redirectAttributes.addFlashAttribute("userInfo", userDB.toString());
         else
             redirectAttributes.addFlashAttribute("userInfo", username + " is not registered");
@@ -103,16 +94,14 @@ public class AdminController
      * This is handled when admin wants to know everything about some project, it will show JSON object
      *
      * @param projectName is project's name
-     * @param user is an admin, who is logged in
-     *
+     * @param user        is an admin, who is logged in
      * @return some project's data
      */
     @PostMapping("/getProjectInfo")
-    public String projectInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes)
-    {
+    public String projectInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
         Project project = projectService.findByName(projectName);
 
-        if(user.isRoleAdmin() && project != null)
+        if (user.isRoleAdmin() && project != null)
             redirectAttributes.addFlashAttribute("projectInfo", project.toString());
         else
             redirectAttributes.addFlashAttribute("projectInfo", projectName + " is not found");
@@ -125,8 +114,7 @@ public class AdminController
      * @return random UUID
      */
     @PostMapping("/giveuuid")
-    public String giveuuid(RedirectAttributes redirectAttributes)
-    {
+    public String giveuuid(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("uuid", "UUID: " + UUID.randomUUID());
         return "redirect:/admin";
     }

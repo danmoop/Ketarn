@@ -16,8 +16,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Controller
 @SessionAttributes(value = "LoggedUser")
-public class MessageController
-{
+public class MessageController {
     @Autowired
     private UserService userService;
 
@@ -25,53 +24,44 @@ public class MessageController
      * This request is handled when user wants to send a message
      * Message will be sent and saved to database
      *
-     * @param recipient is the user who gets the message
-     * @param message is a message text
+     * @param recipient  is the user who gets the message
+     * @param message    is a message text
      * @param authorUser is the user who sends the message
-     *
      * @return dashboard page
      */
     @PostMapping("/sendInboxMessage")
-    public String messageSent(@RequestParam("recipient") String recipient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException
-    {
+    public String messageSent(@RequestParam("recipient") String recipient, @RequestParam("messageText") String message, @ModelAttribute("LoggedUser") User authorUser, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         User userRecipient = userService.findByUserName(recipient);
 
-        if(userRecipient != null)
-        {
+        if (userRecipient != null) {
             InboxMessage inboxMessage = new InboxMessage(message, authorUser.getUserName(), "inboxMessage");
 
             userRecipient.addMessage(inboxMessage);
-
             userService.save(userRecipient);
 
             redirectAttributes.addFlashAttribute("successMsg", "Message sent to " + recipient);
-        }
-
-        else
+        } else
             redirectAttributes.addFlashAttribute("errorMsg", recipient + " is not registered, can't send them a message");
 
         return "redirect:/dashboard";
     }
 
     /**
+     * @param messageID is a message id, taken from a hidden input field
+     * @param user      is a logged-in user object
+     * @return dashboard page
      * @see InboxMessage
-     *
+     * 
      * This request is handled when user wants to mark message as done
      * Message will be moved to 'Read' list
-     *
-     * @param messageID is a message id, taken from a hidden input field
-     * @param user is a logged-in user object
-     *
-     * @return dashboard page
      */
     @PostMapping("/messageIsRead")
-    public String messageRead(@RequestParam("messageKey") String messageID, @ModelAttribute("LoggedUser") User user)
-    {
+    public String messageRead(@RequestParam("messageKey") String messageID, @ModelAttribute("LoggedUser") User user) {
         User userDB = userService.findByUserName(user.getUserName());
 
         InboxMessage msg = userDB.findMessageByMessageKey(messageID);
 
-        if(msg != null)
+        if (msg != null)
             userDB.markMessageAsRead(msg);
 
         userService.save(userDB);
@@ -81,25 +71,21 @@ public class MessageController
 
 
     /**
+     * @param messageID is a message id, taken from a hidden input field
+     * @param user      is a logged-in user object
+     * @return dashboard page
      * @see InboxMessage
-     *
+     * 
      * This request is handled when user wants to delete message forever
      * It will be deleted from 'Read' list
-     *
-     * @param messageID is a message id, taken from a hidden input field
-     * @param user is a logged-in user object
-     *
-     * @return dashboard page
      */
     @PostMapping("/deleteMessage")
-    public String messageDeleted(@RequestParam("messageKey") String messageID, @ModelAttribute("LoggedUser") User user)
-    {
+    public String messageDeleted(@RequestParam("messageKey") String messageID, @ModelAttribute("LoggedUser") User user) {
         User userDB = userService.findByUserName(user.getUserName());
 
         InboxMessage msg = userDB.findReadMessageByMessageKey(messageID);
 
-        if(msg != null)
-        {
+        if (msg != null) {
             userDB.removeMessage(msg);
             userService.save(userDB);
         }

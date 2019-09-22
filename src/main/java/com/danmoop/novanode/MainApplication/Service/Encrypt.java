@@ -10,8 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Encrypt
-{
+public class Encrypt {
     public static String toSHA256(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 
         MessageDigest mg = MessageDigest.getInstance("SHA-256");
@@ -20,7 +19,7 @@ public class Encrypt
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
 
@@ -35,7 +34,7 @@ public class Encrypt
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
 
@@ -69,12 +68,12 @@ public class Encrypt
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
 
-            try{
+            try {
                 byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
                 System.out.println("Decrypted: " + new String(original));
                 return new String(original);
 
-            } catch (BadPaddingException e){
+            } catch (BadPaddingException e) {
                 return "???";
             }
 

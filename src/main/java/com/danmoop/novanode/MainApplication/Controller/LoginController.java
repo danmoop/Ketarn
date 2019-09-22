@@ -15,8 +15,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Controller
 @SessionAttributes(value = "LoggedUser")
-public class LoginController
-{
+public class LoginController {
     @Autowired
     private UserService userService;
 
@@ -26,33 +25,24 @@ public class LoginController
      *
      * @param userName is a user's username
      * @param password is a user's password
-     *
      * @return dashboard page if authorized
      */
     @PostMapping("/loginAttempt")
-    public String loginAttempt(Model model, RedirectAttributes redirectAttributes, @RequestParam("userName") String userName, @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException
-    {
+    public String loginAttempt(Model model, RedirectAttributes redirectAttributes, @RequestParam("userName") String userName, @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         User userInDB = userService.findByUserName(userName);
 
-        if(userInDB != null)
-        {
-            if(Encrypt.toMD5(password).equals(userInDB.getPassword()))
-            {
+        if (userInDB != null) {
+            if (Encrypt.toMD5(password).equals(userInDB.getPassword())) {
                 model.addAttribute("LoggedUser", userInDB);
 
                 redirectAttributes.addFlashAttribute("welcomeMsg", "Hello, " + userInDB.getName().split(" ")[0] + "!");
 
                 return "redirect:/dashboard";
-            }
-            else
-            {
+            } else {
                 redirectAttributes.addFlashAttribute("errorMsg", "Username or password is wrong!");
                 return "redirect:/signin";
             }
-        }
-
-        else
-        {
+        } else {
             redirectAttributes.addFlashAttribute("errorMsg", "Username or password is wrong!");
             return "redirect:/signin";
         }
@@ -65,8 +55,7 @@ public class LoginController
      * @return index page
      */
     @GetMapping("/logout")
-    public String logout(SessionStatus sessionStatus)
-    {
+    public String logout(SessionStatus sessionStatus) {
         sessionStatus.setComplete();
 
         return "redirect:/";

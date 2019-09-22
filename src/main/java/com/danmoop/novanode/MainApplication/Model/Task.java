@@ -3,8 +3,7 @@ package com.danmoop.novanode.MainApplication.Model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Task
-{
+public class Task {
     private String authorName;
     private String text;
     private String executor;
@@ -15,8 +14,7 @@ public class Task
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private String createdOn;
 
-    public Task(String authorName, String text, String executor, String deadline, String project)
-    {
+    public Task(String authorName, String text, String executor, String deadline, String project) {
         this.authorName = authorName;
         this.text = text;
         this.executor = executor;
@@ -47,23 +45,19 @@ public class Task
         return executor;
     }
 
-    public String getCreatedOn()
-    {
+    public String getCreatedOn() {
         return createdOn;
     }
 
-    public String getProject()
-    {
+    public String getProject() {
         return project;
     }
 
-    public String getKey()
-    {
+    public String getKey() {
         return key;
     }
 
-    public void setProject(String project)
-    {
+    public void setProject(String project) {
         this.project = project;
     }
 
@@ -79,14 +73,12 @@ public class Task
         this.deadline = deadline;
     }
 
-    private String generateKey()
-    {
+    private String generateKey() {
         String possible = "1234567890";
 
         String result = "";
 
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             result += possible.charAt((int) Math.floor(Math.random() * possible.length()));
         }
 

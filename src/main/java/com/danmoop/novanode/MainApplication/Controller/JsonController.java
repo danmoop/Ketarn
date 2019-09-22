@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @SessionAttributes(value = "LoggedUser")
-public class JsonController
-{
+public class JsonController {
     @Autowired
     private ProjectService projectService;
 
@@ -17,16 +16,14 @@ public class JsonController
      * This request displays project JSON object
      *
      * @param projectName is a project name
-     * @param user is a logged-in user object
-     *
+     * @param user        is a logged-in user object
      * @return project JSON
      */
     @GetMapping("/getProjectJson/{projectName}")
-    public String json(@PathVariable("projectName") String projectName, @ModelAttribute("LoggedUser") User user)
-    {
+    public String json(@PathVariable("projectName") String projectName, @ModelAttribute("LoggedUser") User user) {
         Project project = projectService.findByName(projectName);
 
-        if(project.getAuthorName().equals(user.getUserName()))
+        if (project.getAuthorName().equals(user.getUserName()))
             return project.toString();
 
         return "Information is not available";

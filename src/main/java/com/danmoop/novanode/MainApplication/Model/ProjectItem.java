@@ -2,21 +2,18 @@ package com.danmoop.novanode.MainApplication.Model;
 
 import java.util.UUID;
 
-public class ProjectItem
-{
+public class ProjectItem {
     private String text;
     private String projectName;
     private String key;
 
-    public ProjectItem(String text, String projectName)
-    {
+    public ProjectItem(String text, String projectName) {
         this.text = text;
         this.projectName = projectName;
         this.key = generateKey();
     }
 
-    private String generateKey()
-    {
+    private String generateKey() {
         return UUID.randomUUID().toString();
     }
 

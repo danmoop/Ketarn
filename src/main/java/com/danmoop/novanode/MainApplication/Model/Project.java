@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Project
-{
+public class Project {
     @Id
     private String id;
 
@@ -30,8 +29,7 @@ public class Project
 
     private boolean verificated;
 
-    public Project(String name, String authorName, long budget, String currencySign)
-    {
+    public Project(String name, String authorName, long budget, String currencySign) {
         this.name = name;
         this.authorName = authorName;
         this.budget = budget;
@@ -54,53 +52,43 @@ public class Project
         this.projectNotification = null;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public String getProjectKey()
-    {
+    public String getProjectKey() {
         return projectKey;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getAuthorName()
-    {
+    public String getAuthorName() {
         return authorName;
     }
 
-    public boolean isVerificated()
-    {
+    public boolean isVerificated() {
         return verificated;
     }
 
-    public List<Task> getCompletedTasks()
-    {
+    public List<Task> getCompletedTasks() {
         return completedTasks;
     }
 
-    public String getCurrencySign()
-    {
+    public String getCurrencySign() {
         return currencySign;
     }
 
-    public void setCurrencySign(String currencySign)
-    {
+    public void setCurrencySign(String currencySign) {
         this.currencySign = currencySign;
     }
 
@@ -108,48 +96,39 @@ public class Project
         this.verificated = verificated;
     }
 
-    public List<Task> getProjectTasks()
-    {
+    public List<Task> getProjectTasks() {
         return projectTasks;
     }
 
-    public List<ProjectItem> getActiveProjectItems()
-    {
+    public List<ProjectItem> getActiveProjectItems() {
         return activeProjectItems;
     }
 
-    public List<ProjectItem> getDoneProjectItems()
-    {
+    public List<ProjectItem> getDoneProjectItems() {
         return doneProjectItems;
     }
 
-    public void setProjectTasks(List<Task> projectTasks)
-    {
+    public void setProjectTasks(List<Task> projectTasks) {
         this.projectTasks = projectTasks;
     }
 
-    public long getBudget()
-    {
+    public long getBudget() {
         return budget;
     }
 
-    public void setBudget(long budget)
-    {
+    public void setBudget(long budget) {
         this.budget = budget;
     }
 
-    public void setAuthorName(String authorName)
-    {
+    public void setAuthorName(String authorName) {
         this.authorName = authorName;
     }
 
-    public List<String> getAdmins()
-    {
+    public List<String> getAdmins() {
         return admins;
     }
 
-    public List<InboxMessage> getProjectInbox()
-    {
+    public List<InboxMessage> getProjectInbox() {
         return projectInbox;
     }
 
@@ -157,43 +136,35 @@ public class Project
         this.projectInbox = projectInbox;
     }
 
-    public void setAdmins(List<String> admins)
-    {
+    public void setAdmins(List<String> admins) {
         this.admins = admins;
     }
 
-    public List<String> getMembers()
-    {
+    public List<String> getMembers() {
         return members;
     }
 
-    public List<ChatMessage> getChatMessages()
-    {
+    public List<ChatMessage> getChatMessages() {
         return chatMessages;
     }
 
-    public void addAdmin(String admin)
-    {
+    public void addAdmin(String admin) {
         admins.add(admin);
     }
 
-    public void removeAdmin(String admin)
-    {
+    public void removeAdmin(String admin) {
         admins.remove(admin);
     }
 
-    public ProjectNotification getProjectNotification()
-    {
+    public ProjectNotification getProjectNotification() {
         return projectNotification;
     }
 
-    public void setProjectNotification(ProjectNotification projectNotification)
-    {
+    public void setProjectNotification(ProjectNotification projectNotification) {
         this.projectNotification = projectNotification;
     }
 
-    public void addMember(String member)
-    {
+    public void addMember(String member) {
         members.add(member);
     }
 
@@ -201,48 +172,39 @@ public class Project
         this.members = members;
     }
 
-    public void addMessage(InboxMessage message)
-    {
+    public void addMessage(InboxMessage message) {
         projectInbox.add(message);
     }
 
-    public void addTask(Task task)
-    {
+    public void addTask(Task task) {
         projectTasks.add(task);
     }
 
-    public void emptyInbox()
-    {
+    public void emptyInbox() {
         projectInbox.clear();
     }
 
-    public Task getTaskByKey(String key)
-    {
+    public Task getTaskByKey(String key) {
         return projectTasks.stream()
                 .filter(task -> task.getKey().equals(key))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void removeTaskByKey(String key)
-    {
+    public void removeTaskByKey(String key) {
         projectTasks.removeIf(task -> task.getKey().equals(key));
     }
 
-    public void addCompletedTask(Task task)
-    {
+    public void addCompletedTask(Task task) {
         completedTasks.add(task);
     }
 
-    private String generateKey()
-    {
+    private String generateKey() {
         return UUID.randomUUID().toString();
     }
 
-    public void addItem(ProjectItem projectItem, String listName)
-    {
-        switch (listName)
-        {
+    public void addItem(ProjectItem projectItem, String listName) {
+        switch (listName) {
             case "current":
                 activeProjectItems.add(projectItem);
                 break;
@@ -252,25 +214,21 @@ public class Project
         }
     }
 
-    public void markAllCurrentItemsAsDone()
-    {
+    public void markAllCurrentItemsAsDone() {
         doneProjectItems.addAll(activeProjectItems);
         activeProjectItems.clear();
     }
 
-    public void removeAllDoneItems()
-    {
+    public void removeAllDoneItems() {
         doneProjectItems.clear();
     }
 
-    public void removeCard(ProjectItem projectItem)
-    {
+    public void removeCard(ProjectItem projectItem) {
         activeProjectItems.remove(projectItem);
         doneProjectItems.remove(projectItem);
     }
 
-    public ProjectItem getItemByKey(String key)
-    {
+    public ProjectItem getItemByKey(String key) {
         // we try to find an item in the first list - 'doneProjectItems'
         Optional<ProjectItem> doneItem = doneProjectItems.stream()
                 .filter(item -> item.getKey().equals(key))
@@ -284,14 +242,12 @@ public class Project
         return doneItem.orElseGet(activeItem::get);
     }
 
-    public void addChatMessage(ChatMessage message)
-    {
+    public void addChatMessage(ChatMessage message) {
         chatMessages.add(message);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Project{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +

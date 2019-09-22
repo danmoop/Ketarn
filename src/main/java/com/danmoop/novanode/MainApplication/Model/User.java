@@ -8,8 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Document(collection = "users")
-public class User
-{
+public class User {
     @Id
     private String id;
 
@@ -31,10 +30,10 @@ public class User
 
     private List<Task> completedTasks;
 
-    public User() {}
+    public User() {
+    }
 
-    public User(String userName, String name, String email, String password)
-    {
+    public User(String userName, String name, String email, String password) {
         this.userName = userName;
         this.name = name;
         this.email = email;
@@ -54,53 +53,43 @@ public class User
         this.banned = false;
     }
 
-    public List<InboxMessage> getMessages()
-    {
+    public List<InboxMessage> getMessages() {
         return messages;
     }
 
-    public String getRole()
-    {
+    public String getRole() {
         return role;
     }
 
-    public List<String> getCreatedProjects()
-    {
+    public List<String> getCreatedProjects() {
         return createdProjects;
     }
 
-    public String getEmail()
-    {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email)
-    {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public List<String> getProjectsTakePartIn()
-    {
+    public List<String> getProjectsTakePartIn() {
         return projectsTakePartIn;
     }
 
-    public List<Task> getTasks()
-    {
+    public List<Task> getTasks() {
         return tasks;
     }
 
-    public String getUserName()
-    {
+    public String getUserName() {
         return userName;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public List<Task> getCompletedTasks()
-    {
+    public List<Task> getCompletedTasks() {
         return completedTasks;
     }
 
@@ -108,161 +97,132 @@ public class User
         this.name = name;
     }
 
-    public boolean isBanned()
-    {
+    public boolean isBanned() {
         return banned;
     }
 
-    public List<Integer> getWorkSuccessPoints()
-    {
+    public List<Integer> getWorkSuccessPoints() {
         return workSuccessPoints;
     }
 
-    public void setBanned(boolean banned)
-    {
+    public void setBanned(boolean banned) {
         this.banned = banned;
     }
 
-    public void setUserName(String userName)
-    {
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password)
-    {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public long getRegisterDate()
-    {
+    public long getRegisterDate() {
         return registerDate;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getNote()
-    {
+    public String getNote() {
         return note;
     }
 
-    public void setNote(String note)
-    {
+    public void setNote(String note) {
         this.note = note;
     }
 
-    public List<InboxMessage> getReadMessages()
-    {
+    public List<InboxMessage> getReadMessages() {
         return readMessages;
     }
 
-    public void addMessage(InboxMessage message)
-    {
+    public void addMessage(InboxMessage message) {
         messages.add(message);
     }
 
-    public void removeMessage(InboxMessage message)
-    {
+    public void removeMessage(InboxMessage message) {
         readMessages.remove(message);
     }
 
-    public void removeMessageFromInbox(InboxMessage message)
-    {
+    public void removeMessageFromInbox(InboxMessage message) {
         messages.remove(message);
     }
 
-    public void addProject(String project)
-    {
+    public void addProject(String project) {
         createdProjects.add(project);
     }
 
-    public void addProjectTakingPartIn(String project)
-    {
+    public void addProjectTakingPartIn(String project) {
         projectsTakePartIn.add(project);
     }
 
-    public void markMessageAsRead(InboxMessage message)
-    {
+    public void markMessageAsRead(InboxMessage message) {
         messages.remove(message);
         readMessages.add(message);
     }
 
-    public boolean isProjectAdmin(Project project)
-    {
+    public boolean isProjectAdmin(Project project) {
         return project.getAdmins().contains(userName);
     }
 
-    public void removeProject(String projectName)
-    {
+    public void removeProject(String projectName) {
         projectsTakePartIn.remove(projectName);
         createdProjects.remove(projectName);
     }
 
-    public boolean isRoleAdmin()
-    {
+    public boolean isRoleAdmin() {
         return role.equals("Admin");
     }
 
-    public boolean isMember(Project project)
-    {
+    public boolean isMember(Project project) {
         return project.getMembers().contains(userName);
     }
 
-    public InboxMessage findMessageByMessageKey(String key)
-    {
+    public InboxMessage findMessageByMessageKey(String key) {
         return messages.stream()
                 .filter(message -> message.getMessageKey().equals(key))
                 .findFirst()
                 .orElse(null);
     }
 
-    public InboxMessage findReadMessageByMessageKey(String key)
-    {
+    public InboxMessage findReadMessageByMessageKey(String key) {
         return readMessages.stream()
                 .filter(message -> message.getMessageKey().equals(key))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void addTask(Task task)
-    {
+    public void addTask(Task task) {
         tasks.add(task);
     }
 
-    public void readAllInboxMessages()
-    {
+    public void readAllInboxMessages() {
         readMessages.addAll(messages);
 
         messages.clear();
     }
 
-    public void emptyArchive()
-    {
+    public void emptyArchive() {
         readMessages.clear();
     }
 
-    public Task findTaskByKey(String key)
-    {
+    public Task findTaskByKey(String key) {
         return tasks.stream()
                 .filter(task -> task.getKey().equals(key))
                 .findFirst()
                 .orElse(null);
     }
 
-    public double getWorkSuccessAverage()
-    {
+    public double getWorkSuccessAverage() {
         int i = workSuccessPoints.stream().mapToInt(Integer::intValue).sum();
 
         double r = (double) i / (double) workSuccessPoints.size();
@@ -270,18 +230,15 @@ public class User
         return Math.round((r * 10) * 10) / 10.0;
     }
 
-    public void addWorkSuccessPoint(int point)
-    {
+    public void addWorkSuccessPoint(int point) {
         workSuccessPoints.add(point);
     }
 
-    public void deleteTaskByKey(String key)
-    {
+    public void deleteTaskByKey(String key) {
         tasks.removeIf(task -> task.getKey().equals(key));
     }
 
-    public void addCompletedTask(Task task)
-    {
+    public void addCompletedTask(Task task) {
         completedTasks.add(task);
     }
 }

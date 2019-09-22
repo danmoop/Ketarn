@@ -17,8 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 // This controller mostly manipulates with project tasks: completion, sending requests etc.
 @Controller
 @SessionAttributes(value = "LoggedUser")
-public class UserController
-{
+public class UserController {
     @Autowired
     private UserService userService;
 
@@ -29,11 +28,10 @@ public class UserController
     /**
      * This request is handled when user wants to change their info - username and email
      *
-     * @param user is a logged-in user object
-     * @param name is taken from html textfield
-     * @param email is taken from html textfield
+     * @param user               is a logged-in user object
+     * @param name               is taken from html textfield
+     * @param email              is taken from html textfield
      * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
-     *
      * @return dashboard page with a message added to @param redirectAttributes
      */
     @PostMapping("/editProfileInfo")
@@ -41,8 +39,7 @@ public class UserController
             @ModelAttribute("LoggedUser") User user,
             @RequestParam("name") String name,
             @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
 
         User userDB = userService.findByUserName(user.getUserName());
 
@@ -60,11 +57,10 @@ public class UserController
     /**
      * This request is handled when project's admin accepts the request sent by a user to join their project
      *
-     * @param user is a logged-in user object
-     * @param authorName is taken from html textfield
+     * @param user        is a logged-in user object
+     * @param authorName  is taken from html textfield
      * @param projectName is taken from html textfield
-     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
-     *
+     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptRequest")
@@ -73,14 +69,12 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
 
-        if (userDB.isProjectAdmin(projectDB))
-        {
+        if (userDB.isProjectAdmin(projectDB)) {
             projectDB.addMember(authorName);
 
             projectDB.addMessage(new InboxMessage(user.getUserName() + " has accepted a new member - " + authorName, user.getUserName(), "inboxMessage"));
@@ -104,11 +98,10 @@ public class UserController
     /**
      * This request is handled when project's admin rejected the join request sent by a user
      *
-     * @param user is a logged-in user object
-     * @param authorName is taken from html textfield
+     * @param user        is a logged-in user object
+     * @param authorName  is taken from html textfield
      * @param projectName is taken from html textfield
-     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
-     *
+     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
      * @return dashboard page. Send a rejection message and save user object
      */
     @PostMapping("/rejectRequest")
@@ -117,8 +110,7 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
 
@@ -139,11 +131,10 @@ public class UserController
     /**
      * This request is handled when user accepts an invitation to a project sent before by project's admin
      *
-     * @param user is a logged-in user object
-     * @param authorName is taken from html textfield
+     * @param user        is a logged-in user object
+     * @param authorName  is taken from html textfield
      * @param projectName is taken from html textfield
-     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
-     *
+     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptProjectInvite")
@@ -152,8 +143,7 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
@@ -183,11 +173,10 @@ public class UserController
     /**
      * This request is handled when user rejects an invitation to a project sent before by project's admin
      *
-     * @param user is a logged-in user object
-     * @param authorName is taken from html textfield
+     * @param user        is a logged-in user object
+     * @param authorName  is taken from html textfield
      * @param projectName is taken from html textfield
-     * @param messageKey is taken from a hidden html textfield. Value is assigned using Thymeleaf
-     *
+     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
      * @return dashboard page and notify users about rejection
      */
     @PostMapping("/rejectProjectInvite")
@@ -196,8 +185,7 @@ public class UserController
             @RequestParam("authorName") String authorName,
             @RequestParam("projectName") String projectName,
             @RequestParam("messageKey") String messageKey,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(user.getUserName());
         User authorDB = userService.findByUserName(authorName);
 
@@ -220,10 +208,9 @@ public class UserController
      * This request is handled when user sends a task review to project's admins
      * Admins will see this review request in their inbox
      *
-     * @param user is a logged-in user object
-     * @param key is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param user        is a logged-in user object
+     * @param key         is taken from a hidden html textfield. Value is assigned using Thymeleaf
      * @param taskMessage is taken from a user's textarea. It is something user can say about task completion.
-     *
      * @return dashboard page. Send admins a task review message
      */
     @PostMapping("/submitTaskReview")
@@ -231,15 +218,13 @@ public class UserController
             @ModelAttribute("LoggedUser") User user,
             @RequestParam("taskKey") String key,
             @RequestParam("taskMessage") String taskMessage,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
 
         Task task = user.findTaskByKey(key);
 
         Project projectDB = projectService.findByName(task.getProject());
 
-        for (String admin : projectDB.getAdmins())
-        {
+        for (String admin : projectDB.getAdmins()) {
             User adminUser = userService.findByUserName(admin);
 
             InboxMessage msg = new InboxMessage(user.getUserName() + " has requested task review.\n\nTask ID: " + task.getKey() + "\n\nTask description: " + task.getText() + "\n\nTask deadline: " + task.getDeadline() + "\n\n" + user.getUserName() + " has given details on this task: " + taskMessage, user.getUserName(), "inboxTaskRequest");
@@ -259,16 +244,15 @@ public class UserController
     /**
      * This request is handled when project admins accept task review that was sent before
      * It removes task from active tasks list, sends messages stating that the work is done
-     * @param workSuccess is added to task executor's stats, it is used later for evaluating overall success
      *
-     * @param user is a logged-in user object
-     * @param taskMessage is taken from a user's textarea. It is something user can say about task completion
-     * @param workSuccess is an integer from 1 to 10 meaning the value of completion (1-really bad, 10-excellent)
-     * @param keyAndProj has task key and project name, they are stored in a single string, then divided
-     * @param taskExecutor is a task executor's username
-     * @param msgKey is a message key
+     * @param workSuccess        is added to task executor's stats, it is used later for evaluating overall success
+     * @param user               is a logged-in user object
+     * @param taskMessage        is taken from a user's textarea. It is something user can say about task completion
+     * @param workSuccess        is an integer from 1 to 10 meaning the value of completion (1-really bad, 10-excellent)
+     * @param keyAndProj         has task key and project name, they are stored in a single string, then divided
+     * @param taskExecutor       is a task executor's username
+     * @param msgKey             is a message key
      * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
-     *
      * @return dashboard page with all new information.
      */
     @PostMapping("/acceptTaskCompletion")
@@ -279,8 +263,7 @@ public class UserController
             @RequestParam("taskExecutor") String taskExecutor,
             @RequestParam("msgKey") String msgKey,
             @ModelAttribute("LoggedUser") User user,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
         String key = keyAndProj.split(",")[0];
         String projectName = keyAndProj.split(",")[1];
 
@@ -318,12 +301,11 @@ public class UserController
      * This request is handled when project admins rejects task review that was sent before
      * Request sends a message with some advices to task executor
      *
-     * @param user is a logged-in user object
-     * @param taskExecutor is a task executor's username
-     * @param messageText is a message sent by admin. There may be some advices how to do the job right
-     * @param msgKey is a message key
+     * @param user               is a logged-in user object
+     * @param taskExecutor       is a task executor's username
+     * @param messageText        is a message sent by admin. There may be some advices how to do the job right
+     * @param msgKey             is a message key
      * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
-     *
      * @return dashboard page with all new information.
      */
     @PostMapping("/rejectTaskCompletion")
@@ -333,8 +315,7 @@ public class UserController
             @RequestParam("msgKey") String msgKey,
             @RequestParam("messageText") String messageText,
             @ModelAttribute("LoggedUser") User user,
-            RedirectAttributes redirectAttributes)
-    {
+            RedirectAttributes redirectAttributes) {
         String taskKey = taskKeyAndProjectName.split(",")[0];
         String projectName = taskKeyAndProjectName.split(",")[1];
 
