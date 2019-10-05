@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 @Controller
 @SessionAttributes(value = "LoggedUser")
 public class MessageController {
+
     @Autowired
     private UserService userService;
 

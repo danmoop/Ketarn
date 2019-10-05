@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 @SessionAttributes("LoggedUser")
 
 public class ProjectController {
+
     @Autowired
     private ProjectService projectService;
 
     @Autowired
     private UserService userService;
-
 
     /**
      * This request is handled when user redirects to project creation page
@@ -57,7 +57,6 @@ public class ProjectController {
     ) {
         if (projectService.findByName(projectName) == null) {
             Project project = new Project(projectName, user.getUserName(), projectBudget, currencySign);
-
             User userDB = userService.findByUserName(user.getUserName());
 
             userDB.addProject(projectName);
@@ -96,7 +95,6 @@ public class ProjectController {
             ProjectNotification projectNotification = new ProjectNotification(user.getUserName(), text);
 
             projectDB.setProjectNotification(projectNotification);
-
             projectService.save(projectDB);
 
             return "redirect:/project/" + projectName;
@@ -132,9 +130,7 @@ public class ProjectController {
             InboxMessage notification = new InboxMessage(userDB.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + reason + "\n\nSummary: (" + difference + ")", userDB.getUserName(), "inboxMessage");
 
             projectDB.addMessage(notification);
-
             projectDB.setBudget(budget);
-
             projectService.save(projectDB);
 
             return "redirect:/project/" + projectName;
@@ -255,10 +251,11 @@ public class ProjectController {
             Model model) {
         Project project = projectService.findByName(projectName);
 
-        if (project != null && project.getMembers().contains(user.getUserName()))
+        if (project != null && project.getMembers().contains(user.getUserName())) {
             model.addAttribute("project", project);
-        else
+        } else {
             return "redirect:/dashboard";
+        }
 
         return "sections/projectChat";
     }
@@ -267,7 +264,7 @@ public class ProjectController {
      * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
      * @param userName    is a name of the user who wants to join the project
      * @return dashboard page
-     * @see InboxMessage
+     * @see InboxMessage  for explanation of InboxMessage type
      * 
      * This request is handled when user opened a project page and saw that they are not a part of project's team
      * They can press a button -> 'send request to join' and all project admins will get that request
@@ -337,7 +334,7 @@ public class ProjectController {
      * @param memberName  is a name of the user who becomes an admin
      * @return project page
      * @see InboxMessage
-     * 
+     *
      * This request is handled when project admin wants to make another user admin
      */
     @PostMapping("/setMemberAsAdmin")
@@ -361,8 +358,9 @@ public class ProjectController {
             userService.save(member);
 
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been set as " + projectName + "'s admin");
-        } else
+        } else {
             redirectAttributes.addFlashAttribute("errorMsg", "An error has occurred");
+        }
 
         return "redirect:/project/" + projectName;
     }
@@ -391,7 +389,6 @@ public class ProjectController {
 
             InboxMessage message = new InboxMessage(user.getUserName() + " has taken admin right from " + currentAdmin, user.getUserName(), "inboxMessage");
             projectDB.addMessage(message);
-
             projectService.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", currentAdmin + " is not an admin anymore!");
@@ -422,7 +419,6 @@ public class ProjectController {
 
         if (project.getAdmins().contains(user.getUserName())) {
             project.addItem(projectItem, directoryName);
-
             projectService.save(project);
         }
 
@@ -550,6 +546,31 @@ public class ProjectController {
         return "redirect:/project/" + projectName + "/chat";
     }
 
+    ///////////////////////////
+
+    /**
+     * This request is handled when project admin wants to clear the entire chat history
+     * Chat messages list will be cleared and saved to database unless data is invalid
+     *
+     * @param projectName is a project name, taken from a hidden input field, value assigned by thymeleaf
+     * @param user is a logged-in user
+     *
+     * @return project chat page
+     */
+
+    @PostMapping("/clearProjectChat")
+    public String clearProjectChar(@RequestParam("projectName") String projectName, @ModelAttribute("LoggedUser") User user) {
+        Project project = projectService.findByName(projectName);
+
+        if(project != null && project.getAdmins().contains(user.getUserName())) {
+            project.getChatMessages().clear();
+            projectService.save(project);
+
+            return "redirect:/project/" + projectName + "/chat";
+        }
+
+        return "redirect:/dashboard";
+    }
 
     /**
      * @param user        is a logged-in user object

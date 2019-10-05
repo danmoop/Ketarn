@@ -1,63 +1,37 @@
 package com.danmoop.novanode.MainApplication.Controller;
 
-import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.Encrypt;
 import com.danmoop.novanode.MainApplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
 
 @Controller
-@SessionAttributes(value = "LoggedUser")
 public class LoginController {
+
     @Autowired
     private UserService userService;
 
     /**
-     * This request handles authorization
-     * if username and password (compared to MD5 database version) are valid -> log in
+     * This request displays sign in page if not authorized
      *
-     * @param userName is a user's username
-     * @param password is a user's password
-     * @return dashboard page if authorized
+     * @param user is a logged-in user object
+     * @return required page
      */
-    @PostMapping("/loginAttempt")
-    public String loginAttempt(Model model, RedirectAttributes redirectAttributes, @RequestParam("userName") String userName, @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        User userInDB = userService.findByUserName(userName);
-
-        if (userInDB != null) {
-            if (Encrypt.toMD5(password).equals(userInDB.getPassword())) {
-                model.addAttribute("LoggedUser", userInDB);
-
-                redirectAttributes.addFlashAttribute("welcomeMsg", "Hello, " + userInDB.getName().split(" ")[0] + "!");
-
-                return "redirect:/dashboard";
-            } else {
-                redirectAttributes.addFlashAttribute("errorMsg", "Username or password is wrong!");
-                return "redirect:/signin";
-            }
-        } else {
-            redirectAttributes.addFlashAttribute("errorMsg", "Username or password is wrong!");
-            return "redirect:/signin";
-        }
+    @GetMapping("/signin")
+    public String signInPage(Model model, Principal user) {
+        return "redirect:/dashboard";
     }
 
-
-    /**
-     * This request handles removes user's session
-     *
-     * @return index page
-     */
-    @GetMapping("/logout")
-    public String logout(SessionStatus sessionStatus) {
-        sessionStatus.setComplete();
-
+    @GetMapping("/log-out")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         return "redirect:/";
     }
 }

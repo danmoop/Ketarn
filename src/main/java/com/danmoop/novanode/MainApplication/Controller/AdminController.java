@@ -6,16 +6,14 @@ import com.danmoop.novanode.MainApplication.Service.ProjectService;
 import com.danmoop.novanode.MainApplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.util.UUID;
 
 @Controller
-@SessionAttributes(value = "LoggedUser")
 public class AdminController {
     /**
      * @see User, all users have role = 'User' by default, role 'Admin' can be changed only via database editor
@@ -32,12 +30,13 @@ public class AdminController {
      * This is a really cruel move, this is handled when Ketarn admin wants to ban a sinful soul
      *
      * @param userName is a user's username who is going to be banned
-     * @param user     is an admin user object, who is logged in
+     * @param principal     is an admin user object, who is logged in
      * @return admin page
      */
     @PostMapping("/BanUser")
-    public String banUser(@RequestParam("ban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes) {
+    public String banUser(@RequestParam("ban_userName") String userName, Principal principal, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(userName);
+        User user = userService.findByUserName(principal.getName());
 
         if (user.isRoleAdmin() && userDB != null) {
             userDB.setBanned(true);
@@ -53,12 +52,13 @@ public class AdminController {
      * This is handled when admin wants to Unban a user
      *
      * @param userName is a user's username who is going to be Unbanned
-     * @param user     is an admin user object, who is logged in
+     * @param principal     is an admin user object, who is logged in
      * @return admin page
      */
     @PostMapping("/UnbanUser")
-    public String unbanUser(@RequestParam("unban_userName") String userName, @ModelAttribute("LoggedUser") User user, RedirectAttributes redirectAttributes) {
+    public String unbanUser(@RequestParam("unban_userName") String userName, Principal principal, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(userName);
+        User user = userService.findByUserName(principal.getName());
 
         if (user.isRoleAdmin() && userDB != null) {
             userDB.setBanned(false);
@@ -73,13 +73,14 @@ public class AdminController {
     /**
      * This is handled when admin wants to know everything about user, it will show JSON object
      *
-     * @param username is user's username
-     * @param user     is an admin, who is logged in
+     * @param username   is user's username
+     * @param principal  is an admin, who is logged in
      * @return some user's data
      */
     @PostMapping("/getUserInfo")
-    public String userInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("username") String username, RedirectAttributes redirectAttributes) {
+    public String userInfo(Principal principal, @RequestParam("username") String username, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(username);
+        User user = userService.findByUserName(principal.getName());
 
         if (user.isRoleAdmin() && userDB != null)
             redirectAttributes.addFlashAttribute("userInfo", userDB.toString());
@@ -93,13 +94,14 @@ public class AdminController {
     /**
      * This is handled when admin wants to know everything about some project, it will show JSON object
      *
-     * @param projectName is project's name
-     * @param user        is an admin, who is logged in
+     * @param projectName   is project's name
+     * @param principal     is an admin, who is logged in
      * @return some project's data
      */
     @PostMapping("/getProjectInfo")
-    public String projectInfo(@ModelAttribute("LoggedUser") User user, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
+    public String projectInfo(Principal principal, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
         Project project = projectService.findByName(projectName);
+        User user = userService.findByUserName(principal.getName());
 
         if (user.isRoleAdmin() && project != null)
             redirectAttributes.addFlashAttribute("projectInfo", project.toString());

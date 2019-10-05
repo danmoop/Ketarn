@@ -8,40 +8,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
-@SessionAttributes(value = "LoggedUser")
 public class IndexController {
+
     @Autowired
     private UserService userService;
 
     @Autowired
     private ProjectService projectService;
 
-
-    /**
-     * @return LoggedUser which is null by default in order to prevent Spring from displaying error
-     */
-    @ModelAttribute(value = "LoggedUser")
-    public User nullUser() {
-        return null;
-    }
-
-
     /**
      * This request displays index page if user is not banned
      *
-     * @param user   is a logged-in user object
+     * @param principal   is a logged-in user object
      * @param status is a session status, assigned automatically by Spring
      * @return index page
      */
     @GetMapping("/")
-    public String indexPage(@ModelAttribute(value = "LoggedUser") User user, SessionStatus status) {
+    public String indexPage(Principal principal, SessionStatus status) {
+        User user = null;
+
+        if(principal != null) {
+            user = userService.findByUserName(principal.getName());
+        }
+
         if (user == null) {
             return "sections/index";
         } else {
@@ -68,11 +63,13 @@ public class IndexController {
     /**
      * This request displays user's dashboard if user is not banned
      *
-     * @param user is a logged-in user object
+     * @param principal is a logged-in user object
      * @return dashboard page
      */
     @GetMapping("/dashboard")
-    public String dashBoardPage(@ModelAttribute(value = "LoggedUser") User user, Model model, SessionStatus status) {
+    public String dashBoardPage(Principal principal, Model model, SessionStatus status) {
+        User user = userService.findByUserName(principal.getName());
+
         if (user == null) {
             return "redirect:/";
         } else {
@@ -90,31 +87,16 @@ public class IndexController {
         }
     }
 
-
-    /**
-     * This request displays sign in page if not authorized
-     *
-     * @param user is a logged-in user object
-     * @return required page
-     */
-    @GetMapping("/signin")
-    public String signInPage(Model model, @ModelAttribute(value = "LoggedUser") User user) {
-
-        if (user == null)
-            return "sections/signInPage";
-        else
-            return "redirect:/dashboard";
-    }
-
-
     /**
      * This request displays admin page where you can control the world of Ketarn
      *
-     * @param user is a logged-in user object
+     * @param principal is a logged-in user object
      * @return admin page if user is really an admin
      */
     @GetMapping("/admin")
-    public String adminPage(@ModelAttribute("LoggedUser") User user, Model model) {
+    public String adminPage(Principal principal, Model model) {
+        User user = userService.findByUserName(principal.getName());
+
         if (user != null) {
             if (userService.findByUserName(user.getUserName()).getRole().equals("Admin")) {
                 List<User> users = userService.findAll();
