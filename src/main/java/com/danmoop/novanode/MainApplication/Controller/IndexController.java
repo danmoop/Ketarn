@@ -68,6 +68,11 @@ public class IndexController {
      */
     @GetMapping("/dashboard")
     public String dashBoardPage(Principal principal, Model model, SessionStatus status) {
+
+        if(principal == null) {
+            return "redirect:/";
+        }
+
         User user = userService.findByUserName(principal.getName());
 
         if (user == null) {

@@ -263,6 +263,7 @@ public class ProjectController {
             @PathVariable("projectName") String projectName,
             Principal principal,
             Model model) {
+
         Project project = projectService.findByName(projectName);
         User user = userService.findByUserName(principal.getName());
 
@@ -291,6 +292,7 @@ public class ProjectController {
             @RequestParam("projectName") String projectName,
             @RequestParam("userName") String userName,
             RedirectAttributes redirectAttributes) {
+
         Project projectDB = projectService.findByName(projectName);
         List<String> admins = projectDB.getAdmins();
         InboxMessage message = new InboxMessage(userName + " wants to join " + projectName + " project. \nAccept this request or reject.", userName, "inboxRequest");
@@ -339,7 +341,6 @@ public class ProjectController {
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "There is no user with such username: " + recipient);
         }
-
 
         return "redirect:/project/" + projectName;
     }

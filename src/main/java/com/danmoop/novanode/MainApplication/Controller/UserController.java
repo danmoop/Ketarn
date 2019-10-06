@@ -209,8 +209,6 @@ public class UserController {
 
 
     /**
-     * @// FIXME: 10/5/2019 maybe that stream function will throw an exception, line 235
-     *
      * This request is handled when user sends a task review to project's admins
      * Admins will see this review request in their inbox
      *

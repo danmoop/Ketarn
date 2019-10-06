@@ -25,10 +25,13 @@ public class AuthConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(URLS).authenticated()
-                .and().httpBasic()
+                .and()
+                .formLogin()
                 .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
-                .permitAll().and().httpBasic();
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true);
     }
 
     @Override
