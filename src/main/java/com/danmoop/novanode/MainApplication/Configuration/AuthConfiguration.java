@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -22,28 +23,22 @@ public class AuthConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
+        http.authorizeRequests()
                 .antMatchers(URLS).authenticated()
-                .and()
-                .httpBasic()
-                .and()
-                .logout().clearAuthentication(true)
+                .and().httpBasic()
+                .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
-                .deleteCookies("JSESSIONID")
-                .invalidateHttpSession(true);
+                .permitAll().and().httpBasic();
     }
 
     @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception
-    {
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(mongoUserDetailsService)
                 .and().inMemoryAuthentication();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder()
-    {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

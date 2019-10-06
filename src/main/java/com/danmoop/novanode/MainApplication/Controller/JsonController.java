@@ -5,6 +5,8 @@ import com.danmoop.novanode.MainApplication.Model.User;
 import com.danmoop.novanode.MainApplication.Service.ProjectService;
 import com.danmoop.novanode.MainApplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -37,6 +39,12 @@ public class JsonController {
         return "Information is not available";
     }
 
+    /**
+     * If user is logged in -> display principal data
+     * @param principal is a logged-in user object
+     *
+     * @return principal
+     */
     @GetMapping("/principal")
     public Principal principal(Principal principal) {
         return principal != null ? principal : () -> "Unauthorized";

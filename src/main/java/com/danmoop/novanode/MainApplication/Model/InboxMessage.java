@@ -16,14 +16,16 @@ public class InboxMessage {
      * @param type
      * inboxMessage - just a regular message with text
      * inboxRequest - message that looks like a request - includes "accept" & "reject" buttons. It is used when we send a request to join a project
-     * inboxRequestToMember - same as inboxRequest, but when we send an invite to a user
-     * inboxTaskRequest - a type of message that appear when you send a task review to a project's admins. Includes "accept" & "reject" buttons.
+     * inboxRequestToMember - same as inboxRequest, but when we send an invite to a user while being a project admin
+     * inboxTaskRequest - a type of message that appears when you send a task review to a project's admins. Includes "accept" & "reject" buttons.
      */
     private String type;
 
     private String timeDate;
 
-    // key is very useful - it is the way we find message in array and manipulate with it
+    /**
+     * @param key is very useful - it is the way we find message in array and manipulate with it
+     */
     private String messageKey;
 
     private String details;
