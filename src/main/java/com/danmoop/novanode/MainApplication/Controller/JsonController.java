@@ -29,14 +29,24 @@ public class JsonController {
      * @return project JSON
      */
     @GetMapping("/getProjectJson/{projectName}")
-    public String json(@PathVariable("projectName") String projectName, Principal principal) {
+    public Project getProjectJson(@PathVariable("projectName") String projectName, Principal principal) {
         Project project = projectService.findByName(projectName);
         User user = userService.findByUserName(principal.getName());
 
-        if (project.getAuthorName().equals(user.getUserName()))
-            return project.toString();
+        if (project.getAuthorName().equals(user.getUserName())) {
+            return project;
+        }
 
-        return "Information is not available";
+        return new Project();
+    }
+
+    @GetMapping("/getUserJson/{userName}")
+    public User getUserJson(@PathVariable("userName") String userName, Principal principal) {
+        if(principal.getName().equals(userName)) {
+            return userService.findByUserName(userName);
+        }
+
+        return new User();
     }
 
     /**

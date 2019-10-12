@@ -45,8 +45,8 @@ public class DashboardController {
      */
     @PostMapping("/deleteAllInbox")
     public String deleteAllInbox(Principal principal, RedirectAttributes redirectAttributes) {
-        User user = userService.findByUserName(principal.getName());
 
+        User user = userService.findByUserName(principal.getName());
         User userDB = userService.findByUserName(user.getUserName());
 
         userDB.emptyArchive();
@@ -61,7 +61,7 @@ public class DashboardController {
     /**
      * This request is handled when user wants to change password
      *
-     * @param principal        is a logged-in user object
+     * @param principal   is a logged-in user object
      * @param oldPass     is an old password, taken from html input field
      * @param newPass     is a new password, taken from html input field
      * @param confirmPass is a new password, taken from html input field
@@ -98,8 +98,8 @@ public class DashboardController {
     /**
      * This request is handled when user wants to edit dashboard notes
      *
-     * @param principal     is a logged-in user object
-     * @param noteText is a note text
+     * @param principal is a logged-in user object
+     * @param noteText  is a note text
      * @return dashboard page
      */
     @PostMapping("/editUserNotes")

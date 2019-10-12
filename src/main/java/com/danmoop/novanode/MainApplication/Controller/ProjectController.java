@@ -362,6 +362,7 @@ public class ProjectController {
             @RequestParam("memberName") String memberName,
             Principal principal,
             RedirectAttributes redirectAttributes) {
+
         Project projectDB = projectService.findByName(projectName);
         User member = userService.findByUserName(memberName);
         User user = userService.findByUserName(principal.getName());
@@ -415,8 +416,9 @@ public class ProjectController {
             projectService.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", currentAdmin + " is not an admin anymore!");
-        } else
-            redirectAttributes.addFlashAttribute("errorMsg", "An error has occurred");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMsg", "You can not un-admin yourself");
+        }
 
         return "redirect:/project/" + projectName;
     }
@@ -582,8 +584,6 @@ public class ProjectController {
         return "redirect:/project/" + projectName + "/chat";
     }
 
-    ///////////////////////////
-
     /**
      * This request is handled when project admin wants to clear the entire chat history
      * Chat messages list will be cleared and saved to database unless data is invalid
@@ -627,6 +627,7 @@ public class ProjectController {
                     .collect(Collectors.toList());
 
             InboxMessage deletionNotification = new InboxMessage(principal.getName() + " has removed project you take part in - " + projectName, principal.getName(), "inboxMessage");
+
             for (User user1 : users) {
                 user1.removeProject(projectName);
                 user1.addMessage(deletionNotification);
