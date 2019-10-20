@@ -93,11 +93,12 @@
                                     <div class="uk-width-expand">
                                         <h3 class="uk-card-title uk-margin-remove-bottom eina">Your projects</h3>
                                         <a th:if="${#lists.size(LoggedUser.projectsTakePartIn) != 0}" class="uk-button uk-button-text btn" href="#projectSettings" uk-toggle><span uk-icon="cog"></span> Settings</a>
+                                        <button class="uk-button uk-button-text eina" type="button" uk-toggle="target: .projectToggle"><span uk-icon="info"></span> Toggle projects</button><br/>
                                     </div>
                                 </div>
                             </div>
                             <div class="uk-card-body">
-                                <ul class="uk-list uk-list-divider">
+                                <ul class="uk-list uk-list-divider projectToggle">
                                     <li th:each="project: ${LoggedUser.projectsTakePartIn}" th:inline="text">
                                         <h4 class="eina">[[${project}]]
                                             <a class="uk-button uk-button-text btn" th:href=" '/project/' + ${project}"><span uk-icon="info"></span> View project</a>
@@ -105,6 +106,7 @@
                                     </li>
                                     <h5 class="eina" th:if="${#lists.size(LoggedUser.projectsTakePartIn) == 0}">You don't take part at any project yet</h5>
                                 </ul>
+                                <h4 class="eina text-center projectToggle" hidden style="color: #888;">Projects are hidden</h4>
                             </div>
                         </div>
                     </div>
