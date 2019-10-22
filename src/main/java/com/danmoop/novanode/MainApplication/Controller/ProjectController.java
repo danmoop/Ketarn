@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,13 +80,12 @@ public class ProjectController {
 
     /**
      * This request is handled when project admin wants to set a notification for other members
-     * @see ProjectNotification
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from html textfield
      * @param text        is a notification text message
-     *
      * @return project page with new notification
+     * @see ProjectNotification
      */
     @PostMapping("/setProjectNotification")
     public String notificationSubmitted(
@@ -112,14 +110,13 @@ public class ProjectController {
 
     /**
      * This request is handled when project admin wants to set a new project budget
-     * @see InboxMessage
-
+     *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from html textfield
      * @param budget      is a new project budget
      * @param reason      states why budget is changed. It will be seen to everybody
-     *
      * @return project page with new budget
+     * @see InboxMessage
      */
     @PostMapping("/setProjectBudget")
     public String setBudget(
@@ -148,15 +145,14 @@ public class ProjectController {
 
     /**
      * This request is handled when project admin wants to add a new project task
-     * @see InboxMessage
      *
      * @param principal    is a logged-in user object
      * @param projectName  is a project name, taken from html textfield
      * @param deadline     is a task deadline, it can be chosen from a calendar input on html page
      * @param description  is a task description
      * @param taskExecutor is a person who will be doing the task
-     *
      * @return project page with new task
+     * @see InboxMessage
      */
     @PostMapping("/addProjectTask")
     public String addProjectTask(
@@ -190,15 +186,13 @@ public class ProjectController {
     }
 
     /**
-     * @see InboxMessage
-     *
-     * This request is handled when project admin wants to clear project inbox
-     * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
-     *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from html textfield
-     *
      * @return project page with an empty inbox
+     * @see InboxMessage
+     * <p>
+     * This request is handled when project admin wants to clear project inbox
+     * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
      */
     @PostMapping("/deleteAllInboxMessages")
     public String deleteAllInbox(Principal principal, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
@@ -220,12 +214,11 @@ public class ProjectController {
 
     /**
      * This request is handled when user wants to open a project page
-     * @see Currency
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
-     *
      * @return project page if user is a member of the project, otherwise redirect to not-a-member page
+     * @see Currency
      */
     @GetMapping("/project/{projectName}")
     public String projectPage(@PathVariable String projectName, Model model, Principal principal) {
@@ -250,42 +243,14 @@ public class ProjectController {
         return "error/404";
     }
 
-
     /**
-     * This request is handled when user wants to open a project chat
-     *
-     * @param principal   is a logged-in user object
-     * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
-     * @return project chat page
-     */
-    @GetMapping("/project/{projectName}/chat")
-    public String projectChat(
-            @PathVariable("projectName") String projectName,
-            Principal principal,
-            Model model) {
-
-        Project project = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
-
-        if (project != null && project.getMembers().contains(user.getUserName())) {
-            model.addAttribute("project", project);
-        } else {
-            return "redirect:/dashboard";
-        }
-
-        return "sections/projectChat";
-    }
-
-    /**
-     * @see InboxMessage  for explanation of InboxMessage type
-     *
-     * This request is handled when user opened a project page and saw that they are not a part of project's team
-     * They can press a button -> 'send request to join' and all project admins will get that request
-     *
      * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
      * @param userName    is a name of the user who wants to join the project
-     *
      * @return dashboard page
+     * @see InboxMessage  for explanation of InboxMessage type
+     * <p>
+     * This request is handled when user opened a project page and saw that they are not a part of project's team
+     * They can press a button -> 'send request to join' and all project admins will get that request
      */
     @PostMapping("/sendARequest")
     public String joinRequest(
@@ -314,13 +279,12 @@ public class ProjectController {
 
     /**
      * This request is handled when project admin wants to invite specific user to the project
-     * @see InboxMessage
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @param recipient   is the user who gets the invitation
-     *
      * @return project page
+     * @see InboxMessage
      */
     @PostMapping("/inviteMemberToProject")
     public String inviteMemberToProject(
@@ -347,14 +311,12 @@ public class ProjectController {
 
 
     /**
-     * @see InboxMessage
-     * This request is handled when project admin wants to make another user admin
-
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @param memberName  is a name of the user who becomes an admin
-     *
      * @return project page
+     * @see InboxMessage
+     * This request is handled when project admin wants to make another user admin
      */
     @PostMapping("/setMemberAsAdmin")
     public String setAsAdmin(
@@ -388,16 +350,14 @@ public class ProjectController {
 
 
     /**
-     * @see InboxMessage
-     *
-     * This request is handled when project admin wants to take another user's admin right
-     * That user will no longer be an admin
-     *
      * @param principal    is a logged-in user object
      * @param projectName  is a project name, taken from a hidden html input field
      * @param currentAdmin is a name of the user who no longer will be an admin
-     *
      * @return project page
+     * @see InboxMessage
+     * <p>
+     * This request is handled when project admin wants to take another user's admin right
+     * That user will no longer be an admin
      */
     @PostMapping("/unAdmin")
     public String unAdminUser(
@@ -425,15 +385,14 @@ public class ProjectController {
 
 
     /**
-     * @see ProjectItem
-     *
-     * This request is handled when project admin wants to add another project item to project
-     * This item will be added to project to it's directory and saved
-     *
      * @param principal     is a logged-in user object
      * @param projectName   is a project name, taken from a hidden html input field
      * @param directoryName is a directory name where that item belongs
      * @return project page
+     * @see ProjectItem
+     * <p>
+     * This request is handled when project admin wants to add another project item to project
+     * This item will be added to project to it's directory and saved
      */
     @PostMapping("/addNewCard")
     public String newCard(
@@ -455,15 +414,13 @@ public class ProjectController {
     }
 
     /**
-     * @see ProjectItem
-     *
-     * This request is handled when project admin wants to remove a project item
-     * It will be removed
-     *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
-     *
      * @return project page
+     * @see ProjectItem
+     * <p>
+     * This request is handled when project admin wants to remove a project item
+     * It will be removed
      */
     @PostMapping("/removeItem")
     public String removeCard(
@@ -486,15 +443,13 @@ public class ProjectController {
     }
 
     /**
-     * @see ProjectItem
-     *
-     * This request is handled when project admin wants to mark the item as done
-     * The item will be moved to 'done' category
-     *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
-     *
      * @return project page
+     * @see ProjectItem
+     * <p>
+     * This request is handled when project admin wants to mark the item as done
+     * The item will be moved to 'done' category
      */
     @PostMapping("/markItemAsDone")
     public String markItemAsDone(
@@ -523,7 +478,6 @@ public class ProjectController {
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
-     *
      * @return project page
      */
     @PostMapping("/currentItemsAllDone")
@@ -545,7 +499,6 @@ public class ProjectController {
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
-     *
      * @return project page
      */
     @PostMapping("/removeDoneItems")
@@ -560,61 +513,12 @@ public class ProjectController {
         return "redirect:/project/" + projectName;
     }
 
-
-    /**
-     * This request is handled when project member wants to send a message to chat
-     * It will be saved and visible to everyone else in the chat
-     *
-     * @param principal   is a logged-in user object
-     * @param projectName is a project name, taken from a hidden html input field
-     *
-     * @return project page
-     */
-    @PostMapping("/sendMessageToChat")
-    public String sendMessageToChat(@RequestParam("projectName") String projectName, @RequestParam("message") String message, Principal principal) {
-        Project project = projectService.findByName(projectName);
-
-        if (project != null && project.getMembers().contains(principal.getName()) && !message.equals("")) {
-            ChatMessage chatMessage = new ChatMessage(message, principal.getName(), new Date().toString());
-            project.addChatMessage(chatMessage);
-
-            projectService.save(project);
-        }
-
-        return "redirect:/project/" + projectName + "/chat";
-    }
-
-    /**
-     * This request is handled when project admin wants to clear the entire chat history
-     * Chat messages list will be cleared and saved to database unless data is invalid
-     *
-     * @param projectName is a project name, taken from a hidden input field, value assigned by thymeleaf
-     * @param principal   is a logged-in user
-     *
-     * @return project chat page
-     */
-
-    @PostMapping("/clearProjectChat")
-    public String clearProjectChar(@RequestParam("projectName") String projectName, Principal principal) {
-        Project project = projectService.findByName(projectName);
-
-        if(project != null && project.getAdmins().contains(principal.getName())) {
-            project.getChatMessages().clear();
-            projectService.save(project);
-
-            return "redirect:/project/" + projectName + "/chat";
-        }
-
-        return "redirect:/dashboard";
-    }
-
     /**
      * This request is handled when project admin wants to remove a project
      * All members will be notified about it in their inbox
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
-     *
      * @return dashboard page
      */
     @PostMapping("/removeProject")

@@ -1,5 +1,6 @@
 package com.danmoop.novanode.MainApplication.Model;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class ChatMessage {
@@ -8,10 +9,10 @@ public class ChatMessage {
     private String timeStamp;
     private String key;
 
-    public ChatMessage(String text, String sender, String timeStamp) {
+    public ChatMessage(String text, String sender) {
         this.text = text;
         this.sender = sender;
-        this.timeStamp = timeStamp;
+        this.timeStamp = new Date().toString();
         this.key = UUID.randomUUID().toString();
     }
 

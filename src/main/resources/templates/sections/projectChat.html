@@ -16,6 +16,12 @@
         <div class="col-sm-4">
             <a href="#/" onclick="scrollToDown();">Scroll to down</a>
         </div>
+        <div class="col-sm-4">
+            <form th:action="@{/clearProjectChat}" method="post">
+                <input type="hidden" th:name="projectName" th:value="*{project.name}">
+                <input type="submit" value="Delete all chat messages" />
+            </form>
+        </div>
     </div>
     <hr/>
     <h2 class="text-center" th:if="${#lists.size(project.chatMessages) == 0}">No messages so far</h2>

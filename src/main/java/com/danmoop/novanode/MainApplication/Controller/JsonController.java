@@ -5,9 +5,10 @@ import com.danmoop.novanode.MainApplication.Model.User;
 import com.danmoop.novanode.MainApplication.Service.ProjectService;
 import com.danmoop.novanode.MainApplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import java.security.Principal;
 
@@ -22,11 +23,11 @@ public class JsonController {
     private UserService userService;
 
     /**
-     * This request displays project JSON object
+     * This request displays project JSON information
      *
-     * @param projectName is a project name
+     * @param projectName is a project name, taken from an address bar
      * @param principal   is a logged-in user object
-     * @return project JSON
+     * @return project JSON, if credentials are invalid - return empty project
      */
     @GetMapping("/getProjectJson/{projectName}")
     public Project getProjectJson(@PathVariable("projectName") String projectName, Principal principal) {
@@ -40,9 +41,16 @@ public class JsonController {
         return new Project();
     }
 
+    /**
+     * This request displays user JSON information
+     *
+     * @param userName  is taken from an address bar
+     * @param principal is a logged-in user object
+     * @return user JSON, if credentials are invalid - return empty user
+     */
     @GetMapping("/getUserJson/{userName}")
     public User getUserJson(@PathVariable("userName") String userName, Principal principal) {
-        if(principal.getName().equals(userName)) {
+        if (principal.getName().equals(userName)) {
             return userService.findByUserName(userName);
         }
 
@@ -51,8 +59,8 @@ public class JsonController {
 
     /**
      * If user is logged in -> display principal data
-     * @param principal is a logged-in user object
      *
+     * @param principal is a logged-in user object
      * @return principal
      */
     @GetMapping("/principal")

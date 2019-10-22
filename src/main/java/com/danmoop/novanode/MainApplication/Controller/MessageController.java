@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -51,7 +50,7 @@ public class MessageController {
      * @param principal is a logged-in user object
      * @return dashboard page
      * @see InboxMessage
-     *
+     * <p>
      * This request is handled when user wants to mark message as done
      * Message will be moved to 'Read' list
      */
@@ -74,7 +73,7 @@ public class MessageController {
      * @param principal is a logged-in user object
      * @return dashboard page
      * @see InboxMessage
-     *
+     * <p>
      * This request is handled when user wants to delete message forever
      * It will be deleted from 'Read' list
      */

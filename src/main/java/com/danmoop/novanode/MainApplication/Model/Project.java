@@ -29,7 +29,8 @@ public class Project {
 
     private boolean verificated;
 
-    public Project() {}
+    public Project() {
+    }
 
     public Project(String name, String authorName, long budget, String currencySign) {
         this.name = name;
@@ -246,5 +247,27 @@ public class Project {
 
     public void addChatMessage(ChatMessage message) {
         chatMessages.add(message);
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", projectKey='" + projectKey + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", admins=" + admins +
+                ", members=" + members +
+                ", projectNotification=" + projectNotification +
+                ", budget=" + budget +
+                ", currencySign='" + currencySign + '\'' +
+                ", projectInbox=" + projectInbox +
+                ", projectTasks=" + projectTasks +
+                ", completedTasks=" + completedTasks +
+                ", chatMessages=" + chatMessages +
+                ", activeProjectItems=" + activeProjectItems +
+                ", doneProjectItems=" + doneProjectItems +
+                ", verificated=" + verificated +
+                '}';
     }
 }

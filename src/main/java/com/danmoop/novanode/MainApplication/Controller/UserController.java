@@ -4,7 +4,6 @@ import com.danmoop.novanode.MainApplication.Model.InboxMessage;
 import com.danmoop.novanode.MainApplication.Model.Project;
 import com.danmoop.novanode.MainApplication.Model.Task;
 import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.Encrypt;
 import com.danmoop.novanode.MainApplication.Service.ProjectService;
 import com.danmoop.novanode.MainApplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,9 +85,6 @@ public class UserController {
             We compare an old password to a current password, so with new pass and confirmation
             If everything is fine, we proceed and rewrite user's information
         */
-        System.out.println(oldPass);
-        System.out.println(passwordEncoder.encode(oldPass));
-        System.out.println(userDB.getPassword());
         if (passwordEncoder.encode(oldPass).equals(userDB.getPassword()) && newPass.equals(confirmPass)) {
             userDB.setPassword(passwordEncoder.encode(newPass));
             userService.save(userDB);

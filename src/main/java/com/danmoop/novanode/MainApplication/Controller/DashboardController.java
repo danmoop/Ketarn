@@ -42,9 +42,7 @@ public class DashboardController {
      */
     @PostMapping("/deleteAllInbox")
     public String deleteAllInbox(Principal principal, RedirectAttributes redirectAttributes) {
-
-        User user = userService.findByUserName(principal.getName());
-        User userDB = userService.findByUserName(user.getUserName());
+        User userDB = userService.findByUserName(principal.getName());
 
         userDB.emptyArchive();
         userService.save(userDB);
@@ -65,7 +63,7 @@ public class DashboardController {
     public String editUserNotes(@RequestParam("noteText") String noteText, Principal principal) {
         User userDB = userService.findByUserName(principal.getName());
 
-        if(userDB != null) {
+        if (userDB != null) {
             userDB.setNote(noteText);
             userService.save(userDB);
         }

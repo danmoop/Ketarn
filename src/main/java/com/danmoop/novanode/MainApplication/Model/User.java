@@ -207,7 +207,6 @@ public class User {
 
     public void readAllInboxMessages() {
         readMessages.addAll(messages);
-
         messages.clear();
     }
 
@@ -240,5 +239,27 @@ public class User {
 
     public void addCompletedTask(Task task) {
         completedTasks.add(task);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", userName='" + userName + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", role='" + role + '\'' +
+                ", note='" + note + '\'' +
+                ", registerDate=" + registerDate +
+                ", banned=" + banned +
+                ", messages=" + messages +
+                ", readMessages=" + readMessages +
+                ", tasks=" + tasks +
+                ", createdProjects=" + createdProjects +
+                ", projectsTakePartIn=" + projectsTakePartIn +
+                ", workSuccessPoints=" + workSuccessPoints +
+                ", completedTasks=" + completedTasks +
+                '}';
     }
 }
