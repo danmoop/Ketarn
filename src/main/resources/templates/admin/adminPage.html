@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ketarn - Admin</title>
     <link rel="stylesheet" href="/css/bootstrap.css" />
     <link rel="stylesheet" href="/css/uikit.css" />
@@ -24,17 +25,19 @@
             <div class="col-sm-6">
                 <div class="uk-projectItem uk-projectItem-default uk-projectItem-body" style="border: 1px solid #888;">
                     <h3 class="uk-projectItem-title">Ban user</h3>
+                    <h3 style="color: red;" th:if="${err_ban}" th:text="${err_ban}"></h3>
 
                     <form th:action="@{/BanUser}" method="post">
                         <input th:name="ban_userName" type="text" placeholder="username">
                         <input type="submit" value="Ban">
                     </form>
-
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="uk-projectItem uk-projectItem-default uk-projectItem-body" style="border: 1px solid #888;">
                     <h3 class="uk-projectItem-title">Unban user</h3>
+                    <h3 style="color: red;" th:if="${err_unban}" th:text="${err_unban}"></h3>
+
                     <form th:action="@{/UnbanUser}" method="post">
                         <input th:name="unban_userName" type="text" placeholder="username">
                         <input type="submit" value="Unban">

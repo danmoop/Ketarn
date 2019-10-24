@@ -236,6 +236,7 @@ public class ProjectController {
                 return "sections/projectDashboard";
             } else {
                 model.addAttribute("projectName", projectName);
+                model.addAttribute("LoggedUser", userDB);
                 return "handlingPages/notamember";
             }
         }

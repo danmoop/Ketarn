@@ -8,8 +8,8 @@ import java.util.UUID;
 
 @Document(collection = "messages")
 public class InboxMessage {
-    private String text;
 
+    private String text;
     private String authorName;
 
     /**
@@ -28,16 +28,13 @@ public class InboxMessage {
      */
     private String messageKey;
 
-    private String details;
-
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
     public InboxMessage(String text, String authorName, String type) {
         this.text = text;
         this.authorName = authorName;
         this.messageKey = generateMessageKey();
         this.timeDate = dtf.format(LocalDateTime.now());
-        this.details = "none";
         this.type = type;
     }
 
@@ -79,14 +76,6 @@ public class InboxMessage {
 
     public void setMessageKey(String messageKey) {
         this.messageKey = messageKey;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
     }
 
     private String generateMessageKey() {

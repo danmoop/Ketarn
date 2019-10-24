@@ -75,13 +75,12 @@ public class Task {
 
     private String generateKey() {
         String possible = "1234567890";
-
-        String result = "";
+        StringBuilder builder = new StringBuilder();
 
         for (int i = 0; i < 5; i++) {
-            result += possible.charAt((int) Math.floor(Math.random() * possible.length()));
+            builder.append(possible.charAt((int) Math.floor(Math.random() * possible.length())));
         }
 
-        return "#" + result;
+        return "#" + builder.toString();
     }
 }

@@ -4,10 +4,10 @@ import com.danmoop.novanode.MainApplication.Model.User;
 import com.danmoop.novanode.MainApplication.Service.ProjectService;
 import com.danmoop.novanode.MainApplication.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.support.SessionStatus;
 
 import java.security.Principal;
 
@@ -24,11 +24,10 @@ public class IndexController {
      * This request displays index page if user is not banned
      *
      * @param principal is a logged-in user object
-     * @param status    is a session status, assigned automatically by Spring
      * @return index page
      */
     @GetMapping("/")
-    public String indexPage(Principal principal, SessionStatus status) {
+    public String indexPage(Principal principal) {
         User user = null;
 
         if (principal != null) {
@@ -41,7 +40,7 @@ public class IndexController {
             if (!user.isBanned()) {
                 return "redirect:/dashboard";
             } else {
-                status.setComplete(); // log out user
+                SecurityContextHolder.clearContext(); // log out user
                 return "handlingPages/youarebanned";
             }
         }
@@ -65,7 +64,7 @@ public class IndexController {
      * @return dashboard page
      */
     @GetMapping("/dashboard")
-    public String dashBoardPage(Principal principal, Model model, SessionStatus status) {
+    public String dashBoardPage(Principal principal, Model model) {
 
         if (principal == null) {
             return "redirect:/";
@@ -81,7 +80,7 @@ public class IndexController {
 
             return "sections/dashboard";
         } else {
-            status.setComplete();
+            SecurityContextHolder.clearContext();
             return "handlingPages/youarebanned";
         }
     }

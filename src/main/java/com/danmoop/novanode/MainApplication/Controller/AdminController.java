@@ -71,6 +71,8 @@ public class AdminController {
             userDB.setBanned(true);
             userService.save(userDB);
             redirectAttributes.addFlashAttribute("msg", userDB.getUserName() + " has been banned");
+        } else {
+            redirectAttributes.addFlashAttribute("err_ban", userName + " is not registered");
         }
 
         return "redirect:/admin";
@@ -93,6 +95,8 @@ public class AdminController {
             userDB.setBanned(false);
             userService.save(userDB);
             redirectAttributes.addFlashAttribute("msg", userDB.getUserName() + " has been unbanned");
+        } else {
+            redirectAttributes.addFlashAttribute("err_unban", userName + " is not registered");
         }
 
         return "redirect:/admin";
