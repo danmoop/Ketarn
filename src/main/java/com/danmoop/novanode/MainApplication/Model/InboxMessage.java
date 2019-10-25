@@ -28,6 +28,8 @@ public class InboxMessage {
      */
     private String messageKey;
 
+    private String details;
+
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
     public InboxMessage(String text, String authorName, String type) {
@@ -36,6 +38,7 @@ public class InboxMessage {
         this.messageKey = generateMessageKey();
         this.timeDate = dtf.format(LocalDateTime.now());
         this.type = type;
+        this.details = "";
     }
 
     public String getText() {
@@ -64,6 +67,14 @@ public class InboxMessage {
 
     public String getTimeDate() {
         return timeDate;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public String getDetails() {
+        return details;
     }
 
     public void setTimeDate(String timeDate) {
