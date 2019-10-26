@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @Document(collection = "projects")
@@ -143,54 +141,13 @@ public class ProjectController {
         return "redirect:/dashboard";
     }
 
-    /**
-     * This request is handled when project admin wants to add a new project task
-     *
-     * @param principal    is a logged-in user object
-     * @param projectName  is a project name, taken from html textfield
-     * @param deadline     is a task deadline, it can be chosen from a calendar input on html page
-     * @param description  is a task description
-     * @param taskExecutor is a person who will be doing the task
-     * @return project page with new task
-     * @see InboxMessage
-     */
-    @PostMapping("/addProjectTask")
-    public String addProjectTask(
-            Principal principal,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("taskDeadline") String deadline,
-            @RequestParam("taskExecutor") String taskExecutor,
-            @RequestParam("taskDescription") String description,
-            RedirectAttributes redirectAttributes) {
-        Project projectDB = projectService.findByName(projectName);
-        User executor = userService.findByUserName(taskExecutor);
-        User user = userService.findByUserName(principal.getName());
-
-        if (user.isProjectAdmin(projectDB) && executor != null) {
-            if (!executor.getUserName().equals(user.getUserName())) {
-                Task task = new Task(user.getUserName(), description, taskExecutor, deadline, projectName);
-                InboxMessage notification = new InboxMessage(user.getUserName() + " created a new task, set " + executor.getUserName() + " (" + executor.getName() + ") as executor\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
-                InboxMessage message = new InboxMessage("Hello, " + executor.getName() + ". You have got a new task in " + projectName + " project.\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
-
-                projectDB.addTask(task);
-                projectDB.addMessage(notification);
-                projectService.save(projectDB);
-
-                executor.addTask(task);
-                executor.addMessage(message);
-                userService.save(executor);
-            } else
-                redirectAttributes.addFlashAttribute("errorMsg", "You can't give a task to yourself. Only other member can do that");
-        }
-        return "redirect:/project/" + projectName;
-    }
 
     /**
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from html textfield
      * @return project page with an empty inbox
      * @see InboxMessage
-     * <p>
+     *
      * This request is handled when project admin wants to clear project inbox
      * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
      */
@@ -199,9 +156,9 @@ public class ProjectController {
         Project projectDB = projectService.findByName(projectName);
         User user = userService.findByUserName(principal.getName());
 
-        if (user.isProjectAdmin(projectDB) && projectDB != null) {
+        if (projectDB != null && user.isProjectAdmin(projectDB)) {
             projectDB.emptyInbox();
-            projectDB.addMessage(new InboxMessage(user.getUserName() + " has emptied project inbox.", user.getUserName(), "inboxMessage"));
+            projectDB.addMessage(new InboxMessage(user.getUserName() + " has cleared project inbox.", user.getUserName(), "inboxMessage"));
             projectService.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", "Project inbox cleared");
@@ -214,6 +171,7 @@ public class ProjectController {
 
     /**
      * This request is handled when user wants to open a project page
+     * If a user is a member of a project -> let them in, otherwise show a corresponding message
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
@@ -249,7 +207,7 @@ public class ProjectController {
      * @param userName    is a name of the user who wants to join the project
      * @return dashboard page
      * @see InboxMessage  for explanation of InboxMessage type
-     * <p>
+     *
      * This request is handled when user opened a project page and saw that they are not a part of project's team
      * They can press a button -> 'send request to join' and all project admins will get that request
      */
@@ -260,17 +218,15 @@ public class ProjectController {
             RedirectAttributes redirectAttributes) {
 
         Project projectDB = projectService.findByName(projectName);
-        List<String> admins = projectDB.getAdmins();
         InboxMessage message = new InboxMessage(userName + " wants to join " + projectName + " project. \nAccept this request or reject.", userName, "inboxRequest");
+        message.setDetails(projectName);
 
-        for (String admin1 : admins) {
-            User admin = userService.findByUserName(admin1);
-
-            message.setDetails(projectName);
-            admin.addMessage(message);
-
-            userService.save(admin);
-        }
+        projectDB.getAdmins().stream()
+                .map(adminName -> userService.findByUserName(adminName))
+                .forEach(admin -> {
+                    admin.addMessage(message);
+                    userService.save(admin);
+                });
 
         redirectAttributes.addFlashAttribute("successMsg", "Request sent successfully to " + projectName + " project!");
 
@@ -356,7 +312,7 @@ public class ProjectController {
      * @param currentAdmin is a name of the user who no longer will be an admin
      * @return project page
      * @see InboxMessage
-     * <p>
+     *
      * This request is handled when project admin wants to take another user's admin right
      * That user will no longer be an admin
      */
@@ -391,7 +347,7 @@ public class ProjectController {
      * @param directoryName is a directory name where that item belongs
      * @return project page
      * @see ProjectItem
-     * <p>
+     *
      * This request is handled when project admin wants to add another project item to project
      * This item will be added to project to it's directory and saved
      */
@@ -419,7 +375,7 @@ public class ProjectController {
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
-     * <p>
+     *
      * This request is handled when project admin wants to remove a project item
      * It will be removed
      */
@@ -434,7 +390,6 @@ public class ProjectController {
 
         if (project != null && project.getAdmins().contains(user.getUserName())) {
             ProjectItem projectItem = project.getItemByKey(cardKey);
-
             project.removeCard(projectItem);
 
             projectService.save(project);
@@ -448,7 +403,7 @@ public class ProjectController {
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
-     * <p>
+     *
      * This request is handled when project admin wants to mark the item as done
      * The item will be moved to 'done' category
      */
@@ -527,17 +482,15 @@ public class ProjectController {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(principal.getName())) {
-            List<User> users = project.getMembers().stream()
-                    .map(member -> userService.findByUserName(member))
-                    .collect(Collectors.toList());
-
             InboxMessage deletionNotification = new InboxMessage(principal.getName() + " has removed project you take part in - " + projectName, principal.getName(), "inboxMessage");
 
-            for (User user1 : users) {
-                user1.removeProject(projectName);
-                user1.addMessage(deletionNotification);
-                userService.save(user1);
-            }
+            project.getMembers().stream()
+                    .map(member -> userService.findByUserName(member))
+                    .forEach(memberUser -> {
+                        memberUser.removeProject(projectName);
+                        memberUser.addMessage(deletionNotification);
+                        userService.save(memberUser);
+                    });
 
             projectService.delete(project);
 

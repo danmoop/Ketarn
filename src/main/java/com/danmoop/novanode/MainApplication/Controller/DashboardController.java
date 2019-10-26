@@ -15,6 +15,7 @@ public class DashboardController {
     @Autowired
     private UserService userService;
 
+
     /**
      * This request is handled when user wants to read all inbox and move all messages to 'Read' folder
      *

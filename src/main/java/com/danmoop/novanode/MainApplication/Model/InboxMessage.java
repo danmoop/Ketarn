@@ -2,8 +2,7 @@ package com.danmoop.novanode.MainApplication.Model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.UUID;
 
 @Document(collection = "messages")
@@ -30,13 +29,11 @@ public class InboxMessage {
 
     private String details;
 
-    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-
     public InboxMessage(String text, String authorName, String type) {
         this.text = text;
         this.authorName = authorName;
         this.messageKey = generateMessageKey();
-        this.timeDate = dtf.format(LocalDateTime.now());
+        this.timeDate = new Date().toString();
         this.type = type;
         this.details = "";
     }
