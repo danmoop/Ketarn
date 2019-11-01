@@ -190,6 +190,7 @@ public class TaskController {
                 redirectAttributes.addFlashAttribute("errorMsg", "You can't give a task to yourself!");
             }
         }
+
         return "redirect:/project/" + projectName;
     }
 }

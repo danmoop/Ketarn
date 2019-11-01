@@ -115,10 +115,12 @@ public class AdminController {
         User userDB = userService.findByUserName(username);
         User user = userService.findByUserName(principal.getName());
 
-        if (user.isRoleAdmin() && userDB != null)
+        if (user.isRoleAdmin() && userDB != null) {
             redirectAttributes.addFlashAttribute("userInfo", userDB.toString());
-        else
+        }
+        else {
             redirectAttributes.addFlashAttribute("userInfo", username + " is not registered");
+        }
 
         return "redirect:/admin";
     }
@@ -136,10 +138,12 @@ public class AdminController {
         Project project = projectService.findByName(projectName);
         User user = userService.findByUserName(principal.getName());
 
-        if (user.isRoleAdmin() && project != null)
+        if (user.isRoleAdmin() && project != null) {
             redirectAttributes.addFlashAttribute("projectInfo", project.toString());
-        else
+        }
+        else {
             redirectAttributes.addFlashAttribute("projectInfo", projectName + " is not found");
+        }
 
         return "redirect:/admin";
     }
