@@ -2,7 +2,6 @@ package com.danmoop.novanode.MainApplication.Controller;
 
 import com.danmoop.novanode.MainApplication.Model.InboxMessage;
 import com.danmoop.novanode.MainApplication.Model.Project;
-import com.danmoop.novanode.MainApplication.Model.Task;
 import com.danmoop.novanode.MainApplication.Model.User;
 import com.danmoop.novanode.MainApplication.Service.ProjectService;
 import com.danmoop.novanode.MainApplication.Service.UserService;
@@ -11,20 +10,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.util.stream.Collectors;
 
 /**
  * @class UserController
  * This class mostly manipulates with project tasks: completion, sending requests etc.
  */
 @Controller
-@SessionAttributes(value = "LoggedUser")
 public class UserController {
 
     @Autowired

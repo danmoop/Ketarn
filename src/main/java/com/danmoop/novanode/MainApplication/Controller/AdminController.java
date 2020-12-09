@@ -117,8 +117,7 @@ public class AdminController {
 
         if (user.isRoleAdmin() && userDB != null) {
             redirectAttributes.addFlashAttribute("userInfo", userDB.toString());
-        }
-        else {
+        } else {
             redirectAttributes.addFlashAttribute("userInfo", username + " is not registered");
         }
 
@@ -140,8 +139,7 @@ public class AdminController {
 
         if (user.isRoleAdmin() && project != null) {
             redirectAttributes.addFlashAttribute("projectInfo", project.toString());
-        }
-        else {
+        } else {
             redirectAttributes.addFlashAttribute("projectInfo", projectName + " is not found");
         }
 
