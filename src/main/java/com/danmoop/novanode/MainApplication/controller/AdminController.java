@@ -18,6 +18,7 @@ import java.util.UUID;
 
 @Controller
 public class AdminController {
+
     /**
      * @see User, all users have role = 'User' by default, role 'Admin' can be changed only via database editor
      */

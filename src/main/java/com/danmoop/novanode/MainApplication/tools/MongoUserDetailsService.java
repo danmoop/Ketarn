@@ -1,4 +1,4 @@
-package com.danmoop.novanode.MainApplication.service;
+package com.danmoop.novanode.MainApplication.tools;
 
 import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

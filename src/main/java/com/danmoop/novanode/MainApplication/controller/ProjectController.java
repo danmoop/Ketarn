@@ -5,7 +5,6 @@ import com.danmoop.novanode.MainApplication.model.*;
 import com.danmoop.novanode.MainApplication.repository.ProjectService;
 import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +16,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 
 @Controller
-@Document(collection = "projects")
-
 public class ProjectController {
 
     @Autowired
@@ -61,10 +58,11 @@ public class ProjectController {
             Project project = new Project(projectName, user.getUserName(), projectBudget, currencySign);
             User userDB = userService.findByUserName(user.getUserName());
 
-            userDB.addProject(projectName);
-            userDB.addProjectTakingPartIn(projectName);
-            project.addAdmin(userDB.getUserName());
-            project.addMember(userDB.getUserName());
+            userDB.getCreatedProjects().add(projectName);
+            userDB.getProjectsTakePartIn().add(projectName);
+
+            project.getAdmins().add(userDB.getUserName());
+            project.getMembers().add(userDB.getUserName());
 
             userService.save(userDB);
             projectService.save(project);
@@ -131,7 +129,7 @@ public class ProjectController {
 
             InboxMessage notification = new InboxMessage(userDB.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + budgetChangeCause + "\n\nSummary: (" + difference + ")", userDB.getUserName(), "inboxMessage");
 
-            projectDB.addMessage(notification);
+            projectDB.getProjectInbox().add(notification);
             projectDB.setBudget(budget);
             projectService.save(projectDB);
 
@@ -141,15 +139,13 @@ public class ProjectController {
         return "redirect:/dashboard";
     }
 
-
     /**
-     * @param principal   is a logged-in user object
-     * @param projectName is a project name, taken from html textfield
-     * @return project page with an empty inbox
-     * @see InboxMessage
-     * <p>
      * This request is handled when project admin wants to clear project inbox
      * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
+     *
+     * @param principal   is a logged-in user object
+     * @param projectName is a project name, taken from html text field
+     * @return project page with an empty inbox
      */
     @PostMapping("/deleteAllInboxMessages")
     public String deleteAllInbox(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
@@ -157,8 +153,8 @@ public class ProjectController {
         User user = userService.findByUserName(principal.getName());
 
         if (projectDB != null && user.isProjectAdmin(projectDB)) {
-            projectDB.emptyInbox();
-            projectDB.addMessage(new InboxMessage(user.getUserName() + " has cleared project inbox.", user.getUserName(), "inboxMessage"));
+            projectDB.getProjectInbox().clear();
+            projectDB.getProjectInbox().add(new InboxMessage(user.getUserName() + " has cleared project inbox.", user.getUserName(), "inboxMessage"));
             projectService.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", "Project inbox cleared");
@@ -207,7 +203,6 @@ public class ProjectController {
      * @param userName    is a name of the user who wants to join the project
      * @return dashboard page
      * @see InboxMessage  for explanation of InboxMessage type
-     * <p>
      * This request is handled when user opened a project page and saw that they are not a part of project's team
      * They can press a button -> 'send request to join' and all project admins will get that request
      */
@@ -224,7 +219,7 @@ public class ProjectController {
         projectDB.getAdmins().stream()
                 .map(adminName -> userService.findByUserName(adminName))
                 .forEach(admin -> {
-                    admin.addMessage(message);
+                    admin.getMessages().add(message);
                     userService.save(admin);
                 });
 
@@ -255,7 +250,7 @@ public class ProjectController {
 
         if (userRecipient != null) {
             message.setDetails(projectName);
-            userRecipient.addMessage(message);
+            userRecipient.getMessages().add(message);
             userService.save(userRecipient);
 
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been invited!");
@@ -289,12 +284,12 @@ public class ProjectController {
         if (user.isProjectAdmin(projectDB) && !projectDB.getAdmins().contains(memberName) && member != null) {
             InboxMessage message = new InboxMessage(user.getUserName() + " has set " + memberName + " as project admin", user.getUserName(), "inboxMessage");
 
-            projectDB.addMessage(message);
-            projectDB.addAdmin(memberName);
+            projectDB.getProjectInbox().add(message);
+            projectDB.getAdmins().add(memberName);
             projectService.save(projectDB);
 
             InboxMessage userMessage = new InboxMessage(user.getUserName() + " has set you as " + projectName + "'s admin", user.getUserName(), "inboxMessage");
-            member.addMessage(userMessage);
+            member.getMessages().add(userMessage);
             userService.save(member);
 
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been set as " + projectName + "'s admin");
@@ -312,7 +307,6 @@ public class ProjectController {
      * @param currentAdmin is a name of the user who no longer will be an admin
      * @return project page
      * @see InboxMessage
-     * <p>
      * This request is handled when project admin wants to take another user's admin right
      * That user will no longer be an admin
      */
@@ -326,10 +320,10 @@ public class ProjectController {
         User user = userService.findByUserName(principal.getName());
 
         if (projectDB != null && projectDB.getAdmins().contains(user.getUserName()) && !user.getUserName().equals(currentAdmin)) {
-            projectDB.removeAdmin(currentAdmin);
+            projectDB.getAdmins().remove(currentAdmin);
 
             InboxMessage message = new InboxMessage(user.getUserName() + " has taken admin right from " + currentAdmin, user.getUserName(), "inboxMessage");
-            projectDB.addMessage(message);
+            projectDB.getProjectInbox().add(message);
             projectService.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", currentAdmin + " is not an admin anymore!");
@@ -347,7 +341,6 @@ public class ProjectController {
      * @param directoryName is a directory name where that item belongs
      * @return project page
      * @see ProjectItem
-     * <p>
      * This request is handled when project admin wants to add another project item to project
      * This item will be added to project to it's directory and saved
      */
@@ -375,7 +368,6 @@ public class ProjectController {
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
-     * <p>
      * This request is handled when project admin wants to remove a project item
      * It will be removed
      */
@@ -403,7 +395,6 @@ public class ProjectController {
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
-     * <p>
      * This request is handled when project admin wants to mark the item as done
      * The item will be moved to 'done' category
      */
@@ -462,7 +453,7 @@ public class ProjectController {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(principal.getName())) {
-            project.removeAllDoneItems();
+            project.getDoneProjectItems().clear();
             projectService.save(project);
         }
 
@@ -488,7 +479,7 @@ public class ProjectController {
                     .map(member -> userService.findByUserName(member))
                     .forEach(memberUser -> {
                         memberUser.removeProject(projectName);
-                        memberUser.addMessage(deletionNotification);
+                        memberUser.getMessages().add(deletionNotification);
                         userService.save(memberUser);
                     });
 
@@ -501,7 +492,6 @@ public class ProjectController {
 
         return "redirect:/dashboard";
     }
-
 
     /**
      * @return difference between old budget an a new budget

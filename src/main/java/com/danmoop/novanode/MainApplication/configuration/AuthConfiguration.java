@@ -1,6 +1,6 @@
 package com.danmoop.novanode.MainApplication.configuration;
 
-import com.danmoop.novanode.MainApplication.service.MongoUserDetailsService;
+import com.danmoop.novanode.MainApplication.tools.MongoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

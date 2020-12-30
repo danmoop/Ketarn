@@ -36,16 +36,16 @@ public class UserController {
      * This request is handled when user wants to change their info - username and email
      *
      * @param principal          is a logged-in user object
-     * @param name               is taken from html textfield
-     * @param email              is taken from html textfield
+     * @param name               is taken from html text field
+     * @param email              is taken from html text field
      * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
      * @return dashboard page with a message added to @param redirectAttributes
      */
     @PostMapping("/editProfileInfo")
     public String editProfileInfo(
             Principal principal,
-            @RequestParam("name") String name,
-            @RequestParam("email") String email,
+            @RequestParam String name,
+            @RequestParam String email,
             RedirectAttributes redirectAttributes) {
 
         User userDB = userService.findByUserName(principal.getName());
@@ -99,17 +99,17 @@ public class UserController {
      * This request is handled when project's admin accepts the request sent by a user to join their project
      *
      * @param principal   is a logged-in user object
-     * @param authorName  is taken from html textfield
-     * @param projectName is taken from html textfield
-     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param authorName  is taken from html text field
+     * @param projectName is taken from html text field
+     * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptRequest")
     public String requestAccepted(
             Principal principal,
-            @RequestParam("authorName") String authorName,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("messageKey") String messageKey,
+            @RequestParam String authorName,
+            @RequestParam String projectName,
+            @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
         User userDB = userService.findByUserName(principal.getName());
@@ -117,14 +117,14 @@ public class UserController {
         Project projectDB = projectService.findByName(projectName);
 
         if (userDB.isProjectAdmin(projectDB)) {
-            projectDB.addMember(authorName);
+            projectDB.getMembers().add(authorName);
 
-            projectDB.addMessage(new InboxMessage(principal.getName() + " has accepted a new member - " + authorName, principal.getName(), "inboxMessage"));
+            projectDB.getProjectInbox().add(new InboxMessage(principal.getName() + " has accepted a new member - " + authorName, principal.getName(), "inboxMessage"));
 
-            authorDB.addProjectTakingPartIn(projectName);
+            authorDB.getProjectsTakePartIn().add(projectName);
             InboxMessage message = new InboxMessage(principal.getName() + " has accepted your request in " + projectName + " project!", principal.getName(), "inboxMessage");
-            authorDB.addMessage(message);
-            userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(messageKey));
+            authorDB.getMessages().add(message);
+            userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
             userService.save(authorDB);
             userService.save(userDB);
@@ -136,22 +136,21 @@ public class UserController {
         return "redirect:/dashboard";
     }
 
-
     /**
      * This request is handled when project's admin rejected the join request sent by a user
      *
      * @param principal   is a logged-in user object
-     * @param authorName  is taken from html textfield
-     * @param projectName is taken from html textfield
-     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param authorName  is taken from html text field
+     * @param projectName is taken from html text field
+     * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @return dashboard page. Send a rejection message and save user object
      */
     @PostMapping("/rejectRequest")
     public String requestRejected(
             Principal principal,
-            @RequestParam("authorName") String authorName,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("messageKey") String messageKey,
+            @RequestParam String authorName,
+            @RequestParam String projectName,
+            @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
         User userDB = userService.findByUserName(principal.getName());
@@ -159,9 +158,9 @@ public class UserController {
 
         InboxMessage message = new InboxMessage(principal.getName() + " has rejected your request in " + projectName + " project.", principal.getName(), "inboxMessage");
 
-        authorDB.addMessage(message);
+        authorDB.getMessages().add(message);
 
-        userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(messageKey));
+        userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
         userService.save(authorDB);
         userService.save(userDB);
 
@@ -175,17 +174,17 @@ public class UserController {
      * This request is handled when user accepts an invitation to a project sent before by project's admin
      *
      * @param principal   is a logged-in user object
-     * @param authorName  is taken from html textfield
-     * @param projectName is taken from html textfield
-     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param authorName  is taken from html text field
+     * @param projectName is taken from html text field
+     * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptProjectInvite")
     public String acceptProjectInvite(
             Principal principal,
-            @RequestParam("authorName") String authorName,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("messageKey") String messageKey,
+            @RequestParam String authorName,
+            @RequestParam String projectName,
+            @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
         User userDB = userService.findByUserName(principal.getName());
@@ -193,14 +192,14 @@ public class UserController {
         Project projectDB = projectService.findByName(projectName);
 
         InboxMessage message = new InboxMessage(principal.getName() + " has accepted your request in " + projectName + " project.", principal.getName(), "inboxMessage");
-        authorDB.addMessage(message);
+        authorDB.getMessages().add(message);
 
-        userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(messageKey));
+        userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
-        projectDB.addMember(principal.getName());
-        projectDB.addMessage(new InboxMessage(authorName + " has accepted " + principal.getName() + " to the project!", authorName, "inboxMessage"));
+        projectDB.getMembers().add(principal.getName());
+        projectDB.getProjectInbox().add(new InboxMessage(authorName + " has accepted " + principal.getName() + " to the project!", authorName, "inboxMessage"));
 
-        userDB.addProjectTakingPartIn(projectName);
+        userDB.getProjectsTakePartIn().add(projectName);
 
         userService.save(authorDB);
         userService.save(userDB);
@@ -216,25 +215,25 @@ public class UserController {
      * This request is handled when user rejects an invitation to a project sent before by project's admin
      *
      * @param principal   is a logged-in user object
-     * @param authorName  is taken from html textfield
-     * @param projectName is taken from html textfield
-     * @param messageKey  is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param authorName  is taken from html text field
+     * @param projectName is taken from html text field
+     * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @return dashboard page and notify users about rejection
      */
     @PostMapping("/rejectProjectInvite")
     public String rejectProjectInvite(
             Principal principal,
-            @RequestParam("authorName") String authorName,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("messageKey") String messageKey,
+            @RequestParam String authorName,
+            @RequestParam String projectName,
+            @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
         User userDB = userService.findByUserName(principal.getName());
         User authorDB = userService.findByUserName(authorName);
 
         InboxMessage message = new InboxMessage(principal.getName() + " has rejected your request in " + projectName + " project.", principal.getName(), "inboxMessage");
-        authorDB.addMessage(message);
-        userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(messageKey));
+        authorDB.getMessages().add(message);
+        userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
         userService.save(authorDB);
         userService.save(userDB);

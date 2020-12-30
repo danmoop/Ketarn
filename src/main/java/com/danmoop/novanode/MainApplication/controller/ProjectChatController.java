@@ -63,7 +63,7 @@ public class ProjectChatController {
 
         if (project != null && project.getMembers().contains(principal.getName()) && !message.equals("")) {
             ChatMessage chatMessage = new ChatMessage(message, principal.getName());
-            project.addChatMessage(chatMessage);
+            project.getChatMessages().add(chatMessage);
 
             projectService.save(project);
         }

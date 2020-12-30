@@ -44,7 +44,7 @@ public class DashboardController {
     public String deleteAllInbox(Principal principal, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(principal.getName());
 
-        userDB.emptyArchive();
+        userDB.getReadMessages().clear();
         userService.save(userDB);
 
         redirectAttributes.addFlashAttribute("successMsg", "All inbox deleted!");

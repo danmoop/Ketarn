@@ -1,8 +1,11 @@
 package com.danmoop.novanode.MainApplication.model;
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Data
 public class Task {
     private String authorName;
     private String text;
@@ -10,9 +13,9 @@ public class Task {
     private String deadline;
     private String project;
     private String key;
-
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private String createdOn;
+
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
     public Task(String authorName, String text, String executor, String deadline, String project) {
         this.authorName = authorName;
@@ -23,54 +26,6 @@ public class Task {
         this.project = project;
 
         this.createdOn = dtf.format(LocalDateTime.now());
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getExecutor() {
-        return executor;
-    }
-
-    public String getCreatedOn() {
-        return createdOn;
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
-    }
-
-    public void setExecutor(String executor) {
-        this.executor = executor;
-    }
-
-    public String getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(String deadline) {
-        this.deadline = deadline;
     }
 
     private String generateKey() {

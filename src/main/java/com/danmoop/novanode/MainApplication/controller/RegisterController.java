@@ -23,10 +23,10 @@ public class RegisterController {
      * There is MD5 implemented for encrypting users' passwords
      * If there is not user with identical username - register, otherwise show an error message
      *
-     * @param name     is taken from a html textfield
-     * @param userName is taken from a html textfield
-     * @param email    is taken from a html textfield
-     * @param password is taken from a html textfield
+     * @param name     is taken from a html text field
+     * @param userName is taken from a html text field
+     * @param email    is taken from a html text field
+     * @param password is taken from a html text field
      * @return index page if registration is successful, otherwise return register page again and show an error message
      */
     @PostMapping("/register")

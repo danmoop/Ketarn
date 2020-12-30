@@ -1,10 +1,12 @@
 package com.danmoop.novanode.MainApplication.model;
 
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.UUID;
 
+@Data
 @Document(collection = "messages")
 public class InboxMessage {
 
@@ -23,7 +25,7 @@ public class InboxMessage {
     private String timeDate;
 
     /**
-     * @param key is very useful - it is the way we find message in array and manipulate with it
+     * @param messageKey is very useful - it is the way we find message in array and manipulate with it
      */
     private String messageKey;
 
@@ -36,54 +38,6 @@ public class InboxMessage {
         this.timeDate = new Date().toString();
         this.type = type;
         this.details = "";
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getTimeDate() {
-        return timeDate;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public void setTimeDate(String timeDate) {
-        this.timeDate = timeDate;
-    }
-
-    public String getMessageKey() {
-        return messageKey;
-    }
-
-    public void setMessageKey(String messageKey) {
-        this.messageKey = messageKey;
     }
 
     private String generateMessageKey() {

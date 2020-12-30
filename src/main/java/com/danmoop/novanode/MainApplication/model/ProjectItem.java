@@ -1,7 +1,10 @@
 package com.danmoop.novanode.MainApplication.model;
 
+import lombok.Data;
+
 import java.util.UUID;
 
+@Data
 public class ProjectItem {
     private String text;
     private String projectName;
@@ -15,17 +18,5 @@ public class ProjectItem {
 
     private String generateKey() {
         return UUID.randomUUID().toString();
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public String getKey() {
-        return key;
     }
 }

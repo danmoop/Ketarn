@@ -34,7 +34,7 @@ public class MessageController {
         if (userRecipient != null && authorUser != null) {
             InboxMessage inboxMessage = new InboxMessage(message, authorUser.getUserName(), "inboxMessage");
 
-            userRecipient.addMessage(inboxMessage);
+            userRecipient.getMessages().add(inboxMessage);
             userService.save(userRecipient);
 
             redirectAttributes.addFlashAttribute("successMsg", "Message sent to " + recipient);
@@ -46,13 +46,12 @@ public class MessageController {
     }
 
     /**
-     * @param messageID is a message id, taken from a hidden input field
-     * @param principal is a logged-in user object
-     * @return dashboard page
-     * @see InboxMessage
-     * <p>
      * This request is handled when user wants to mark message as done
      * Message will be moved to 'Read' list
+     *
+     * @param messageKey is a message id, taken from a hidden input field
+     * @param principal  is a logged-in user object
+     * @return dashboard page
      */
     @PostMapping("/messageIsRead")
     public String messageRead(@RequestParam String messageKey, Principal principal) {
@@ -69,13 +68,12 @@ public class MessageController {
 
 
     /**
-     * @param messageID is a message id, taken from a hidden input field
-     * @param principal is a logged-in user object
-     * @return dashboard page
-     * @see InboxMessage
-     * <p>
      * This request is handled when user wants to delete message forever
      * It will be deleted from 'Read' list
+     *
+     * @param messageKey is a message id, taken from a hidden input field
+     * @param principal  is a logged-in user object
+     * @return dashboard page
      */
     @PostMapping("/deleteMessage")
     public String messageDeleted(@RequestParam String messageKey, Principal principal) {
@@ -84,7 +82,7 @@ public class MessageController {
         InboxMessage msg = userDB.findReadMessageByMessageKey(messageKey);
 
         if (msg != null) {
-            userDB.removeMessage(msg);
+            userDB.getMessages().remove(msg);
             userService.save(userDB);
         }
 

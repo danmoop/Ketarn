@@ -29,7 +29,7 @@ public class TaskController {
      * Admins will see this review request in their inbox
      *
      * @param principal   is a logged-in user object
-     * @param key         is taken from a hidden html textfield. Value is assigned using Thymeleaf
+     * @param key         is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @param taskMessage is taken from a user's textarea. It is something user can say about task completion.
      * @return dashboard page. Send admins a task review message
      */
@@ -48,7 +48,7 @@ public class TaskController {
         User taskGiver = userService.findByUserName(task.getAuthorName());
         msg.setDetails(key + "," + projectDB.getName());
 
-        taskGiver.addMessage(msg);
+        taskGiver.getMessages().add(msg);
         userService.save(taskGiver);
 
         redirectAttributes.addFlashAttribute("successMsg", "Task review has been sent");
@@ -61,9 +61,9 @@ public class TaskController {
      * It removes task from active tasks list, sends messages stating that the work is done
      *
      * @param workSuccess        is added to task executor's stats, it is used later for evaluating overall success
+     *                           it is an integer from 1 to 10 meaning the value of completion (1-really bad, 10-excellent)
      * @param principal          is a logged-in user object
-     * @param taskMessage        is taken from a user's textarea. It is something user can say about task completion
-     * @param workSuccess        is an integer from 1 to 10 meaning the value of completion (1-really bad, 10-excellent)
+     * @param messageText        is taken from a user's textarea. It is something user can say about task completion
      * @param keyAndProj         has task key and project name, they are stored in a single string, then divided
      * @param taskExecutor       is a task executor's username
      * @param msgKey             is a message key
@@ -72,11 +72,11 @@ public class TaskController {
      */
     @PostMapping("/acceptTaskCompletion")
     public String acceptTaskCompletion(
-            @RequestParam("messageText") String taskMessage,
-            @RequestParam("workSuccess") String workSuccess,
+            @RequestParam String messageText,
+            @RequestParam String workSuccess,
             @RequestParam("taskKeyAndProjectName") String keyAndProj,
-            @RequestParam("taskExecutor") String taskExecutor,
-            @RequestParam("msgKey") String msgKey,
+            @RequestParam String taskExecutor,
+            @RequestParam String msgKey,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
@@ -87,20 +87,20 @@ public class TaskController {
         User userDB = userService.findByUserName(principal.getName());
         Project projectDB = projectService.findByName(projectName);
 
-        projectDB.addCompletedTask(projectDB.getTaskByKey(key));
+        projectDB.getCompletedTasks().add(projectDB.getTaskByKey(key));
         projectDB.removeTaskByKey(key);
-        projectDB.addMessage(new InboxMessage(userDB.getUserName() + " has accepted " + executor.getUserName() + "'s task completion " + key + "\nWork success: " + workSuccess + " / 10", userDB.getUserName(), "inboxMessage"));
+        projectDB.getProjectInbox().add(new InboxMessage(userDB.getUserName() + " has accepted " + executor.getUserName() + "'s task completion " + key + "\nWork success: " + workSuccess + " / 10", userDB.getUserName(), "inboxMessage"));
 
-        userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(msgKey));
+        userDB.getMessages().remove(userDB.findMessageByMessageKey(msgKey));
 
         Task task = executor.findTaskByKey(key);
 
-        executor.addWorkSuccessPoint(Integer.parseInt(workSuccess));
-        executor.addCompletedTask(executor.findTaskByKey(key));
+        executor.getWorkSuccessPoints().add(Integer.parseInt(workSuccess));
+        executor.getCompletedTasks().add(executor.findTaskByKey(key));
         executor.deleteTaskByKey(key);
 
-        InboxMessage message = new InboxMessage(principal.getName() + " has accepted your task " + key + " review. Good job!" + "\n\n" + principal.getName() + "'s message to you: " + taskMessage + "\n\nTask details: " + task.getText() + "\n\nProject: " + task.getProject(), principal.getName(), "inboxMessage");
-        executor.addMessage(message);
+        InboxMessage message = new InboxMessage(principal.getName() + " has accepted your task " + key + " review. Good job!" + "\n\n" + principal.getName() + "'s message to you: " + messageText + "\n\nTask details: " + task.getText() + "\n\nProject: " + task.getProject(), principal.getName(), "inboxMessage");
+        executor.getMessages().add(message);
 
         userService.save(executor);
         userService.save(userDB);
@@ -136,10 +136,10 @@ public class TaskController {
 
         User userDB = userService.findByUserName(principal.getName());
         User executor = userService.findByUserName(taskExecutor);
-        userDB.removeMessageFromInbox(userDB.findMessageByMessageKey(msgKey));
+        userDB.getMessages().remove(userDB.findMessageByMessageKey(msgKey));
 
         InboxMessage message = new InboxMessage(userDB.getUserName() + " has rejected your task review " + taskKey + " in " + projectName + " project. \nDetails on the task given: " + messageText, userDB.getUserName(), "inboxMessage");
-        executor.addMessage(message);
+        executor.getMessages().add(message);
 
         userService.save(userDB);
         userService.save(executor);
@@ -154,12 +154,11 @@ public class TaskController {
      * This request is handled when project admin wants to add a new project task
      *
      * @param principal    is a logged-in user object
-     * @param projectName  is a project name, taken from html textfield
+     * @param projectName  is a project name, taken from html text field
      * @param deadline     is a task deadline, it can be chosen from a calendar input on html page
      * @param description  is a task description
      * @param taskExecutor is a person who will be doing the task
      * @return project page with new task
-     * @see InboxMessage
      */
     @PostMapping("/addProjectTask")
     public String addProjectTask(
@@ -179,12 +178,12 @@ public class TaskController {
                 InboxMessage notification = new InboxMessage(user.getUserName() + " created a new task, set " + executor.getUserName() + " (" + executor.getName() + ") as executor\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
                 InboxMessage message = new InboxMessage("Hello, " + executor.getName() + ". You have got a new task in " + projectName + " project.\n\nTask description: " + description + "\n\nTask ID: " + task.getKey() + "\n\nDeadline: " + deadline, user.getUserName(), "inboxMessage");
 
-                projectDB.addTask(task);
-                projectDB.addMessage(notification);
+                projectDB.getProjectTasks().add(task);
+                projectDB.getProjectInbox().add(notification);
                 projectService.save(projectDB);
 
-                executor.addTask(task);
-                executor.addMessage(message);
+                executor.getTasks().add(task);
+                executor.getMessages().add(message);
                 userService.save(executor);
             } else {
                 redirectAttributes.addFlashAttribute("errorMsg", "You can't give a task to yourself!");

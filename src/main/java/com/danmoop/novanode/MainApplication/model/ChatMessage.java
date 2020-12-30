@@ -1,8 +1,11 @@
 package com.danmoop.novanode.MainApplication.model;
 
+import lombok.Data;
+
 import java.util.Date;
 import java.util.UUID;
 
+@Data
 public class ChatMessage {
     private String text;
     private String sender;
@@ -14,33 +17,5 @@ public class ChatMessage {
         this.sender = sender;
         this.timeStamp = new Date().toString();
         this.key = UUID.randomUUID().toString();
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
     }
 }
