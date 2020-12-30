@@ -1,9 +1,9 @@
-package com.danmoop.novanode.MainApplication.Controller;
+package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.Model.*;
-import com.danmoop.novanode.MainApplication.Service.ProjectService;
-import com.danmoop.novanode.MainApplication.Service.UserService;
 import com.danmoop.novanode.MainApplication.misc.Currency;
+import com.danmoop.novanode.MainApplication.model.*;
+import com.danmoop.novanode.MainApplication.repository.ProjectService;
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Controller;
@@ -51,9 +51,9 @@ public class ProjectController {
     @PostMapping("/createProject")
     public String createProjectPOST(
             Principal principal,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("projectBudget") long projectBudget,
-            @RequestParam("currencySign") String currencySign
+            @RequestParam String projectName,
+            @RequestParam long projectBudget,
+            @RequestParam String currencySign
     ) {
         if (projectService.findByName(projectName) == null && principal != null) {
             User user = userService.findByUserName(principal.getName());
@@ -80,21 +80,21 @@ public class ProjectController {
      * This request is handled when project admin wants to set a notification for other members
      *
      * @param principal   is a logged-in user object
-     * @param projectName is a project name, taken from html textfield
-     * @param text        is a notification text message
+     * @param projectName is a project name, taken from html text field
+     * @param messageText is a notification text message
      * @return project page with new notification
      * @see ProjectNotification
      */
     @PostMapping("/setProjectNotification")
     public String notificationSubmitted(
             Principal principal,
-            @RequestParam("messageText") String text,
-            @RequestParam("projectName") String projectName) {
+            @RequestParam String messageText,
+            @RequestParam String projectName) {
         User userDB = userService.findByUserName(principal.getName());
         Project projectDB = projectService.findByName(projectName);
 
         if (userDB.isProjectAdmin(projectDB)) {
-            ProjectNotification projectNotification = new ProjectNotification(principal.getName(), text);
+            ProjectNotification projectNotification = new ProjectNotification(principal.getName(), messageText);
 
             projectDB.setProjectNotification(projectNotification);
             projectService.save(projectDB);
@@ -109,10 +109,10 @@ public class ProjectController {
     /**
      * This request is handled when project admin wants to set a new project budget
      *
-     * @param principal   is a logged-in user object
-     * @param projectName is a project name, taken from html textfield
-     * @param budget      is a new project budget
-     * @param reason      states why budget is changed. It will be seen to everybody
+     * @param principal         is a logged-in user object
+     * @param projectName       is a project name, taken from html textfield
+     * @param budget            is a new project budget
+     * @param budgetChangeCause states why budget is changed. It will be seen to everybody
      * @return project page with new budget
      * @see InboxMessage
      */
@@ -120,8 +120,8 @@ public class ProjectController {
     public String setBudget(
             Principal principal,
             @RequestParam("projectBudget") long budget,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("budgetChangeCause") String reason) {
+            @RequestParam String projectName,
+            @RequestParam String budgetChangeCause) {
 
         User userDB = userService.findByUserName(principal.getName());
         Project projectDB = projectService.findByName(projectName);
@@ -129,7 +129,7 @@ public class ProjectController {
         if (userDB.isProjectAdmin(projectDB)) {
             String difference = moneyDifference(projectDB, projectDB.getBudget(), budget);
 
-            InboxMessage notification = new InboxMessage(userDB.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + reason + "\n\nSummary: (" + difference + ")", userDB.getUserName(), "inboxMessage");
+            InboxMessage notification = new InboxMessage(userDB.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + budgetChangeCause + "\n\nSummary: (" + difference + ")", userDB.getUserName(), "inboxMessage");
 
             projectDB.addMessage(notification);
             projectDB.setBudget(budget);
@@ -147,12 +147,12 @@ public class ProjectController {
      * @param projectName is a project name, taken from html textfield
      * @return project page with an empty inbox
      * @see InboxMessage
-     *
+     * <p>
      * This request is handled when project admin wants to clear project inbox
      * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
      */
     @PostMapping("/deleteAllInboxMessages")
-    public String deleteAllInbox(Principal principal, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
+    public String deleteAllInbox(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
         Project projectDB = projectService.findByName(projectName);
         User user = userService.findByUserName(principal.getName());
 
@@ -207,14 +207,14 @@ public class ProjectController {
      * @param userName    is a name of the user who wants to join the project
      * @return dashboard page
      * @see InboxMessage  for explanation of InboxMessage type
-     *
+     * <p>
      * This request is handled when user opened a project page and saw that they are not a part of project's team
      * They can press a button -> 'send request to join' and all project admins will get that request
      */
     @PostMapping("/sendARequest")
     public String joinRequest(
-            @RequestParam("projectName") String projectName,
-            @RequestParam("userName") String userName,
+            @RequestParam String projectName,
+            @RequestParam String userName,
             RedirectAttributes redirectAttributes) {
 
         Project projectDB = projectService.findByName(projectName);
@@ -239,28 +239,28 @@ public class ProjectController {
      *
      * @param principal   is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
-     * @param recipient   is the user who gets the invitation
+     * @param memberName  is the user who gets the invitation
      * @return project page
      * @see InboxMessage
      */
     @PostMapping("/inviteMemberToProject")
     public String inviteMemberToProject(
             Principal principal,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("memberName") String recipient,
+            @RequestParam String projectName,
+            @RequestParam String memberName,
             RedirectAttributes redirectAttributes) {
 
         InboxMessage message = new InboxMessage(principal.getName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", principal.getName(), "inboxRequestToMember");
-        User userRecipient = userService.findByUserName(recipient);
+        User userRecipient = userService.findByUserName(memberName);
 
         if (userRecipient != null) {
             message.setDetails(projectName);
             userRecipient.addMessage(message);
             userService.save(userRecipient);
 
-            redirectAttributes.addFlashAttribute("successMsg", recipient + " has been invited!");
+            redirectAttributes.addFlashAttribute("successMsg", memberName + " has been invited!");
         } else {
-            redirectAttributes.addFlashAttribute("errorMsg", "There is no user with such username: " + recipient);
+            redirectAttributes.addFlashAttribute("errorMsg", "There is no user with such username: " + memberName);
         }
 
         return "redirect:/project/" + projectName;
@@ -277,8 +277,8 @@ public class ProjectController {
      */
     @PostMapping("/setMemberAsAdmin")
     public String setAsAdmin(
-            @RequestParam("projectName") String projectName,
-            @RequestParam("memberName") String memberName,
+            @RequestParam String projectName,
+            @RequestParam String memberName,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
@@ -312,14 +312,14 @@ public class ProjectController {
      * @param currentAdmin is a name of the user who no longer will be an admin
      * @return project page
      * @see InboxMessage
-     *
+     * <p>
      * This request is handled when project admin wants to take another user's admin right
      * That user will no longer be an admin
      */
     @PostMapping("/unAdmin")
     public String unAdminUser(
-            @RequestParam("projectName") String projectName,
-            @RequestParam("currentAdmin") String currentAdmin,
+            @RequestParam String projectName,
+            @RequestParam String currentAdmin,
             Principal principal,
             RedirectAttributes redirectAttributes) {
         Project projectDB = projectService.findByName(projectName);
@@ -347,15 +347,15 @@ public class ProjectController {
      * @param directoryName is a directory name where that item belongs
      * @return project page
      * @see ProjectItem
-     *
+     * <p>
      * This request is handled when project admin wants to add another project item to project
      * This item will be added to project to it's directory and saved
      */
     @PostMapping("/addNewCard")
     public String newCard(
-            @RequestParam("projectName") String projectName,
-            @RequestParam("itemText") String itemText,
-            @RequestParam("directoryName") String directoryName,
+            @RequestParam String projectName,
+            @RequestParam String itemText,
+            @RequestParam String directoryName,
             Principal principal) {
 
         ProjectItem projectItem = new ProjectItem(itemText, projectName);
@@ -375,14 +375,14 @@ public class ProjectController {
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
-     *
+     * <p>
      * This request is handled when project admin wants to remove a project item
      * It will be removed
      */
     @PostMapping("/removeItem")
     public String removeCard(
-            @RequestParam("projectName") String projectName,
-            @RequestParam("itemKey") String cardKey,
+            @RequestParam String projectName,
+            @RequestParam String cardKey,
             Principal principal
     ) {
         Project project = projectService.findByName(projectName);
@@ -403,14 +403,14 @@ public class ProjectController {
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
-     *
+     * <p>
      * This request is handled when project admin wants to mark the item as done
      * The item will be moved to 'done' category
      */
     @PostMapping("/markItemAsDone")
     public String markItemAsDone(
-            @RequestParam("projectName") String projectName,
-            @RequestParam("itemKey") String itemKey,
+            @RequestParam String projectName,
+            @RequestParam String itemKey,
             Principal principal
     ) {
         Project project = projectService.findByName(projectName);
@@ -437,7 +437,7 @@ public class ProjectController {
      * @return project page
      */
     @PostMapping("/currentItemsAllDone")
-    public String currentItemsAllDone(@RequestParam("projectName") String projectName, Principal principal) {
+    public String currentItemsAllDone(@RequestParam String projectName, Principal principal) {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(principal.getName())) {
@@ -458,7 +458,7 @@ public class ProjectController {
      * @return project page
      */
     @PostMapping("/removeDoneItems")
-    public String removeDoneItems(@RequestParam("projectName") String projectName, Principal principal) {
+    public String removeDoneItems(@RequestParam String projectName, Principal principal) {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(principal.getName())) {
@@ -478,7 +478,7 @@ public class ProjectController {
      * @return dashboard page
      */
     @PostMapping("/removeProject")
-    public String removeProject(Principal principal, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
+    public String removeProject(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(principal.getName())) {

@@ -1,4 +1,4 @@
-package com.danmoop.novanode.MainApplication.Service;
+package com.danmoop.novanode.MainApplication.service;
 
 import org.apache.commons.codec.binary.Base64;
 

@@ -1,7 +1,7 @@
-package com.danmoop.novanode.MainApplication.Controller;
+package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.UserService;
+import com.danmoop.novanode.MainApplication.model.User;
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +14,6 @@ import java.security.Principal;
 public class DashboardController {
     @Autowired
     private UserService userService;
-
 
     /**
      * This request is handled when user wants to read all inbox and move all messages to 'Read' folder
@@ -61,7 +60,7 @@ public class DashboardController {
      * @return dashboard page
      */
     @PostMapping("/editUserNotes")
-    public String editUserNotes(@RequestParam("noteText") String noteText, Principal principal) {
+    public String editUserNotes(@RequestParam String noteText, Principal principal) {
         User userDB = userService.findByUserName(principal.getName());
 
         if (userDB != null) {

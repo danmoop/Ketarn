@@ -1,10 +1,10 @@
-package com.danmoop.novanode.MainApplication.Controller;
+package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.Model.ChatMessage;
-import com.danmoop.novanode.MainApplication.Model.Project;
-import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.ProjectService;
-import com.danmoop.novanode.MainApplication.Service.UserService;
+import com.danmoop.novanode.MainApplication.model.ChatMessage;
+import com.danmoop.novanode.MainApplication.model.Project;
+import com.danmoop.novanode.MainApplication.model.User;
+import com.danmoop.novanode.MainApplication.repository.ProjectService;
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +33,7 @@ public class ProjectChatController {
      */
     @GetMapping("/project/{projectName}/chat")
     public String projectChat(
-            @PathVariable("projectName") String projectName,
+            @PathVariable String projectName,
             Principal principal,
             Model model) {
 
@@ -58,7 +58,7 @@ public class ProjectChatController {
      * @return project page
      */
     @PostMapping("/sendMessageToChat")
-    public String sendMessageToChat(@RequestParam("projectName") String projectName, @RequestParam("message") String message, Principal principal) {
+    public String sendMessageToChat(@RequestParam String projectName, @RequestParam String message, Principal principal) {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getMembers().contains(principal.getName()) && !message.equals("")) {
@@ -81,7 +81,7 @@ public class ProjectChatController {
      */
 
     @PostMapping("/clearProjectChat")
-    public String clearProjectChar(@RequestParam("projectName") String projectName, Principal principal) {
+    public String clearProjectChar(@RequestParam String projectName, Principal principal) {
         Project project = projectService.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(principal.getName())) {

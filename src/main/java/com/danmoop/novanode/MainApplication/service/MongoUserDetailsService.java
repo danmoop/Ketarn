@@ -1,5 +1,6 @@
-package com.danmoop.novanode.MainApplication.Service;
+package com.danmoop.novanode.MainApplication.service;
 
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -19,7 +20,7 @@ public class MongoUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.danmoop.novanode.MainApplication.Model.User user = userService.findByUserName(username);
+        com.danmoop.novanode.MainApplication.model.User user = userService.findByUserName(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("Not user with username " + username);

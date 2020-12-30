@@ -1,7 +1,7 @@
-package com.danmoop.novanode.MainApplication.Controller;
+package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.UserService;
+import com.danmoop.novanode.MainApplication.model.User;
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;

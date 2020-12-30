@@ -1,4 +1,4 @@
-package com.danmoop.novanode.MainApplication.Model;
+package com.danmoop.novanode.MainApplication.model;
 
 import java.util.Date;
 import java.util.UUID;

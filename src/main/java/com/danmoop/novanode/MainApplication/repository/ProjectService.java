@@ -1,6 +1,6 @@
-package com.danmoop.novanode.MainApplication.Service;
+package com.danmoop.novanode.MainApplication.repository;
 
-import com.danmoop.novanode.MainApplication.Model.Project;
+import com.danmoop.novanode.MainApplication.model.Project;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

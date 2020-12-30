@@ -1,8 +1,8 @@
-package com.danmoop.novanode.MainApplication.Controller;
+package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.Model.InboxMessage;
-import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.UserService;
+import com.danmoop.novanode.MainApplication.model.InboxMessage;
+import com.danmoop.novanode.MainApplication.model.User;
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +27,7 @@ public class MessageController {
      * @return dashboard page
      */
     @PostMapping("/sendInboxMessage")
-    public String messageSent(@RequestParam("recipient") String recipient, @RequestParam("messageText") String message, Principal principalAuthor, RedirectAttributes redirectAttributes) {
+    public String messageSent(@RequestParam String recipient, @RequestParam("messageText") String message, Principal principalAuthor, RedirectAttributes redirectAttributes) {
         User userRecipient = userService.findByUserName(recipient);
         User authorUser = userService.findByUserName(principalAuthor.getName());
 
@@ -50,14 +50,14 @@ public class MessageController {
      * @param principal is a logged-in user object
      * @return dashboard page
      * @see InboxMessage
-     *
+     * <p>
      * This request is handled when user wants to mark message as done
      * Message will be moved to 'Read' list
      */
     @PostMapping("/messageIsRead")
-    public String messageRead(@RequestParam("messageKey") String messageID, Principal principal) {
+    public String messageRead(@RequestParam String messageKey, Principal principal) {
         User userDB = userService.findByUserName(principal.getName());
-        InboxMessage msg = userDB.findMessageByMessageKey(messageID);
+        InboxMessage msg = userDB.findMessageByMessageKey(messageKey);
 
         if (msg != null) {
             userDB.markMessageAsRead(msg);
@@ -73,15 +73,15 @@ public class MessageController {
      * @param principal is a logged-in user object
      * @return dashboard page
      * @see InboxMessage
-     *
+     * <p>
      * This request is handled when user wants to delete message forever
      * It will be deleted from 'Read' list
      */
     @PostMapping("/deleteMessage")
-    public String messageDeleted(@RequestParam("messageKey") String messageID, Principal principal) {
+    public String messageDeleted(@RequestParam String messageKey, Principal principal) {
         User userDB = userService.findByUserName(principal.getName());
 
-        InboxMessage msg = userDB.findReadMessageByMessageKey(messageID);
+        InboxMessage msg = userDB.findReadMessageByMessageKey(messageKey);
 
         if (msg != null) {
             userDB.removeMessage(msg);

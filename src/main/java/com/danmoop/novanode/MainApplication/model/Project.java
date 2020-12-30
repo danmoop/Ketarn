@@ -1,4 +1,4 @@
-package com.danmoop.novanode.MainApplication.Model;
+package com.danmoop.novanode.MainApplication.model;
 
 import org.springframework.data.annotation.Id;
 

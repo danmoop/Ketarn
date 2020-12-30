@@ -1,9 +1,9 @@
-package com.danmoop.novanode.MainApplication.Controller;
+package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.Model.Project;
-import com.danmoop.novanode.MainApplication.Model.User;
-import com.danmoop.novanode.MainApplication.Service.ProjectService;
-import com.danmoop.novanode.MainApplication.Service.UserService;
+import com.danmoop.novanode.MainApplication.model.Project;
+import com.danmoop.novanode.MainApplication.model.User;
+import com.danmoop.novanode.MainApplication.repository.ProjectService;
+import com.danmoop.novanode.MainApplication.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +27,6 @@ public class AdminController {
 
     @Autowired
     private ProjectService projectService;
-
 
     /**
      * This request displays admin page where you can control the world of Ketarn
@@ -111,7 +110,7 @@ public class AdminController {
      * @return some user's data
      */
     @PostMapping("/getUserInfo")
-    public String userInfo(Principal principal, @RequestParam("username") String username, RedirectAttributes redirectAttributes) {
+    public String userInfo(Principal principal, @RequestParam String username, RedirectAttributes redirectAttributes) {
         User userDB = userService.findByUserName(username);
         User user = userService.findByUserName(principal.getName());
 
@@ -133,7 +132,7 @@ public class AdminController {
      * @return some project's data
      */
     @PostMapping("/getProjectInfo")
-    public String projectInfo(Principal principal, @RequestParam("projectName") String projectName, RedirectAttributes redirectAttributes) {
+    public String projectInfo(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
         Project project = projectService.findByName(projectName);
         User user = userService.findByUserName(principal.getName());
 
