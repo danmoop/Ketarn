@@ -25,7 +25,7 @@
             <nav class="mdl-navigation">
 
                 <div class="uk-inline nav-btn">
-                    <a class="uk-button uk-button-text w eina btn-w" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="k-badge">[[${#lists.size(LoggedUser.messages)}]]</span></a>
+                    <a class="uk-button uk-button-text w eina btn-w" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span th:if="${#lists.size(LoggedUser.messages) != 0}" class="k-badge">[[${#lists.size(LoggedUser.messages)}]]</span></a>
                 </div>
 
                 <div class="uk-inline">
@@ -50,7 +50,7 @@
         <hr class="uk-divider-icon">
         <nav class="mdl-navigation">
             <a class="mdl-navigation__link eina" href="/createProject"><span uk-icon="file-edit"></span> Create project</a>
-            <a class="mdl-navigation__link eina" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span class="w" style="background: #e74c3c; padding-bottom: 5px; padding-top: 5px; padding-left: 10px; padding-right: 10px; border-radius: 255px;">[[${#lists.size(LoggedUser.messages)}]]</span></a>
+            <a class="mdl-navigation__link eina" href="#messages-modal" uk-toggle><span uk-icon="mail"></span> Inbox <span th:if="${#lists.size(LoggedUser.messages) != 0}" class="w" style="background: #e74c3c; padding-bottom: 5px; padding-top: 5px; padding-left: 10px; padding-right: 10px; border-radius: 255px;">[[${#lists.size(LoggedUser.messages)}]]</span></a>
             <a class="mdl-navigation__link eina" href="#sendMsg-modal" uk-toggle><span uk-icon="comments"></span> Send a message</a>
             <a class="mdl-navigation__link eina" href="#editInfoModal" uk-toggle><span uk-icon="pencil"></span> Edit profile info</a>
             <a th:if="${LoggedUser.role == 'Admin'}" class="mdl-navigation__link eina" href="/admin"><span uk-icon="world"></span> Admin page</a>

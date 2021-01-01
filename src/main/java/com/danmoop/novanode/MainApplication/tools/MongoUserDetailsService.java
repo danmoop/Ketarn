@@ -1,6 +1,6 @@
 package com.danmoop.novanode.MainApplication.tools;
 
-import com.danmoop.novanode.MainApplication.repository.UserService;
+import com.danmoop.novanode.MainApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

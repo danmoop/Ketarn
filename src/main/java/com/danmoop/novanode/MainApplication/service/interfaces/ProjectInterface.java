@@ -8,4 +8,8 @@ public interface ProjectInterface {
     Project findByName(String name);
 
     List<Project> findAll();
+
+    void save(Project project);
+
+    void delete(Project project);
 }

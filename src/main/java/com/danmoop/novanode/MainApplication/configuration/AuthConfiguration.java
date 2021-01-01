@@ -19,12 +19,10 @@ public class AuthConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private MongoUserDetailsService mongoUserDetailsService;
 
-    private final String[] URLS = {"/signin"};
-
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(URLS).authenticated()
+                .antMatchers("/signin").authenticated()
                 .and()
                 .formLogin()
                 .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
@@ -36,7 +34,7 @@ public class AuthConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(mongoUserDetailsService)
+        auth.userDetailsService(mongoUserDetailsService).passwordEncoder(passwordEncoder())
                 .and().inMemoryAuthentication();
     }
 

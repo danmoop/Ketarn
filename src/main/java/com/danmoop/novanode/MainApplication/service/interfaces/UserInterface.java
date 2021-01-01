@@ -9,6 +9,12 @@ public interface UserInterface {
 
     List<User> findAll();
 
+    void readAllInbox(String username);
+
+    void deleteAllInbox(String username);
+
+    void editUserNotes(String username, String noteText);
+
     void save(User user);
 
     void delete(User user);

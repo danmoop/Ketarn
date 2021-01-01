@@ -3,17 +3,15 @@ package com.danmoop.novanode.MainApplication.controller;
 import com.danmoop.novanode.MainApplication.model.InboxMessage;
 import com.danmoop.novanode.MainApplication.model.Project;
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.repository.ProjectService;
-import com.danmoop.novanode.MainApplication.repository.UserService;
+import com.danmoop.novanode.MainApplication.service.ProjectService;
+import com.danmoop.novanode.MainApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 
 /**
@@ -30,12 +28,12 @@ public class UserController {
     private ProjectService projectService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
 
     /**
      * This request is handled when user wants to change their info - username and email
      *
-     * @param principal          is a logged-in user object
+     * @param auth               is a logged-in user object
      * @param name               is taken from html text field
      * @param email              is taken from html text field
      * @param redirectAttributes is assigned automatically, it is used to display a message after redirect
@@ -43,12 +41,12 @@ public class UserController {
      */
     @PostMapping("/editProfileInfo")
     public String editProfileInfo(
-            Principal principal,
+            Principal auth,
             @RequestParam String name,
             @RequestParam String email,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(principal.getName());
+        User userDB = userService.findByUserName(auth.getName());
 
         userDB.setName(name);
         userDB.setEmail(email);
@@ -62,7 +60,7 @@ public class UserController {
     /**
      * This request is handled when user wants to change password
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param oldPass     is an old password, taken from html input field
      * @param newPass     is a new password, taken from html input field
      * @param confirmPass is a new password, taken from html input field
@@ -70,35 +68,39 @@ public class UserController {
      */
     @PostMapping("/changePassword")
     public String changePassword(
-            Principal principal,
+            Principal auth,
             @RequestParam("old_pass") String oldPass,
             @RequestParam("new_pass") String newPass,
             @RequestParam("confirm_pass") String confirmPass,
-            RedirectAttributes redirectAttributes) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        User userDB = userService.findByUserName(principal.getName());
+            RedirectAttributes redirectAttributes) {
+        User userDB = userService.findByUserName(auth.getName());
+
+        if (newPass.length() < 8) {
+            redirectAttributes.addFlashAttribute("errorMsg", "New password should be at least 8 characters!");
+            return "redirect:/dashboard";
+        }
 
         /*
             We compare an old password to a current password, so with new pass and confirmation
             If everything is fine, we proceed and rewrite user's information
         */
-        if (passwordEncoder.encode(oldPass).equals(userDB.getPassword()) && newPass.equals(confirmPass)) {
+        if (passwordEncoder.matches(oldPass, userDB.getPassword()) && newPass.equals(confirmPass)) {
             userDB.setPassword(passwordEncoder.encode(newPass));
             userService.save(userDB);
 
             redirectAttributes.addFlashAttribute("successMsg", "Password changed successfully!");
 
-            return "redirect:/dashboard";
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "Unable to change password, passwords don't match");
-            return "redirect:/dashboard";
         }
 
+        return "redirect:/dashboard";
     }
 
     /**
      * This request is handled when project's admin accepts the request sent by a user to join their project
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param authorName  is taken from html text field
      * @param projectName is taken from html text field
      * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
@@ -106,23 +108,23 @@ public class UserController {
      */
     @PostMapping("/acceptRequest")
     public String requestAccepted(
-            Principal principal,
+            Principal auth,
             @RequestParam String authorName,
             @RequestParam String projectName,
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(principal.getName());
+        User userDB = userService.findByUserName(auth.getName());
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
 
         if (userDB.isProjectAdmin(projectDB)) {
             projectDB.getMembers().add(authorName);
 
-            projectDB.getProjectInbox().add(new InboxMessage(principal.getName() + " has accepted a new member - " + authorName, principal.getName(), "inboxMessage"));
+            projectDB.getProjectInbox().add(new InboxMessage(auth.getName() + " has accepted a new member - " + authorName, auth.getName(), "inboxMessage"));
 
             authorDB.getProjectsTakePartIn().add(projectName);
-            InboxMessage message = new InboxMessage(principal.getName() + " has accepted your request in " + projectName + " project!", principal.getName(), "inboxMessage");
+            InboxMessage message = new InboxMessage(auth.getName() + " has accepted your request in " + projectName + " project!", auth.getName(), "inboxMessage");
             authorDB.getMessages().add(message);
             userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
@@ -139,7 +141,7 @@ public class UserController {
     /**
      * This request is handled when project's admin rejected the join request sent by a user
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param authorName  is taken from html text field
      * @param projectName is taken from html text field
      * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
@@ -147,16 +149,16 @@ public class UserController {
      */
     @PostMapping("/rejectRequest")
     public String requestRejected(
-            Principal principal,
+            Principal auth,
             @RequestParam String authorName,
             @RequestParam String projectName,
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(principal.getName());
+        User userDB = userService.findByUserName(auth.getName());
         User authorDB = userService.findByUserName(authorName);
 
-        InboxMessage message = new InboxMessage(principal.getName() + " has rejected your request in " + projectName + " project.", principal.getName(), "inboxMessage");
+        InboxMessage message = new InboxMessage(auth.getName() + " has rejected your request in " + projectName + " project.", auth.getName(), "inboxMessage");
 
         authorDB.getMessages().add(message);
 
@@ -173,7 +175,7 @@ public class UserController {
     /**
      * This request is handled when user accepts an invitation to a project sent before by project's admin
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param authorName  is taken from html text field
      * @param projectName is taken from html text field
      * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
@@ -181,23 +183,23 @@ public class UserController {
      */
     @PostMapping("/acceptProjectInvite")
     public String acceptProjectInvite(
-            Principal principal,
+            Principal auth,
             @RequestParam String authorName,
             @RequestParam String projectName,
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(principal.getName());
+        User userDB = userService.findByUserName(auth.getName());
         User authorDB = userService.findByUserName(authorName);
         Project projectDB = projectService.findByName(projectName);
 
-        InboxMessage message = new InboxMessage(principal.getName() + " has accepted your request in " + projectName + " project.", principal.getName(), "inboxMessage");
+        InboxMessage message = new InboxMessage(auth.getName() + " has accepted your request in " + projectName + " project.", auth.getName(), "inboxMessage");
         authorDB.getMessages().add(message);
 
         userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
-        projectDB.getMembers().add(principal.getName());
-        projectDB.getProjectInbox().add(new InboxMessage(authorName + " has accepted " + principal.getName() + " to the project!", authorName, "inboxMessage"));
+        projectDB.getMembers().add(auth.getName());
+        projectDB.getProjectInbox().add(new InboxMessage(authorName + " has accepted " + auth.getName() + " to the project!", authorName, "inboxMessage"));
 
         userDB.getProjectsTakePartIn().add(projectName);
 
@@ -214,7 +216,7 @@ public class UserController {
     /**
      * This request is handled when user rejects an invitation to a project sent before by project's admin
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param authorName  is taken from html text field
      * @param projectName is taken from html text field
      * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
@@ -222,16 +224,16 @@ public class UserController {
      */
     @PostMapping("/rejectProjectInvite")
     public String rejectProjectInvite(
-            Principal principal,
+            Principal auth,
             @RequestParam String authorName,
             @RequestParam String projectName,
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(principal.getName());
+        User userDB = userService.findByUserName(auth.getName());
         User authorDB = userService.findByUserName(authorName);
 
-        InboxMessage message = new InboxMessage(principal.getName() + " has rejected your request in " + projectName + " project.", principal.getName(), "inboxMessage");
+        InboxMessage message = new InboxMessage(auth.getName() + " has rejected your request in " + projectName + " project.", auth.getName(), "inboxMessage");
         authorDB.getMessages().add(message);
         userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 

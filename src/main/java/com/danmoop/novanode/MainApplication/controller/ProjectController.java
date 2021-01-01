@@ -2,8 +2,8 @@ package com.danmoop.novanode.MainApplication.controller;
 
 import com.danmoop.novanode.MainApplication.misc.Currency;
 import com.danmoop.novanode.MainApplication.model.*;
-import com.danmoop.novanode.MainApplication.repository.ProjectService;
-import com.danmoop.novanode.MainApplication.repository.UserService;
+import com.danmoop.novanode.MainApplication.service.ProjectService;
+import com.danmoop.novanode.MainApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,12 +1,9 @@
 package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.repository.UserService;
+import com.danmoop.novanode.MainApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import java.security.Principal;
 
 @Controller
 public class LoginController {
@@ -17,11 +14,10 @@ public class LoginController {
     /**
      * This request displays sign in page if not authorized
      *
-     * @param user is a logged-in user object
      * @return required page
      */
     @GetMapping("/signin")
-    public String signInPage(Model model, Principal user) {
+    public String signInPage() {
         return "redirect:/dashboard";
     }
 }

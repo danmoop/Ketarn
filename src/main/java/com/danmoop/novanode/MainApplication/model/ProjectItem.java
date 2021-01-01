@@ -6,6 +6,7 @@ import java.util.UUID;
 
 @Data
 public class ProjectItem {
+
     private String text;
     private String projectName;
     private String key;

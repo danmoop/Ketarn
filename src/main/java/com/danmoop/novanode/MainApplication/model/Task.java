@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 @Data
 public class Task {
+
     private String authorName;
     private String text;
     private String executor;

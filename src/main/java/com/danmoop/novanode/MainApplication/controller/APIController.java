@@ -2,9 +2,10 @@ package com.danmoop.novanode.MainApplication.controller;
 
 import com.danmoop.novanode.MainApplication.model.Project;
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.repository.ProjectService;
-import com.danmoop.novanode.MainApplication.repository.UserService;
+import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,10 +16,18 @@ import java.security.Principal;
 public class APIController {
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectRepository projectRepository;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
+
+    @GetMapping("/gen/{pass}")
+    public String gen(@PathVariable String pass) {
+        return encoder.encode(pass);
+    }
 
     /**
      * This request displays project JSON information
@@ -29,8 +38,8 @@ public class APIController {
      */
     @GetMapping("/getProjectJson/{projectName}")
     public Project getProjectJson(@PathVariable("projectName") String projectName, Principal principal) {
-        Project project = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+        Project project = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(principal.getName());
 
         if (project.getAuthorName().equals(user.getUserName())) {
             return project;
@@ -49,7 +58,7 @@ public class APIController {
     @GetMapping("/getUserJson/{userName}")
     public User getUserJson(@PathVariable("userName") String userName, Principal principal) {
         if (principal.getName().equals(userName)) {
-            return userService.findByUserName(userName);
+            return userRepository.findByUserName(userName);
         }
 
         return new User();

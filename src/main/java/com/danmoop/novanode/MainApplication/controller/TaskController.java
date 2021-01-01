@@ -4,8 +4,8 @@ import com.danmoop.novanode.MainApplication.model.InboxMessage;
 import com.danmoop.novanode.MainApplication.model.Project;
 import com.danmoop.novanode.MainApplication.model.Task;
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.repository.ProjectService;
-import com.danmoop.novanode.MainApplication.repository.UserService;
+import com.danmoop.novanode.MainApplication.service.ProjectService;
+import com.danmoop.novanode.MainApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +22,6 @@ public class TaskController {
 
     @Autowired
     private ProjectService projectService;
-
 
     /**
      * This request is handled when user sends a task review to project's admins

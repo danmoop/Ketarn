@@ -11,7 +11,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Encrypt {
-    public static String toSHA256(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+
+    public String toSHA256(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 
         MessageDigest mg = MessageDigest.getInstance("SHA-256");
 
@@ -26,7 +27,7 @@ public class Encrypt {
         return hexString.toString();
     }
 
-    public static String toMD5(String message) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public String toMD5(String message) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
         MessageDigest mg = MessageDigest.getInstance("MD5");
 
@@ -41,7 +42,7 @@ public class Encrypt {
         return hexString.toString();
     }
 
-    public static String toAES(String value) {
+    public String toAES(String value) {
         try {
             IvParameterSpec iv = new IvParameterSpec("6f[a^K}#((.1;!To".getBytes("UTF-8"));
             SecretKeySpec skeySpec = new SecretKeySpec("Xb@_x=K0nI38f^A1".getBytes("UTF-8"), "AES");
@@ -60,7 +61,7 @@ public class Encrypt {
         return null;
     }
 
-    public static String fromAES(String encrypted) {
+    public String fromAES(String encrypted) {
         try {
             IvParameterSpec iv = new IvParameterSpec("6f[a^K}#((.1;!To".getBytes("UTF-8"));
             SecretKeySpec skeySpec = new SecretKeySpec("Xb@_x=K0nI38f^A1".getBytes("UTF-8"), "AES");
