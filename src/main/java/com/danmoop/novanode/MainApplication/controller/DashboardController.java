@@ -1,6 +1,7 @@
 package com.danmoop.novanode.MainApplication.controller;
 
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.model.User;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,7 @@ import java.security.Principal;
 public class DashboardController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     /**
      * This request is handled when user wants to read all inbox and move all messages to 'Read' folder
@@ -23,7 +24,10 @@ public class DashboardController {
      */
     @PostMapping("/readAllInbox")
     public String readAllInbox(Principal auth, RedirectAttributes redirectAttributes) {
-        userService.readAllInbox(auth.getName());
+        User userDB = userRepository.findByUserName(auth.getName()); // find user in database by username
+
+        userDB.readAllInboxMessages(); // empty messages array
+        userRepository.save(userDB); // save user to database
 
         redirectAttributes.addFlashAttribute("successMsg", "All inbox marked as read!"); // notify user on their page
 
@@ -38,7 +42,10 @@ public class DashboardController {
      */
     @PostMapping("/deleteAllInbox")
     public String deleteAllInbox(Principal auth, RedirectAttributes redirectAttributes) {
-        userService.deleteAllInbox(auth.getName());
+        User userDB = userRepository.findByUserName(auth.getName());
+
+        userDB.getReadMessages().clear();
+        userRepository.save(userDB);
 
         redirectAttributes.addFlashAttribute("successMsg", "All inbox deleted!");
 
@@ -54,7 +61,12 @@ public class DashboardController {
      */
     @PostMapping("/editUserNotes")
     public String editUserNotes(@RequestParam String noteText, Principal auth) {
-        userService.editUserNotes(auth.getName(), noteText);
+        User userDB = userRepository.findByUserName(auth.getName());
+
+        if (userDB != null) {
+            userDB.setNote(noteText);
+            userRepository.save(userDB);
+        }
 
         return "redirect:/dashboard";
     }

@@ -66,7 +66,7 @@
             <a href="#project-inbox" uk-toggle class="mdl-navigation__link eina" th:inline="text"><span uk-icon="mail"></span> Inbox <span th:if="${#lists.size(project.projectInbox) != 0}" class="k-badge"> [[${#lists.size(project.projectInbox)}]]</span></a>
             <a class="mdl-navigation__link eina" href="#viewMembers" uk-toggle><span uk-icon="user"></span> View members</a>
             <a class="mdl-navigation__link eina" href="#viewAdmins" uk-toggle><span uk-icon="star"></span> View admins</a>
-            <a class="mdl-navigation__link eina" th:href="${'/project/' + project.name + '/chat'}"><span uk-icon="commenting"></span> Project chat <span class="k-badge"> [[${#lists.size(project.chatMessages)}]]</span></a>
+            <a class="mdl-navigation__link eina" th:href="${'/project/' + project.name + '/chat'}"><span uk-icon="commenting"></span> Project chat <span th:if="${#lists.size(project.chatMessages) != 0}" class="k-badge"> [[${#lists.size(project.chatMessages)}]]</span></a>
             <hr class="uk-divider-icon">
             <a class="mdl-navigation__link eina" href="/dashboard"><span uk-icon="sign-out"></span> Your dashboard</a>
         </nav>
@@ -288,7 +288,7 @@
 
                     <br/>
 
-                    <h5 class=" eina text-center" th:if="${#lists.size(project.projectInbox) == 0}" style="color: #b3b3b3;">
+                    <h5 class="eina text-center" th:if="${#lists.size(project.projectInbox) == 0}" style="color: #b3b3b3;">
                         No new messages yet!
                     </h5>
                 </div>

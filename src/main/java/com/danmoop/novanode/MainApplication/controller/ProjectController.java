@@ -2,8 +2,8 @@ package com.danmoop.novanode.MainApplication.controller;
 
 import com.danmoop.novanode.MainApplication.misc.Currency;
 import com.danmoop.novanode.MainApplication.model.*;
-import com.danmoop.novanode.MainApplication.service.ProjectService;
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +19,10 @@ import java.security.Principal;
 public class ProjectController {
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectRepository projectRepository;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     /**
      * This request is handled when user redirects to project creation page
@@ -34,12 +34,11 @@ public class ProjectController {
         return "sections/createProject";
     }
 
-
     /**
      * This request is handled when user fills in project info and submits it
      * Project is created and saved to database
      *
-     * @param principal     is a logged-in user object
+     * @param auth          is a logged-in user object
      * @param projectBudget is a project budget. It is taken from html textfield
      * @param projectName   is a project name, taken from html textfield
      * @param currencySign  is a budget currency sign (USD, EUR...), taken from html select field
@@ -47,16 +46,16 @@ public class ProjectController {
      */
     @PostMapping("/createProject")
     public String createProjectPOST(
-            Principal principal,
+            Principal auth,
             @RequestParam String projectName,
             @RequestParam long projectBudget,
             @RequestParam String currencySign
     ) {
-        if (projectService.findByName(projectName) == null && principal != null) {
-            User user = userService.findByUserName(principal.getName());
+        if (projectRepository.findByName(projectName) == null && auth != null) {
+            User user = userRepository.findByUserName(auth.getName());
 
             Project project = new Project(projectName, user.getUserName(), projectBudget, currencySign);
-            User userDB = userService.findByUserName(user.getUserName());
+            User userDB = userRepository.findByUserName(user.getUserName());
 
             userDB.getCreatedProjects().add(projectName);
             userDB.getProjectsTakePartIn().add(projectName);
@@ -64,8 +63,8 @@ public class ProjectController {
             project.getAdmins().add(userDB.getUserName());
             project.getMembers().add(userDB.getUserName());
 
-            userService.save(userDB);
-            projectService.save(project);
+            userRepository.save(userDB);
+            projectRepository.save(project);
 
             return "redirect:/project/" + projectName;
         }
@@ -73,11 +72,10 @@ public class ProjectController {
         return "redirect:/dashboard";
     }
 
-
     /**
      * This request is handled when project admin wants to set a notification for other members
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from html text field
      * @param messageText is a notification text message
      * @return project page with new notification
@@ -85,17 +83,17 @@ public class ProjectController {
      */
     @PostMapping("/setProjectNotification")
     public String notificationSubmitted(
-            Principal principal,
+            Principal auth,
             @RequestParam String messageText,
             @RequestParam String projectName) {
-        User userDB = userService.findByUserName(principal.getName());
-        Project projectDB = projectService.findByName(projectName);
+        User userDB = userRepository.findByUserName(auth.getName());
+        Project projectDB = projectRepository.findByName(projectName);
 
         if (userDB.isProjectAdmin(projectDB)) {
-            ProjectNotification projectNotification = new ProjectNotification(principal.getName(), messageText);
+            ProjectNotification projectNotification = new ProjectNotification(auth.getName(), messageText);
 
             projectDB.setProjectNotification(projectNotification);
-            projectService.save(projectDB);
+            projectRepository.save(projectDB);
 
             return "redirect:/project/" + projectName;
         }
@@ -103,11 +101,10 @@ public class ProjectController {
         return "redirect:/dashboard";
     }
 
-
     /**
      * This request is handled when project admin wants to set a new project budget
      *
-     * @param principal         is a logged-in user object
+     * @param auth              is a logged-in user object
      * @param projectName       is a project name, taken from html textfield
      * @param budget            is a new project budget
      * @param budgetChangeCause states why budget is changed. It will be seen to everybody
@@ -116,13 +113,13 @@ public class ProjectController {
      */
     @PostMapping("/setProjectBudget")
     public String setBudget(
-            Principal principal,
+            Principal auth,
             @RequestParam("projectBudget") long budget,
             @RequestParam String projectName,
             @RequestParam String budgetChangeCause) {
 
-        User userDB = userService.findByUserName(principal.getName());
-        Project projectDB = projectService.findByName(projectName);
+        User userDB = userRepository.findByUserName(auth.getName());
+        Project projectDB = projectRepository.findByName(projectName);
 
         if (userDB.isProjectAdmin(projectDB)) {
             String difference = moneyDifference(projectDB, projectDB.getBudget(), budget);
@@ -131,7 +128,7 @@ public class ProjectController {
 
             projectDB.getProjectInbox().add(notification);
             projectDB.setBudget(budget);
-            projectService.save(projectDB);
+            projectRepository.save(projectDB);
 
             return "redirect:/project/" + projectName;
         }
@@ -143,19 +140,19 @@ public class ProjectController {
      * This request is handled when project admin wants to clear project inbox
      * Actually it will be cleared, but the only 1 message will remain - saying who cleared it
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from html text field
      * @return project page with an empty inbox
      */
     @PostMapping("/deleteAllInboxMessages")
-    public String deleteAllInbox(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
-        Project projectDB = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+    public String deleteAllInbox(Principal auth, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
+        Project projectDB = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (projectDB != null && user.isProjectAdmin(projectDB)) {
             projectDB.getProjectInbox().clear();
             projectDB.getProjectInbox().add(new InboxMessage(user.getUserName() + " has cleared project inbox.", user.getUserName(), "inboxMessage"));
-            projectService.save(projectDB);
+            projectRepository.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", "Project inbox cleared");
 
@@ -169,19 +166,19 @@ public class ProjectController {
      * This request is handled when user wants to open a project page
      * If a user is a member of a project -> let them in, otherwise show a corresponding message
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
      * @return project page if user is a member of the project, otherwise redirect to not-a-member page
      * @see Currency
      */
     @GetMapping("/project/{projectName}")
-    public String projectPage(@PathVariable String projectName, Model model, Principal principal) {
-        Project projectDB = projectService.findByName(projectName);
-        User userDB = userService.findByUserName(principal.getName());
+    public String projectPage(@PathVariable String projectName, Model model, Principal auth) {
+        Project projectDB = projectRepository.findByName(projectName);
+        User userDB = userRepository.findByUserName(auth.getName());
 
         if (projectDB != null && userDB != null) {
             if (userDB.isMember(projectDB)) {
-                model.addAttribute("project", projectService.findByName(projectName));
+                model.addAttribute("project", projectRepository.findByName(projectName));
                 model.addAttribute("LoggedUser", userDB);
 
                 Currency budget = new Currency(projectDB.getBudget(), projectDB.getCurrencySign());
@@ -212,15 +209,15 @@ public class ProjectController {
             @RequestParam String userName,
             RedirectAttributes redirectAttributes) {
 
-        Project projectDB = projectService.findByName(projectName);
+        Project projectDB = projectRepository.findByName(projectName);
         InboxMessage message = new InboxMessage(userName + " wants to join " + projectName + " project. \nAccept this request or reject.", userName, "inboxRequest");
         message.setDetails(projectName);
 
         projectDB.getAdmins().stream()
-                .map(adminName -> userService.findByUserName(adminName))
+                .map(adminName -> userRepository.findByUserName(adminName))
                 .forEach(admin -> {
                     admin.getMessages().add(message);
-                    userService.save(admin);
+                    userRepository.save(admin);
                 });
 
         redirectAttributes.addFlashAttribute("successMsg", "Request sent successfully to " + projectName + " project!");
@@ -228,11 +225,10 @@ public class ProjectController {
         return "redirect:/dashboard";
     }
 
-
     /**
      * This request is handled when project admin wants to invite specific user to the project
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @param memberName  is the user who gets the invitation
      * @return project page
@@ -240,18 +236,18 @@ public class ProjectController {
      */
     @PostMapping("/inviteMemberToProject")
     public String inviteMemberToProject(
-            Principal principal,
+            Principal auth,
             @RequestParam String projectName,
             @RequestParam String memberName,
             RedirectAttributes redirectAttributes) {
 
-        InboxMessage message = new InboxMessage(principal.getName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", principal.getName(), "inboxRequestToMember");
-        User userRecipient = userService.findByUserName(memberName);
+        InboxMessage message = new InboxMessage(auth.getName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", auth.getName(), "inboxRequestToMember");
+        User userRecipient = userRepository.findByUserName(memberName);
 
         if (userRecipient != null) {
             message.setDetails(projectName);
             userRecipient.getMessages().add(message);
-            userService.save(userRecipient);
+            userRepository.save(userRecipient);
 
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been invited!");
         } else {
@@ -261,9 +257,8 @@ public class ProjectController {
         return "redirect:/project/" + projectName;
     }
 
-
     /**
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @param memberName  is a name of the user who becomes an admin
      * @return project page
@@ -274,23 +269,23 @@ public class ProjectController {
     public String setAsAdmin(
             @RequestParam String projectName,
             @RequestParam String memberName,
-            Principal principal,
+            Principal auth,
             RedirectAttributes redirectAttributes) {
 
-        Project projectDB = projectService.findByName(projectName);
-        User member = userService.findByUserName(memberName);
-        User user = userService.findByUserName(principal.getName());
+        Project projectDB = projectRepository.findByName(projectName);
+        User member = userRepository.findByUserName(memberName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isProjectAdmin(projectDB) && !projectDB.getAdmins().contains(memberName) && member != null) {
             InboxMessage message = new InboxMessage(user.getUserName() + " has set " + memberName + " as project admin", user.getUserName(), "inboxMessage");
 
             projectDB.getProjectInbox().add(message);
             projectDB.getAdmins().add(memberName);
-            projectService.save(projectDB);
+            projectRepository.save(projectDB);
 
             InboxMessage userMessage = new InboxMessage(user.getUserName() + " has set you as " + projectName + "'s admin", user.getUserName(), "inboxMessage");
             member.getMessages().add(userMessage);
-            userService.save(member);
+            userRepository.save(member);
 
             redirectAttributes.addFlashAttribute("successMsg", memberName + " has been set as " + projectName + "'s admin");
         } else {
@@ -300,9 +295,8 @@ public class ProjectController {
         return "redirect:/project/" + projectName;
     }
 
-
     /**
-     * @param principal    is a logged-in user object
+     * @param auth         is a logged-in user object
      * @param projectName  is a project name, taken from a hidden html input field
      * @param currentAdmin is a name of the user who no longer will be an admin
      * @return project page
@@ -314,17 +308,17 @@ public class ProjectController {
     public String unAdminUser(
             @RequestParam String projectName,
             @RequestParam String currentAdmin,
-            Principal principal,
+            Principal auth,
             RedirectAttributes redirectAttributes) {
-        Project projectDB = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+        Project projectDB = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (projectDB != null && projectDB.getAdmins().contains(user.getUserName()) && !user.getUserName().equals(currentAdmin)) {
             projectDB.getAdmins().remove(currentAdmin);
 
             InboxMessage message = new InboxMessage(user.getUserName() + " has taken admin right from " + currentAdmin, user.getUserName(), "inboxMessage");
             projectDB.getProjectInbox().add(message);
-            projectService.save(projectDB);
+            projectRepository.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", currentAdmin + " is not an admin anymore!");
         } else {
@@ -334,9 +328,8 @@ public class ProjectController {
         return "redirect:/project/" + projectName;
     }
 
-
     /**
-     * @param principal     is a logged-in user object
+     * @param auth          is a logged-in user object
      * @param projectName   is a project name, taken from a hidden html input field
      * @param directoryName is a directory name where that item belongs
      * @return project page
@@ -349,22 +342,22 @@ public class ProjectController {
             @RequestParam String projectName,
             @RequestParam String itemText,
             @RequestParam String directoryName,
-            Principal principal) {
+            Principal auth) {
 
         ProjectItem projectItem = new ProjectItem(itemText, projectName);
-        Project project = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+        Project project = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (project.getAdmins().contains(user.getUserName())) {
             project.addItem(projectItem, directoryName);
-            projectService.save(project);
+            projectRepository.save(project);
         }
 
         return "redirect:/project/" + projectName;
     }
 
     /**
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
@@ -375,23 +368,23 @@ public class ProjectController {
     public String removeCard(
             @RequestParam String projectName,
             @RequestParam String cardKey,
-            Principal principal
+            Principal auth
     ) {
-        Project project = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+        Project project = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (project != null && project.getAdmins().contains(user.getUserName())) {
             ProjectItem projectItem = project.getItemByKey(cardKey);
             project.removeCard(projectItem);
 
-            projectService.save(project);
+            projectRepository.save(project);
         }
 
         return "redirect:/project/" + projectName;
     }
 
     /**
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      * @see ProjectItem
@@ -402,59 +395,57 @@ public class ProjectController {
     public String markItemAsDone(
             @RequestParam String projectName,
             @RequestParam String itemKey,
-            Principal principal
+            Principal auth
     ) {
-        Project project = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+        Project project = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (project != null && project.getAdmins().contains(user.getUserName())) {
             ProjectItem projectItem = project.getItemByKey(itemKey);
 
             project.removeCard(projectItem);
             project.addItem(projectItem, "done");
-            projectService.save(project);
+            projectRepository.save(project);
         }
 
         return "redirect:/project/" + projectName;
     }
-
 
     /**
      * This request is handled when project admin wants to mark all current items as done
      * All of them will be moved to 'done' category
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      */
     @PostMapping("/currentItemsAllDone")
-    public String currentItemsAllDone(@RequestParam String projectName, Principal principal) {
-        Project project = projectService.findByName(projectName);
+    public String currentItemsAllDone(@RequestParam String projectName, Principal auth) {
+        Project project = projectRepository.findByName(projectName);
 
-        if (project != null && project.getAdmins().contains(principal.getName())) {
+        if (project != null && project.getAdmins().contains(auth.getName())) {
             project.markAllCurrentItemsAsDone();
-            projectService.save(project);
+            projectRepository.save(project);
         }
 
         return "redirect:/project/" + projectName;
     }
 
-
     /**
      * This request is handled when project admin wants to mark all done items as done
      * All of them will be removed
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @return project page
      */
     @PostMapping("/removeDoneItems")
-    public String removeDoneItems(@RequestParam String projectName, Principal principal) {
-        Project project = projectService.findByName(projectName);
+    public String removeDoneItems(@RequestParam String projectName, Principal auth) {
+        Project project = projectRepository.findByName(projectName);
 
-        if (project != null && project.getAdmins().contains(principal.getName())) {
+        if (project != null && project.getAdmins().contains(auth.getName())) {
             project.getDoneProjectItems().clear();
-            projectService.save(project);
+            projectRepository.save(project);
         }
 
         return "redirect:/project/" + projectName;
@@ -464,26 +455,26 @@ public class ProjectController {
      * This request is handled when project admin wants to remove a project
      * All members will be notified about it in their inbox
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param projectName is a project name, taken from a hidden html input field
      * @return dashboard page
      */
     @PostMapping("/removeProject")
-    public String removeProject(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
-        Project project = projectService.findByName(projectName);
+    public String removeProject(Principal auth, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
+        Project project = projectRepository.findByName(projectName);
 
-        if (project != null && project.getAdmins().contains(principal.getName())) {
-            InboxMessage deletionNotification = new InboxMessage(principal.getName() + " has removed project you take part in - " + projectName, principal.getName(), "inboxMessage");
+        if (project != null && project.getAdmins().contains(auth.getName())) {
+            InboxMessage deletionNotification = new InboxMessage(auth.getName() + " has removed project you take part in - " + projectName, auth.getName(), "inboxMessage");
 
             project.getMembers().stream()
-                    .map(member -> userService.findByUserName(member))
+                    .map(member -> userRepository.findByUserName(member))
                     .forEach(memberUser -> {
                         memberUser.removeProject(projectName);
                         memberUser.getMessages().add(deletionNotification);
-                        userService.save(memberUser);
+                        userRepository.save(memberUser);
                     });
 
-            projectService.delete(project);
+            projectRepository.delete(project);
 
             redirectAttributes.addFlashAttribute("successMsg", projectName + " has been removed!");
         } else {

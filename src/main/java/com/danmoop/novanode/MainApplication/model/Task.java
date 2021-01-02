@@ -2,8 +2,7 @@ package com.danmoop.novanode.MainApplication.model;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Data
 public class Task {
@@ -16,8 +15,6 @@ public class Task {
     private String key;
     private String createdOn;
 
-    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-
     public Task(String authorName, String text, String executor, String deadline, String project) {
         this.authorName = authorName;
         this.text = text;
@@ -26,7 +23,7 @@ public class Task {
         this.deadline = deadline;
         this.project = project;
 
-        this.createdOn = dtf.format(LocalDateTime.now());
+        this.createdOn = new Date().toString();
     }
 
     private String generateKey() {

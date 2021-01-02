@@ -1,8 +1,8 @@
 package com.danmoop.novanode.MainApplication.controller;
 
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.service.ProjectService;
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -15,23 +15,23 @@ import java.security.Principal;
 public class IndexController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectRepository projectRepository;
 
     /**
      * This request displays index page if user is not banned
      *
-     * @param principal is a logged-in user object
+     * @param auth is a logged-in user object
      * @return index page
      */
     @GetMapping("/")
-    public String indexPage(Principal principal) {
+    public String indexPage(Principal auth) {
         User user = null;
 
-        if (principal != null) {
-            user = userService.findByUserName(principal.getName());
+        if (auth != null) {
+            user = userRepository.findByUserName(auth.getName());
         }
 
         if (user == null) {
@@ -47,7 +47,7 @@ public class IndexController {
     }
 
     /**
-     * This request displays register page with all the textfields
+     * This request displays register page with all the text fields
      *
      * @return register page
      */
@@ -56,21 +56,19 @@ public class IndexController {
         return "sections/registerPage";
     }
 
-
     /**
      * This request displays user's dashboard if user is not banned
      *
-     * @param principal is a logged-in user object
+     * @param auth is a logged-in user object
      * @return dashboard page
      */
     @GetMapping("/dashboard")
-    public String dashBoardPage(Principal principal, Model model) {
-
-        if (principal == null) {
+    public String dashBoardPage(Principal auth, Model model) {
+        if (auth == null) {
             return "redirect:/";
         }
 
-        User user = userService.findByUserName(principal.getName());
+        User user = userRepository.findByUserName(auth.getName());
 
         if (!user.isBanned()) {
             model.addAttribute("LoggedUser", user);

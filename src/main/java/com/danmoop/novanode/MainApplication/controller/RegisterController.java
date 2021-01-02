@@ -1,7 +1,7 @@
 package com.danmoop.novanode.MainApplication.controller;
 
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -13,14 +13,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class RegisterController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     /**
      * This request is handled when user wants to register
-     * There is MD5 implemented for encrypting users' passwords
+     * There is BCrypt implemented for encrypting users' passwords
      * If there is not user with identical username - register, otherwise show an error message
      *
      * @param name     is taken from a html text field
@@ -37,9 +37,9 @@ public class RegisterController {
             @RequestParam("password") String password,
             RedirectAttributes redirectAttributes
     ) {
-        if (userService.findByUserName(userName) == null) {
+        if (userRepository.findByUserName(userName) == null) {
             User newUser = new User(userName, name, email, passwordEncoder.encode(password));
-            userService.save(newUser);
+            userRepository.save(newUser);
 
             redirectAttributes.addFlashAttribute("successMsg", "Registered successfully! Now you can sign in using your login and password!");
 

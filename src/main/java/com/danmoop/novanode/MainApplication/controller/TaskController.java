@@ -4,8 +4,8 @@ import com.danmoop.novanode.MainApplication.model.InboxMessage;
 import com.danmoop.novanode.MainApplication.model.Project;
 import com.danmoop.novanode.MainApplication.model.Task;
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.service.ProjectService;
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,37 +18,37 @@ import java.security.Principal;
 public class TaskController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectRepository projectRepository;
 
     /**
      * This request is handled when user sends a task review to project's admins
      * Admins will see this review request in their inbox
      *
-     * @param principal   is a logged-in user object
+     * @param auth        is a logged-in user object
      * @param key         is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @param taskMessage is taken from a user's textarea. It is something user can say about task completion.
      * @return dashboard page. Send admins a task review message
      */
     @PostMapping("/submitTaskReview")
     public String submitTaskReview(
-            Principal principal,
+            Principal auth,
             @RequestParam("taskKey") String key,
             @RequestParam("taskMessage") String taskMessage,
             RedirectAttributes redirectAttributes) {
 
-        User user = userService.findByUserName(principal.getName());
+        User user = userRepository.findByUserName(auth.getName());
         Task task = user.findTaskByKey(key);
-        Project projectDB = projectService.findByName(task.getProject());
+        Project projectDB = projectRepository.findByName(task.getProject());
 
-        InboxMessage msg = new InboxMessage(principal.getName() + " has requested task review.\n\nTask ID: " + task.getKey() + "\n\nTask description: " + task.getText() + "\n\nTask deadline: " + task.getDeadline() + "\n\n" + principal.getName() + " has given details on this task: " + taskMessage, principal.getName(), "inboxTaskRequest");
-        User taskGiver = userService.findByUserName(task.getAuthorName());
+        InboxMessage msg = new InboxMessage(auth.getName() + " has requested task review.\n\nTask ID: " + task.getKey() + "\n\nTask description: " + task.getText() + "\n\nTask deadline: " + task.getDeadline() + "\n\n" + auth.getName() + " has given details on this task: " + taskMessage, auth.getName(), "inboxTaskRequest");
+        User taskGiver = userRepository.findByUserName(task.getAuthorName());
         msg.setDetails(key + "," + projectDB.getName());
 
         taskGiver.getMessages().add(msg);
-        userService.save(taskGiver);
+        userRepository.save(taskGiver);
 
         redirectAttributes.addFlashAttribute("successMsg", "Task review has been sent");
 
@@ -61,7 +61,7 @@ public class TaskController {
      *
      * @param workSuccess        is added to task executor's stats, it is used later for evaluating overall success
      *                           it is an integer from 1 to 10 meaning the value of completion (1-really bad, 10-excellent)
-     * @param principal          is a logged-in user object
+     * @param auth               is a logged-in user object
      * @param messageText        is taken from a user's textarea. It is something user can say about task completion
      * @param keyAndProj         has task key and project name, they are stored in a single string, then divided
      * @param taskExecutor       is a task executor's username
@@ -76,15 +76,15 @@ public class TaskController {
             @RequestParam("taskKeyAndProjectName") String keyAndProj,
             @RequestParam String taskExecutor,
             @RequestParam String msgKey,
-            Principal principal,
+            Principal auth,
             RedirectAttributes redirectAttributes) {
 
         String key = keyAndProj.split(",")[0];
         String projectName = keyAndProj.split(",")[1];
 
-        User executor = userService.findByUserName(taskExecutor);
-        User userDB = userService.findByUserName(principal.getName());
-        Project projectDB = projectService.findByName(projectName);
+        User executor = userRepository.findByUserName(taskExecutor);
+        User userDB = userRepository.findByUserName(auth.getName());
+        Project projectDB = projectRepository.findByName(projectName);
 
         projectDB.getCompletedTasks().add(projectDB.getTaskByKey(key));
         projectDB.removeTaskByKey(key);
@@ -98,12 +98,12 @@ public class TaskController {
         executor.getCompletedTasks().add(executor.findTaskByKey(key));
         executor.deleteTaskByKey(key);
 
-        InboxMessage message = new InboxMessage(principal.getName() + " has accepted your task " + key + " review. Good job!" + "\n\n" + principal.getName() + "'s message to you: " + messageText + "\n\nTask details: " + task.getText() + "\n\nProject: " + task.getProject(), principal.getName(), "inboxMessage");
+        InboxMessage message = new InboxMessage(auth.getName() + " has accepted your task " + key + " review. Good job!" + "\n\n" + auth.getName() + "'s message to you: " + messageText + "\n\nTask details: " + task.getText() + "\n\nProject: " + task.getProject(), auth.getName(), "inboxMessage");
         executor.getMessages().add(message);
 
-        userService.save(executor);
-        userService.save(userDB);
-        projectService.save(projectDB);
+        userRepository.save(executor);
+        userRepository.save(userDB);
+        projectRepository.save(projectDB);
 
         redirectAttributes.addFlashAttribute("successMsg", executor.getUserName() + "'s task completion accepted");
 
@@ -114,7 +114,7 @@ public class TaskController {
      * This request is handled when project admins rejects task review that was sent before
      * Request sends a message with some advices to task executor
      *
-     * @param principal          is a logged-in user object
+     * @param auth               is a logged-in user object
      * @param taskExecutor       is a task executor's username
      * @param messageText        is a message sent by admin. There may be some advices how to do the job right
      * @param msgKey             is a message key
@@ -127,32 +127,31 @@ public class TaskController {
             @RequestParam("taskKeyAndProjectName") String taskKeyAndProjectName,
             @RequestParam("msgKey") String msgKey,
             @RequestParam("messageText") String messageText,
-            Principal principal,
+            Principal auth,
             RedirectAttributes redirectAttributes) {
 
         String taskKey = taskKeyAndProjectName.split(",")[0];
         String projectName = taskKeyAndProjectName.split(",")[1];
 
-        User userDB = userService.findByUserName(principal.getName());
-        User executor = userService.findByUserName(taskExecutor);
+        User userDB = userRepository.findByUserName(auth.getName());
+        User executor = userRepository.findByUserName(taskExecutor);
         userDB.getMessages().remove(userDB.findMessageByMessageKey(msgKey));
 
         InboxMessage message = new InboxMessage(userDB.getUserName() + " has rejected your task review " + taskKey + " in " + projectName + " project. \nDetails on the task given: " + messageText, userDB.getUserName(), "inboxMessage");
         executor.getMessages().add(message);
 
-        userService.save(userDB);
-        userService.save(executor);
+        userRepository.save(userDB);
+        userRepository.save(executor);
 
         redirectAttributes.addFlashAttribute("errorMsg", executor.getUserName() + "'s task completion rejected");
 
         return "redirect:/dashboard";
     }
 
-
     /**
      * This request is handled when project admin wants to add a new project task
      *
-     * @param principal    is a logged-in user object
+     * @param auth         is a logged-in user object
      * @param projectName  is a project name, taken from html text field
      * @param deadline     is a task deadline, it can be chosen from a calendar input on html page
      * @param description  is a task description
@@ -161,15 +160,15 @@ public class TaskController {
      */
     @PostMapping("/addProjectTask")
     public String addProjectTask(
-            Principal principal,
+            Principal auth,
             @RequestParam("projectName") String projectName,
             @RequestParam("taskDeadline") String deadline,
             @RequestParam("taskExecutor") String taskExecutor,
             @RequestParam("taskDescription") String description,
             RedirectAttributes redirectAttributes) {
-        Project projectDB = projectService.findByName(projectName);
-        User executor = userService.findByUserName(taskExecutor);
-        User user = userService.findByUserName(principal.getName());
+        Project projectDB = projectRepository.findByName(projectName);
+        User executor = userRepository.findByUserName(taskExecutor);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isProjectAdmin(projectDB) && executor != null) {
             if (!executor.getUserName().equals(user.getUserName())) {
@@ -179,11 +178,11 @@ public class TaskController {
 
                 projectDB.getProjectTasks().add(task);
                 projectDB.getProjectInbox().add(notification);
-                projectService.save(projectDB);
+                projectRepository.save(projectDB);
 
                 executor.getTasks().add(task);
                 executor.getMessages().add(message);
-                userService.save(executor);
+                userRepository.save(executor);
             } else {
                 redirectAttributes.addFlashAttribute("errorMsg", "You can't give a task to yourself!");
             }

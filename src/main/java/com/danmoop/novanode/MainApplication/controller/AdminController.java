@@ -2,8 +2,8 @@ package com.danmoop.novanode.MainApplication.controller;
 
 import com.danmoop.novanode.MainApplication.model.Project;
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.service.ProjectService;
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,25 +24,25 @@ public class AdminController {
      */
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectRepository projectRepository;
 
     /**
      * This request displays admin page where you can control the world of Ketarn
      *
-     * @param principal is a logged-in user object
+     * @param auth is a logged-in user object
      * @return admin page if user is really an admin
      */
     @GetMapping("/admin")
-    public String adminPage(Principal principal, Model model) {
-        User user = userService.findByUserName(principal.getName());
+    public String adminPage(Principal auth, Model model) {
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user != null) {
             if (user.getRole().equals("Admin")) {
-                List<User> users = userService.findAll();
-                List<Project> projects = projectService.findAll();
+                List<User> users = userRepository.findAll();
+                List<Project> projects = projectRepository.findAll();
 
                 model.addAttribute("usersLength", users.size());
                 model.addAttribute("projectsLength", projects.size());
@@ -58,18 +58,18 @@ public class AdminController {
     /**
      * This is a really cruel move, this is handled when Ketarn admin wants to ban a sinful soul
      *
-     * @param userName  is a user's username who is going to be banned
-     * @param principal is an admin user object, who is logged in
+     * @param userName is a user's username who is going to be banned
+     * @param auth     is an admin user object, who is logged in
      * @return admin page
      */
     @PostMapping("/BanUser")
-    public String banUser(@RequestParam("ban_userName") String userName, Principal principal, RedirectAttributes redirectAttributes) {
-        User userDB = userService.findByUserName(userName);
-        User user = userService.findByUserName(principal.getName());
+    public String banUser(@RequestParam("ban_userName") String userName, Principal auth, RedirectAttributes redirectAttributes) {
+        User userDB = userRepository.findByUserName(userName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isRoleAdmin() && userDB != null) {
             userDB.setBanned(true);
-            userService.save(userDB);
+            userRepository.save(userDB);
             redirectAttributes.addFlashAttribute("msg", userDB.getUserName() + " has been banned");
         } else {
             redirectAttributes.addFlashAttribute("err_ban", userName + " is not registered");
@@ -82,18 +82,18 @@ public class AdminController {
     /**
      * This is handled when admin wants to Unban a user
      *
-     * @param userName  is a user's username who is going to be Unbanned
-     * @param principal is an admin user object, who is logged in
+     * @param userName is a user's username who is going to be Unbanned
+     * @param auth     is an admin user object, who is logged in
      * @return admin page
      */
     @PostMapping("/UnbanUser")
-    public String unbanUser(@RequestParam("unban_userName") String userName, Principal principal, RedirectAttributes redirectAttributes) {
-        User userDB = userService.findByUserName(userName);
-        User user = userService.findByUserName(principal.getName());
+    public String unbanUser(@RequestParam("unban_userName") String userName, Principal auth, RedirectAttributes redirectAttributes) {
+        User userDB = userRepository.findByUserName(userName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isRoleAdmin() && userDB != null) {
             userDB.setBanned(false);
-            userService.save(userDB);
+            userRepository.save(userDB);
             redirectAttributes.addFlashAttribute("msg", userDB.getUserName() + " has been unbanned");
         } else {
             redirectAttributes.addFlashAttribute("err_unban", userName + " is not registered");
@@ -106,14 +106,14 @@ public class AdminController {
     /**
      * This is handled when admin wants to know everything about user, it will show JSON object
      *
-     * @param username  is user's username
-     * @param principal is an admin, who is logged in
+     * @param username is user's username
+     * @param auth     is an admin, who is logged in
      * @return some user's data
      */
     @PostMapping("/getUserInfo")
-    public String userInfo(Principal principal, @RequestParam String username, RedirectAttributes redirectAttributes) {
-        User userDB = userService.findByUserName(username);
-        User user = userService.findByUserName(principal.getName());
+    public String userInfo(Principal auth, @RequestParam String username, RedirectAttributes redirectAttributes) {
+        User userDB = userRepository.findByUserName(username);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isRoleAdmin() && userDB != null) {
             redirectAttributes.addFlashAttribute("userInfo", userDB.toString());
@@ -124,18 +124,17 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-
     /**
      * This is handled when admin wants to know everything about some project, it will show JSON object
      *
      * @param projectName is project's name
-     * @param principal   is an admin, who is logged in
+     * @param auth        is an admin, who is logged in
      * @return some project's data
      */
     @PostMapping("/getProjectInfo")
-    public String projectInfo(Principal principal, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
-        Project project = projectService.findByName(projectName);
-        User user = userService.findByUserName(principal.getName());
+    public String projectInfo(Principal auth, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
+        Project project = projectRepository.findByName(projectName);
+        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isRoleAdmin() && project != null) {
             redirectAttributes.addFlashAttribute("projectInfo", project.toString());
@@ -145,7 +144,6 @@ public class AdminController {
 
         return "redirect:/admin";
     }
-
 
     /**
      * @return random UUID

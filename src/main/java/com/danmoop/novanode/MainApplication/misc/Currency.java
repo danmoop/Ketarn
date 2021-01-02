@@ -8,7 +8,7 @@ import java.util.*;
 public class Currency {
     public static String[] currencies = {"USD", "CAD", "AUD", "GBP", "RUB", "EUR"};
 
-    private static List<String> currencyList = new ArrayList<>();
+    private List<String> currencyList;
 
     private Map<String, String> currencySigns;
 
@@ -21,6 +21,7 @@ public class Currency {
 
     public Currency(double amount, String currencyType) {
 
+        this.currencyList = new ArrayList<>();
         this.currencyType = currencyType;
         this.amount = amount;
         createCurrencySigns();
@@ -93,7 +94,7 @@ public class Currency {
         this.currencyType = currencyType;
     }
 
-    public static List<String> getCurrencyList() {
+    public List<String> getCurrencyList() {
         return currencyList;
     }
 
@@ -102,10 +103,7 @@ public class Currency {
     }
 
     public boolean isEqualTo(Currency cur) {
-        if (this.currencyType == cur.currencyType && this.amount == cur.amount)
-            return true;
-
-        return false;
+        return this.currencyType.equals(cur.currencyType) && this.amount == cur.amount;
     }
 
     public void hideCurrencySign() {

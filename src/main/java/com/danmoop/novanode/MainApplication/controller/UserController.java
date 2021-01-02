@@ -3,8 +3,8 @@ package com.danmoop.novanode.MainApplication.controller;
 import com.danmoop.novanode.MainApplication.model.InboxMessage;
 import com.danmoop.novanode.MainApplication.model.Project;
 import com.danmoop.novanode.MainApplication.model.User;
-import com.danmoop.novanode.MainApplication.service.ProjectService;
-import com.danmoop.novanode.MainApplication.service.UserService;
+import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
+import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -22,10 +22,10 @@ import java.security.Principal;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectRepository projectRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -46,11 +46,11 @@ public class UserController {
             @RequestParam String email,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(auth.getName());
+        User userDB = userRepository.findByUserName(auth.getName());
 
         userDB.setName(name);
         userDB.setEmail(email);
-        userService.save(userDB);
+        userRepository.save(userDB);
 
         redirectAttributes.addFlashAttribute("successMsg", "Info changed successfully!");
 
@@ -73,7 +73,7 @@ public class UserController {
             @RequestParam("new_pass") String newPass,
             @RequestParam("confirm_pass") String confirmPass,
             RedirectAttributes redirectAttributes) {
-        User userDB = userService.findByUserName(auth.getName());
+        User userDB = userRepository.findByUserName(auth.getName());
 
         if (newPass.length() < 8) {
             redirectAttributes.addFlashAttribute("errorMsg", "New password should be at least 8 characters!");
@@ -86,7 +86,7 @@ public class UserController {
         */
         if (passwordEncoder.matches(oldPass, userDB.getPassword()) && newPass.equals(confirmPass)) {
             userDB.setPassword(passwordEncoder.encode(newPass));
-            userService.save(userDB);
+            userRepository.save(userDB);
 
             redirectAttributes.addFlashAttribute("successMsg", "Password changed successfully!");
 
@@ -101,9 +101,9 @@ public class UserController {
      * This request is handled when project's admin accepts the request sent by a user to join their project
      *
      * @param auth        is a logged-in user object
+     * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @param authorName  is taken from html text field
      * @param projectName is taken from html text field
-     * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptRequest")
@@ -114,9 +114,9 @@ public class UserController {
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(auth.getName());
-        User authorDB = userService.findByUserName(authorName);
-        Project projectDB = projectService.findByName(projectName);
+        User userDB = userRepository.findByUserName(auth.getName());
+        User authorDB = userRepository.findByUserName(authorName);
+        Project projectDB = projectRepository.findByName(projectName);
 
         if (userDB.isProjectAdmin(projectDB)) {
             projectDB.getMembers().add(authorName);
@@ -128,9 +128,9 @@ public class UserController {
             authorDB.getMessages().add(message);
             userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
-            userService.save(authorDB);
-            userService.save(userDB);
-            projectService.save(projectDB);
+            userRepository.save(authorDB);
+            userRepository.save(userDB);
+            projectRepository.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", authorName + "'s request accepted!");
         }
@@ -143,8 +143,8 @@ public class UserController {
      *
      * @param auth        is a logged-in user object
      * @param authorName  is taken from html text field
-     * @param projectName is taken from html text field
      * @param messageKey  is taken from a hidden html text field. Value is assigned using Thymeleaf
+     * @param projectName is taken from html text field
      * @return dashboard page. Send a rejection message and save user object
      */
     @PostMapping("/rejectRequest")
@@ -155,22 +155,21 @@ public class UserController {
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(auth.getName());
-        User authorDB = userService.findByUserName(authorName);
+        User userDB = userRepository.findByUserName(auth.getName());
+        User authorDB = userRepository.findByUserName(authorName);
 
         InboxMessage message = new InboxMessage(auth.getName() + " has rejected your request in " + projectName + " project.", auth.getName(), "inboxMessage");
 
         authorDB.getMessages().add(message);
 
         userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
-        userService.save(authorDB);
-        userService.save(userDB);
+        userRepository.save(authorDB);
+        userRepository.save(userDB);
 
         redirectAttributes.addFlashAttribute("errorMsg", authorName + "'s request rejected");
 
         return "redirect:/dashboard";
     }
-
 
     /**
      * This request is handled when user accepts an invitation to a project sent before by project's admin
@@ -189,9 +188,9 @@ public class UserController {
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(auth.getName());
-        User authorDB = userService.findByUserName(authorName);
-        Project projectDB = projectService.findByName(projectName);
+        User userDB = userRepository.findByUserName(auth.getName());
+        User authorDB = userRepository.findByUserName(authorName);
+        Project projectDB = projectRepository.findByName(projectName);
 
         InboxMessage message = new InboxMessage(auth.getName() + " has accepted your request in " + projectName + " project.", auth.getName(), "inboxMessage");
         authorDB.getMessages().add(message);
@@ -203,15 +202,14 @@ public class UserController {
 
         userDB.getProjectsTakePartIn().add(projectName);
 
-        userService.save(authorDB);
-        userService.save(userDB);
-        projectService.save(projectDB);
+        userRepository.save(authorDB);
+        userRepository.save(userDB);
+        projectRepository.save(projectDB);
 
         redirectAttributes.addFlashAttribute("successMsg", authorName + "'s invite accepted");
 
         return "redirect:/dashboard";
     }
-
 
     /**
      * This request is handled when user rejects an invitation to a project sent before by project's admin
@@ -230,15 +228,15 @@ public class UserController {
             @RequestParam String messageKey,
             RedirectAttributes redirectAttributes) {
 
-        User userDB = userService.findByUserName(auth.getName());
-        User authorDB = userService.findByUserName(authorName);
+        User userDB = userRepository.findByUserName(auth.getName());
+        User authorDB = userRepository.findByUserName(authorName);
 
         InboxMessage message = new InboxMessage(auth.getName() + " has rejected your request in " + projectName + " project.", auth.getName(), "inboxMessage");
         authorDB.getMessages().add(message);
         userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
 
-        userService.save(authorDB);
-        userService.save(userDB);
+        userRepository.save(authorDB);
+        userRepository.save(userDB);
 
         redirectAttributes.addFlashAttribute("errorMsg", authorName + "'s invite rejected");
 
