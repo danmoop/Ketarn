@@ -28,15 +28,11 @@ public class IndexController {
      */
     @GetMapping("/")
     public String indexPage(Principal auth) {
-        User user = null;
-
-        if (auth != null) {
-            user = userRepository.findByUserName(auth.getName());
-        }
-
-        if (user == null) {
+        if (auth == null) {
             return "sections/index";
         } else {
+            User user = userRepository.findByUserName(auth.getName());
+
             if (!user.isBanned()) {
                 return "redirect:/dashboard";
             } else {
@@ -73,8 +69,7 @@ public class IndexController {
         if (!user.isBanned()) {
             model.addAttribute("LoggedUser", user);
 
-            double ws = user.getWorkSuccessAverage();
-            model.addAttribute("workSuccess", ws);
+            model.addAttribute("workSuccess", user.getWorkSuccessAverage());
 
             return "sections/dashboard";
         } else {

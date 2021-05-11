@@ -6,6 +6,7 @@ import com.danmoop.novanode.MainApplication.model.User;
 import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
 import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,17 +41,20 @@ public class UserController {
      * @return dashboard page with a message added to @param redirectAttributes
      */
     @PostMapping("/editProfileInfo")
-    public String editProfileInfo(
-            Principal auth,
-            @RequestParam String name,
-            @RequestParam String email,
-            RedirectAttributes redirectAttributes) {
+    public String editProfileInfo(@RequestParam String name, @RequestParam String email, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        User userDB = userRepository.findByUserName(auth.getName());
+        User user = userRepository.findByUserName(auth.getName());
 
-        userDB.setName(name);
-        userDB.setEmail(email);
-        userRepository.save(userDB);
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        user.setName(name);
+        user.setEmail(email);
+        userRepository.save(user);
 
         redirectAttributes.addFlashAttribute("successMsg", "Info changed successfully!");
 
@@ -67,13 +71,16 @@ public class UserController {
      * @return dashboard page
      */
     @PostMapping("/changePassword")
-    public String changePassword(
-            Principal auth,
-            @RequestParam("old_pass") String oldPass,
-            @RequestParam("new_pass") String newPass,
-            @RequestParam("confirm_pass") String confirmPass,
-            RedirectAttributes redirectAttributes) {
-        User userDB = userRepository.findByUserName(auth.getName());
+    public String changePassword(@RequestParam("old_pass") String oldPass, @RequestParam("new_pass") String newPass, @RequestParam("confirm_pass") String confirmPass, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         if (newPass.length() < 8) {
             redirectAttributes.addFlashAttribute("errorMsg", "New password should be at least 8 characters!");
@@ -84,9 +91,9 @@ public class UserController {
             We compare an old password to a current password, so with new pass and confirmation
             If everything is fine, we proceed and rewrite user's information
         */
-        if (passwordEncoder.matches(oldPass, userDB.getPassword()) && newPass.equals(confirmPass)) {
-            userDB.setPassword(passwordEncoder.encode(newPass));
-            userRepository.save(userDB);
+        if (passwordEncoder.matches(oldPass, user.getPassword()) && newPass.equals(confirmPass)) {
+            user.setPassword(passwordEncoder.encode(newPass));
+            userRepository.save(user);
 
             redirectAttributes.addFlashAttribute("successMsg", "Password changed successfully!");
 
@@ -107,18 +114,21 @@ public class UserController {
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptRequest")
-    public String requestAccepted(
-            Principal auth,
-            @RequestParam String authorName,
-            @RequestParam String projectName,
-            @RequestParam String messageKey,
-            RedirectAttributes redirectAttributes) {
+    public String requestAccepted(@RequestParam String authorName, @RequestParam String projectName, @RequestParam String messageKey, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        User userDB = userRepository.findByUserName(auth.getName());
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         User authorDB = userRepository.findByUserName(authorName);
         Project projectDB = projectRepository.findByName(projectName);
 
-        if (userDB.isProjectAdmin(projectDB)) {
+        if (user.isProjectAdmin(projectDB)) {
             projectDB.getMembers().add(authorName);
 
             projectDB.getProjectInbox().add(new InboxMessage(auth.getName() + " has accepted a new member - " + authorName, auth.getName(), "inboxMessage"));
@@ -126,10 +136,10 @@ public class UserController {
             authorDB.getProjectsTakePartIn().add(projectName);
             InboxMessage message = new InboxMessage(auth.getName() + " has accepted your request in " + projectName + " project!", auth.getName(), "inboxMessage");
             authorDB.getMessages().add(message);
-            userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
+            user.getMessages().remove(user.findMessageByMessageKey(messageKey));
 
             userRepository.save(authorDB);
-            userRepository.save(userDB);
+            userRepository.save(user);
             projectRepository.save(projectDB);
 
             redirectAttributes.addFlashAttribute("successMsg", authorName + "'s request accepted!");
@@ -148,23 +158,26 @@ public class UserController {
      * @return dashboard page. Send a rejection message and save user object
      */
     @PostMapping("/rejectRequest")
-    public String requestRejected(
-            Principal auth,
-            @RequestParam String authorName,
-            @RequestParam String projectName,
-            @RequestParam String messageKey,
-            RedirectAttributes redirectAttributes) {
+    public String requestRejected(@RequestParam String authorName, @RequestParam String projectName, @RequestParam String messageKey, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        User userDB = userRepository.findByUserName(auth.getName());
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         User authorDB = userRepository.findByUserName(authorName);
 
         InboxMessage message = new InboxMessage(auth.getName() + " has rejected your request in " + projectName + " project.", auth.getName(), "inboxMessage");
 
         authorDB.getMessages().add(message);
 
-        userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
+        user.getMessages().remove(user.findMessageByMessageKey(messageKey));
         userRepository.save(authorDB);
-        userRepository.save(userDB);
+        userRepository.save(user);
 
         redirectAttributes.addFlashAttribute("errorMsg", authorName + "'s request rejected");
 
@@ -181,29 +194,32 @@ public class UserController {
      * @return dashboard page. Add member to project, add message about new member, save project and member objects
      */
     @PostMapping("/acceptProjectInvite")
-    public String acceptProjectInvite(
-            Principal auth,
-            @RequestParam String authorName,
-            @RequestParam String projectName,
-            @RequestParam String messageKey,
-            RedirectAttributes redirectAttributes) {
+    public String acceptProjectInvite(@RequestParam String authorName, @RequestParam String projectName, @RequestParam String messageKey, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        User userDB = userRepository.findByUserName(auth.getName());
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         User authorDB = userRepository.findByUserName(authorName);
         Project projectDB = projectRepository.findByName(projectName);
 
         InboxMessage message = new InboxMessage(auth.getName() + " has accepted your request in " + projectName + " project.", auth.getName(), "inboxMessage");
         authorDB.getMessages().add(message);
 
-        userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
+        user.getMessages().remove(user.findMessageByMessageKey(messageKey));
 
         projectDB.getMembers().add(auth.getName());
         projectDB.getProjectInbox().add(new InboxMessage(authorName + " has accepted " + auth.getName() + " to the project!", authorName, "inboxMessage"));
 
-        userDB.getProjectsTakePartIn().add(projectName);
+        user.getProjectsTakePartIn().add(projectName);
 
         userRepository.save(authorDB);
-        userRepository.save(userDB);
+        userRepository.save(user);
         projectRepository.save(projectDB);
 
         redirectAttributes.addFlashAttribute("successMsg", authorName + "'s invite accepted");
@@ -221,25 +237,33 @@ public class UserController {
      * @return dashboard page and notify users about rejection
      */
     @PostMapping("/rejectProjectInvite")
-    public String rejectProjectInvite(
-            Principal auth,
-            @RequestParam String authorName,
-            @RequestParam String projectName,
-            @RequestParam String messageKey,
-            RedirectAttributes redirectAttributes) {
+    public String rejectProjectInvite(@RequestParam String authorName, @RequestParam String projectName, @RequestParam String messageKey, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        User userDB = userRepository.findByUserName(auth.getName());
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         User authorDB = userRepository.findByUserName(authorName);
 
         InboxMessage message = new InboxMessage(auth.getName() + " has rejected your request in " + projectName + " project.", auth.getName(), "inboxMessage");
         authorDB.getMessages().add(message);
-        userDB.getMessages().remove(userDB.findMessageByMessageKey(messageKey));
+        user.getMessages().remove(user.findMessageByMessageKey(messageKey));
 
         userRepository.save(authorDB);
-        userRepository.save(userDB);
+        userRepository.save(user);
 
         redirectAttributes.addFlashAttribute("errorMsg", authorName + "'s invite rejected");
 
         return "redirect:/dashboard";
+    }
+
+    private String userIsBanned() {
+        SecurityContextHolder.clearContext();
+        return "handlingPages/youarebanned";
     }
 }

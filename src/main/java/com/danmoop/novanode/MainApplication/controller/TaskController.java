@@ -7,6 +7,7 @@ import com.danmoop.novanode.MainApplication.model.User;
 import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
 import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,13 +34,17 @@ public class TaskController {
      * @return dashboard page. Send admins a task review message
      */
     @PostMapping("/submitTaskReview")
-    public String submitTaskReview(
-            Principal auth,
-            @RequestParam("taskKey") String key,
-            @RequestParam("taskMessage") String taskMessage,
-            RedirectAttributes redirectAttributes) {
+    public String submitTaskReview(@RequestParam("taskKey") String key, @RequestParam("taskMessage") String taskMessage, RedirectAttributes redirectAttributes, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
         User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Task task = user.findTaskByKey(key);
         Project projectDB = projectRepository.findByName(task.getProject());
 
@@ -70,27 +75,28 @@ public class TaskController {
      * @return dashboard page with all new information.
      */
     @PostMapping("/acceptTaskCompletion")
-    public String acceptTaskCompletion(
-            @RequestParam String messageText,
-            @RequestParam String workSuccess,
-            @RequestParam("taskKeyAndProjectName") String keyAndProj,
-            @RequestParam String taskExecutor,
-            @RequestParam String msgKey,
-            Principal auth,
-            RedirectAttributes redirectAttributes) {
+    public String acceptTaskCompletion(@RequestParam String messageText, @RequestParam String workSuccess, @RequestParam("taskKeyAndProjectName") String keyAndProj, @RequestParam String taskExecutor, @RequestParam String msgKey, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         String key = keyAndProj.split(",")[0];
         String projectName = keyAndProj.split(",")[1];
 
         User executor = userRepository.findByUserName(taskExecutor);
-        User userDB = userRepository.findByUserName(auth.getName());
         Project projectDB = projectRepository.findByName(projectName);
 
         projectDB.getCompletedTasks().add(projectDB.getTaskByKey(key));
         projectDB.removeTaskByKey(key);
-        projectDB.getProjectInbox().add(new InboxMessage(userDB.getUserName() + " has accepted " + executor.getUserName() + "'s task completion " + key + "\nWork success: " + workSuccess + " / 10", userDB.getUserName(), "inboxMessage"));
+        projectDB.getProjectInbox().add(new InboxMessage(user.getUserName() + " has accepted " + executor.getUserName() + "'s task completion " + key + "\nWork success: " + workSuccess + " / 10", user.getUserName(), "inboxMessage"));
 
-        userDB.getMessages().remove(userDB.findMessageByMessageKey(msgKey));
+        user.getMessages().remove(user.findMessageByMessageKey(msgKey));
 
         Task task = executor.findTaskByKey(key);
 
@@ -102,7 +108,7 @@ public class TaskController {
         executor.getMessages().add(message);
 
         userRepository.save(executor);
-        userRepository.save(userDB);
+        userRepository.save(user);
         projectRepository.save(projectDB);
 
         redirectAttributes.addFlashAttribute("successMsg", executor.getUserName() + "'s task completion accepted");
@@ -122,25 +128,27 @@ public class TaskController {
      * @return dashboard page with all new information.
      */
     @PostMapping("/rejectTaskCompletion")
-    public String rejectTaskCompletion(
-            @RequestParam("taskExecutor") String taskExecutor,
-            @RequestParam("taskKeyAndProjectName") String taskKeyAndProjectName,
-            @RequestParam("msgKey") String msgKey,
-            @RequestParam("messageText") String messageText,
-            Principal auth,
-            RedirectAttributes redirectAttributes) {
+    public String rejectTaskCompletion(@RequestParam("taskExecutor") String taskExecutor, @RequestParam("taskKeyAndProjectName") String taskKeyAndProjectName, @RequestParam("msgKey") String msgKey, @RequestParam("messageText") String messageText, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         String taskKey = taskKeyAndProjectName.split(",")[0];
         String projectName = taskKeyAndProjectName.split(",")[1];
 
-        User userDB = userRepository.findByUserName(auth.getName());
         User executor = userRepository.findByUserName(taskExecutor);
-        userDB.getMessages().remove(userDB.findMessageByMessageKey(msgKey));
+        user.getMessages().remove(user.findMessageByMessageKey(msgKey));
 
-        InboxMessage message = new InboxMessage(userDB.getUserName() + " has rejected your task review " + taskKey + " in " + projectName + " project. \nDetails on the task given: " + messageText, userDB.getUserName(), "inboxMessage");
+        InboxMessage message = new InboxMessage(user.getUserName() + " has rejected your task review " + taskKey + " in " + projectName + " project. \nDetails on the task given: " + messageText, user.getUserName(), "inboxMessage");
         executor.getMessages().add(message);
 
-        userRepository.save(userDB);
+        userRepository.save(user);
         userRepository.save(executor);
 
         redirectAttributes.addFlashAttribute("errorMsg", executor.getUserName() + "'s task completion rejected");
@@ -159,16 +167,19 @@ public class TaskController {
      * @return project page with new task
      */
     @PostMapping("/addProjectTask")
-    public String addProjectTask(
-            Principal auth,
-            @RequestParam("projectName") String projectName,
-            @RequestParam("taskDeadline") String deadline,
-            @RequestParam("taskExecutor") String taskExecutor,
-            @RequestParam("taskDescription") String description,
-            RedirectAttributes redirectAttributes) {
+    public String addProjectTask(@RequestParam("projectName") String projectName, @RequestParam("taskDeadline") String deadline, @RequestParam("taskExecutor") String taskExecutor, @RequestParam("taskDescription") String description, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project projectDB = projectRepository.findByName(projectName);
         User executor = userRepository.findByUserName(taskExecutor);
-        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isProjectAdmin(projectDB) && executor != null) {
             if (!executor.getUserName().equals(user.getUserName())) {
@@ -189,5 +200,10 @@ public class TaskController {
         }
 
         return "redirect:/project/" + projectName;
+    }
+
+    private String userIsBanned() {
+        SecurityContextHolder.clearContext();
+        return "handlingPages/youarebanned";
     }
 }

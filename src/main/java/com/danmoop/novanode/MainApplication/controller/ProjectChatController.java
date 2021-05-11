@@ -6,6 +6,7 @@ import com.danmoop.novanode.MainApplication.model.User;
 import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
 import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,13 +33,17 @@ public class ProjectChatController {
      * @return project chat page
      */
     @GetMapping("/project/{projectName}/chat")
-    public String projectChat(
-            @PathVariable String projectName,
-            Principal auth,
-            Model model) {
+    public String projectChat(@PathVariable String projectName, Principal auth, Model model) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
         Project project = projectRepository.findByName(projectName);
         User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         if (project != null && project.getMembers().contains(user.getUserName())) {
             model.addAttribute("project", project);
@@ -58,10 +63,16 @@ public class ProjectChatController {
      * @return project page
      */
     @PostMapping("/sendMessageToChat")
-    public String sendMessageToChat(
-            @RequestParam String projectName,
-            @RequestParam String message,
-            Principal auth) {
+    public String sendMessageToChat(@RequestParam String projectName, @RequestParam String message, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         Project project = projectRepository.findByName(projectName);
 
@@ -86,6 +97,16 @@ public class ProjectChatController {
 
     @PostMapping("/clearProjectChat")
     public String clearProjectChar(@RequestParam String projectName, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project project = projectRepository.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(auth.getName())) {
@@ -97,5 +118,10 @@ public class ProjectChatController {
         }
 
         return "redirect:/dashboard";
+    }
+
+    private String userIsBanned() {
+        SecurityContextHolder.clearContext();
+        return "handlingPages/youarebanned";
     }
 }

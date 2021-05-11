@@ -4,6 +4,7 @@ import com.danmoop.novanode.MainApplication.model.InboxMessage;
 import com.danmoop.novanode.MainApplication.model.User;
 import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,10 +29,18 @@ public class MessageController {
      */
     @PostMapping("/sendInboxMessage")
     public String messageSent(@RequestParam String recipient, @RequestParam("messageText") String message, Principal authAuthor, RedirectAttributes redirectAttributes) {
+        if (authAuthor == null) {
+            return "redirect:/";
+        }
+
         User userRecipient = userRepository.findByUserName(recipient);
         User authorUser = userRepository.findByUserName(authAuthor.getName());
 
-        if (userRecipient != null && authorUser != null) {
+        if (authorUser.isBanned()) {
+            return userIsBanned();
+        }
+
+        if (userRecipient != null) {
             InboxMessage inboxMessage = new InboxMessage(message, authorUser.getUserName(), "inboxMessage");
 
             userRecipient.getMessages().add(inboxMessage);
@@ -55,12 +64,21 @@ public class MessageController {
      */
     @PostMapping("/messageIsRead")
     public String messageRead(@RequestParam String messageKey, Principal auth) {
-        User userDB = userRepository.findByUserName(auth.getName());
-        InboxMessage msg = userDB.findMessageByMessageKey(messageKey);
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        InboxMessage msg = user.findMessageByMessageKey(messageKey);
 
         if (msg != null) {
-            userDB.markMessageAsRead(msg);
-            userRepository.save(userDB);
+            user.markMessageAsRead(msg);
+            userRepository.save(user);
         }
 
         return "redirect:/dashboard";
@@ -76,15 +94,28 @@ public class MessageController {
      */
     @PostMapping("/deleteMessage")
     public String messageDeleted(@RequestParam String messageKey, Principal auth) {
-        User userDB = userRepository.findByUserName(auth.getName());
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        InboxMessage msg = userDB.findReadMessageByMessageKey(messageKey);
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        InboxMessage msg = user.findReadMessageByMessageKey(messageKey);
 
         if (msg != null) {
-            userDB.getMessages().remove(msg);
-            userRepository.save(userDB);
+            user.getMessages().remove(msg);
+            userRepository.save(user);
         }
 
         return "redirect:/dashboard";
+    }
+
+    private String userIsBanned() {
+        SecurityContextHolder.clearContext();
+        return "handlingPages/youarebanned";
     }
 }

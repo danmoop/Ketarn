@@ -15,7 +15,6 @@
     <form th:action="@{/sendARequest}" method="post">
 
         <input type="hidden" th:name="projectName" th:value="*{projectName}">
-        <input type="hidden" th:name="userName" th:value="*{LoggedUser.userName}">
 
         <input type="submit" class="uk-button uk-button-default btn" value="Send a request" style="border: 2px solid #999999;"/>
     </form>

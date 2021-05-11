@@ -5,6 +5,7 @@ import com.danmoop.novanode.MainApplication.model.*;
 import com.danmoop.novanode.MainApplication.repository.ProjectRepository;
 import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,17 @@ public class ProjectController {
      * @return project creation html page
      */
     @GetMapping("/createProject")
-    public String createProject() {
+    public String createProject(Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         return "sections/createProject";
     }
 
@@ -45,31 +56,29 @@ public class ProjectController {
      * @return dashboard page with new project and other user's information
      */
     @PostMapping("/createProject")
-    public String createProjectPOST(
-            Principal auth,
-            @RequestParam String projectName,
-            @RequestParam long projectBudget,
-            @RequestParam String currencySign
-    ) {
+    public String createProjectPOST(Principal auth, @RequestParam String projectName, @RequestParam String currencySign, @RequestParam long projectBudget) {
         if (projectRepository.findByName(projectName) == null && auth != null) {
             User user = userRepository.findByUserName(auth.getName());
 
+            if (user.isBanned()) {
+                return userIsBanned();
+            }
+
             Project project = new Project(projectName, user.getUserName(), projectBudget, currencySign);
-            User userDB = userRepository.findByUserName(user.getUserName());
 
-            userDB.getCreatedProjects().add(projectName);
-            userDB.getProjectsTakePartIn().add(projectName);
+            user.getCreatedProjects().add(projectName);
+            user.getProjectsTakePartIn().add(projectName);
 
-            project.getAdmins().add(userDB.getUserName());
-            project.getMembers().add(userDB.getUserName());
+            project.getAdmins().add(user.getUserName());
+            project.getMembers().add(user.getUserName());
 
-            userRepository.save(userDB);
+            userRepository.save(user);
             projectRepository.save(project);
 
             return "redirect:/project/" + projectName;
         }
 
-        return "redirect:/dashboard";
+        return "redirect:/";
     }
 
     /**
@@ -82,14 +91,20 @@ public class ProjectController {
      * @see ProjectNotification
      */
     @PostMapping("/setProjectNotification")
-    public String notificationSubmitted(
-            Principal auth,
-            @RequestParam String messageText,
-            @RequestParam String projectName) {
-        User userDB = userRepository.findByUserName(auth.getName());
+    public String notificationSubmitted(@RequestParam String messageText, @RequestParam String projectName, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project projectDB = projectRepository.findByName(projectName);
 
-        if (userDB.isProjectAdmin(projectDB)) {
+        if (user.isProjectAdmin(projectDB)) {
             ProjectNotification projectNotification = new ProjectNotification(auth.getName(), messageText);
 
             projectDB.setProjectNotification(projectNotification);
@@ -112,19 +127,23 @@ public class ProjectController {
      * @see InboxMessage
      */
     @PostMapping("/setProjectBudget")
-    public String setBudget(
-            Principal auth,
-            @RequestParam("projectBudget") long budget,
-            @RequestParam String projectName,
-            @RequestParam String budgetChangeCause) {
+    public String setBudget(@RequestParam("projectBudget") long budget, @RequestParam String projectName, @RequestParam String budgetChangeCause, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        User userDB = userRepository.findByUserName(auth.getName());
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project projectDB = projectRepository.findByName(projectName);
 
-        if (userDB.isProjectAdmin(projectDB)) {
+        if (user.isProjectAdmin(projectDB)) {
             String difference = moneyDifference(projectDB, projectDB.getBudget(), budget);
 
-            InboxMessage notification = new InboxMessage(userDB.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + budgetChangeCause + "\n\nSummary: (" + difference + ")", userDB.getUserName(), "inboxMessage");
+            InboxMessage notification = new InboxMessage(user.getUserName() + " has changed project budget from " + new Currency(projectDB.getBudget(), projectDB.getCurrencySign()).getFormattedAmount() + " to " + new Currency(budget, projectDB.getCurrencySign()).getFormattedAmount() + "\n\nReason: " + budgetChangeCause + "\n\nSummary: (" + difference + ")", user.getUserName(), "inboxMessage");
 
             projectDB.getProjectInbox().add(notification);
             projectDB.setBudget(budget);
@@ -146,8 +165,17 @@ public class ProjectController {
      */
     @PostMapping("/deleteAllInboxMessages")
     public String deleteAllInbox(Principal auth, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
-        Project projectDB = projectRepository.findByName(projectName);
+        if (auth == null) {
+            return "redirect:/";
+        }
+
         User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        Project projectDB = projectRepository.findByName(projectName);
 
         if (projectDB != null && user.isProjectAdmin(projectDB)) {
             projectDB.getProjectInbox().clear();
@@ -173,13 +201,22 @@ public class ProjectController {
      */
     @GetMapping("/project/{projectName}")
     public String projectPage(@PathVariable String projectName, Model model, Principal auth) {
-        Project projectDB = projectRepository.findByName(projectName);
-        User userDB = userRepository.findByUserName(auth.getName());
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        if (projectDB != null && userDB != null) {
-            if (userDB.isMember(projectDB)) {
+        Project projectDB = projectRepository.findByName(projectName);
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        if (projectDB != null) {
+            if (user.isMember(projectDB)) {
                 model.addAttribute("project", projectRepository.findByName(projectName));
-                model.addAttribute("LoggedUser", userDB);
+                model.addAttribute("LoggedUser", user);
 
                 Currency budget = new Currency(projectDB.getBudget(), projectDB.getCurrencySign());
                 model.addAttribute("budget", budget.getFormattedAmount());
@@ -187,7 +224,7 @@ public class ProjectController {
                 return "sections/projectDashboard";
             } else {
                 model.addAttribute("projectName", projectName);
-                model.addAttribute("LoggedUser", userDB);
+                model.addAttribute("LoggedUser", user);
                 return "handlingPages/notamember";
             }
         }
@@ -197,20 +234,25 @@ public class ProjectController {
 
     /**
      * @param projectName is a project name, taken from address bar (like /project/SpringFramework)
-     * @param userName    is a name of the user who wants to join the project
      * @return dashboard page
      * @see InboxMessage  for explanation of InboxMessage type
      * This request is handled when user opened a project page and saw that they are not a part of project's team
      * They can press a button -> 'send request to join' and all project admins will get that request
      */
     @PostMapping("/sendARequest")
-    public String joinRequest(
-            @RequestParam String projectName,
-            @RequestParam String userName,
-            RedirectAttributes redirectAttributes) {
+    public String joinRequest(@RequestParam String projectName, RedirectAttributes redirectAttributes, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         Project projectDB = projectRepository.findByName(projectName);
-        InboxMessage message = new InboxMessage(userName + " wants to join " + projectName + " project. \nAccept this request or reject.", userName, "inboxRequest");
+        InboxMessage message = new InboxMessage(auth.getName() + " wants to join " + projectName + " project. \nAccept this request or reject.", auth.getName(), "inboxRequest");
         message.setDetails(projectName);
 
         projectDB.getAdmins().stream()
@@ -235,11 +277,16 @@ public class ProjectController {
      * @see InboxMessage
      */
     @PostMapping("/inviteMemberToProject")
-    public String inviteMemberToProject(
-            Principal auth,
-            @RequestParam String projectName,
-            @RequestParam String memberName,
-            RedirectAttributes redirectAttributes) {
+    public String inviteMemberToProject(@RequestParam String projectName, @RequestParam String memberName, RedirectAttributes redirectAttributes, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         InboxMessage message = new InboxMessage(auth.getName() + " has invited you to join " + projectName + " project. Accept this invite or reject.", auth.getName(), "inboxRequestToMember");
         User userRecipient = userRepository.findByUserName(memberName);
@@ -266,15 +313,19 @@ public class ProjectController {
      * This request is handled when project admin wants to make another user admin
      */
     @PostMapping("/setMemberAsAdmin")
-    public String setAsAdmin(
-            @RequestParam String projectName,
-            @RequestParam String memberName,
-            Principal auth,
-            RedirectAttributes redirectAttributes) {
+    public String setAsAdmin(@RequestParam String projectName, @RequestParam String memberName, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         Project projectDB = projectRepository.findByName(projectName);
         User member = userRepository.findByUserName(memberName);
-        User user = userRepository.findByUserName(auth.getName());
 
         if (user.isProjectAdmin(projectDB) && !projectDB.getAdmins().contains(memberName) && member != null) {
             InboxMessage message = new InboxMessage(user.getUserName() + " has set " + memberName + " as project admin", user.getUserName(), "inboxMessage");
@@ -305,13 +356,18 @@ public class ProjectController {
      * That user will no longer be an admin
      */
     @PostMapping("/unAdmin")
-    public String unAdminUser(
-            @RequestParam String projectName,
-            @RequestParam String currentAdmin,
-            Principal auth,
-            RedirectAttributes redirectAttributes) {
-        Project projectDB = projectRepository.findByName(projectName);
+    public String unAdminUser(@RequestParam String projectName, @RequestParam String currentAdmin, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
         User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        Project projectDB = projectRepository.findByName(projectName);
 
         if (projectDB != null && projectDB.getAdmins().contains(user.getUserName()) && !user.getUserName().equals(currentAdmin)) {
             projectDB.getAdmins().remove(currentAdmin);
@@ -338,15 +394,19 @@ public class ProjectController {
      * This item will be added to project to it's directory and saved
      */
     @PostMapping("/addNewCard")
-    public String newCard(
-            @RequestParam String projectName,
-            @RequestParam String itemText,
-            @RequestParam String directoryName,
-            Principal auth) {
+    public String newCard(@RequestParam String projectName, @RequestParam String itemText, @RequestParam String directoryName, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
 
         ProjectItem projectItem = new ProjectItem(itemText, projectName);
         Project project = projectRepository.findByName(projectName);
-        User user = userRepository.findByUserName(auth.getName());
 
         if (project.getAdmins().contains(user.getUserName())) {
             project.addItem(projectItem, directoryName);
@@ -365,13 +425,18 @@ public class ProjectController {
      * It will be removed
      */
     @PostMapping("/removeItem")
-    public String removeCard(
-            @RequestParam String projectName,
-            @RequestParam String cardKey,
-            Principal auth
-    ) {
-        Project project = projectRepository.findByName(projectName);
+    public String removeCard(@RequestParam String projectName, @RequestParam String cardKey, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
         User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        Project project = projectRepository.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(user.getUserName())) {
             ProjectItem projectItem = project.getItemByKey(cardKey);
@@ -392,13 +457,18 @@ public class ProjectController {
      * The item will be moved to 'done' category
      */
     @PostMapping("/markItemAsDone")
-    public String markItemAsDone(
-            @RequestParam String projectName,
-            @RequestParam String itemKey,
-            Principal auth
-    ) {
-        Project project = projectRepository.findByName(projectName);
+    public String markItemAsDone(@RequestParam String projectName, @RequestParam String itemKey, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
         User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        Project project = projectRepository.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(user.getUserName())) {
             ProjectItem projectItem = project.getItemByKey(itemKey);
@@ -421,6 +491,16 @@ public class ProjectController {
      */
     @PostMapping("/currentItemsAllDone")
     public String currentItemsAllDone(@RequestParam String projectName, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project project = projectRepository.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(auth.getName())) {
@@ -441,6 +521,16 @@ public class ProjectController {
      */
     @PostMapping("/removeDoneItems")
     public String removeDoneItems(@RequestParam String projectName, Principal auth) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project project = projectRepository.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(auth.getName())) {
@@ -460,7 +550,17 @@ public class ProjectController {
      * @return dashboard page
      */
     @PostMapping("/removeProject")
-    public String removeProject(Principal auth, @RequestParam String projectName, RedirectAttributes redirectAttributes) {
+    public String removeProject(@RequestParam String projectName, Principal auth, RedirectAttributes redirectAttributes) {
+        if (auth == null) {
+            return "redirect:/";
+        }
+
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
         Project project = projectRepository.findByName(projectName);
 
         if (project != null && project.getAdmins().contains(auth.getName())) {
@@ -493,5 +593,10 @@ public class ProjectController {
         } else {
             return "- " + new Currency(before - after, project.getCurrencySign()).getFormattedAmount();
         }
+    }
+
+    private String userIsBanned() {
+        SecurityContextHolder.clearContext();
+        return "handlingPages/youarebanned";
     }
 }

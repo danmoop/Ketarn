@@ -3,6 +3,7 @@ package com.danmoop.novanode.MainApplication.controller;
 import com.danmoop.novanode.MainApplication.model.User;
 import com.danmoop.novanode.MainApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,10 +25,18 @@ public class DashboardController {
      */
     @PostMapping("/readAllInbox")
     public String readAllInbox(Principal auth, RedirectAttributes redirectAttributes) {
-        User userDB = userRepository.findByUserName(auth.getName()); // find user in database by username
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        userDB.readAllInboxMessages(); // empty messages array
-        userRepository.save(userDB); // save user to database
+        User user = userRepository.findByUserName(auth.getName()); // find user in database by username
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        user.readAllInboxMessages(); // empty messages array
+        userRepository.save(user); // save user to database
 
         redirectAttributes.addFlashAttribute("successMsg", "All inbox marked as read!"); // notify user on their page
 
@@ -42,10 +51,18 @@ public class DashboardController {
      */
     @PostMapping("/deleteAllInbox")
     public String deleteAllInbox(Principal auth, RedirectAttributes redirectAttributes) {
-        User userDB = userRepository.findByUserName(auth.getName());
+        if (auth == null) {
+            return "redirect:/";
+        }
 
-        userDB.getReadMessages().clear();
-        userRepository.save(userDB);
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        user.getReadMessages().clear();
+        userRepository.save(user);
 
         redirectAttributes.addFlashAttribute("successMsg", "All inbox deleted!");
 
@@ -61,13 +78,24 @@ public class DashboardController {
      */
     @PostMapping("/editUserNotes")
     public String editUserNotes(@RequestParam String noteText, Principal auth) {
-        User userDB = userRepository.findByUserName(auth.getName());
-
-        if (userDB != null) {
-            userDB.setNote(noteText);
-            userRepository.save(userDB);
+        if (auth == null) {
+            return "redirect:/";
         }
 
+        User user = userRepository.findByUserName(auth.getName());
+
+        if (user.isBanned()) {
+            return userIsBanned();
+        }
+
+        user.setNote(noteText);
+        userRepository.save(user);
+
         return "redirect:/dashboard";
+    }
+
+    private String userIsBanned() {
+        SecurityContextHolder.clearContext();
+        return "handlingPages/youarebanned";
     }
 }

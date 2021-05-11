@@ -29,10 +29,10 @@ public class User {
     private List<InboxMessage> messages;
     private List<InboxMessage> readMessages;
     private List<Task> tasks;
+    private List<Task> completedTasks;
     private List<String> createdProjects;
     private List<String> projectsTakePartIn;
     private List<Integer> workSuccessPoints;
-    private List<Task> completedTasks;
 
     private long registerDate;
     private boolean banned;

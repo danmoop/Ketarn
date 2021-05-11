@@ -30,16 +30,10 @@ public class RegisterController {
      * @return index page if registration is successful, otherwise return register page again and show an error message
      */
     @PostMapping("/register")
-    public String registerSubmit(
-            @RequestParam("name") String name,
-            @RequestParam("userName") String userName,
-            @RequestParam("email") String email,
-            @RequestParam("password") String password,
-            RedirectAttributes redirectAttributes
-    ) {
+    public String registerSubmit(@RequestParam("name") String name, @RequestParam("userName") String userName, @RequestParam("email") String email, @RequestParam("password") String password, RedirectAttributes redirectAttributes) {
         if (userRepository.findByUserName(userName) == null) {
-            User newUser = new User(userName, name, email, passwordEncoder.encode(password));
-            userRepository.save(newUser);
+            User user = new User(userName, name, email, passwordEncoder.encode(password));
+            userRepository.save(user);
 
             redirectAttributes.addFlashAttribute("successMsg", "Registered successfully! Now you can sign in using your login and password!");
 
