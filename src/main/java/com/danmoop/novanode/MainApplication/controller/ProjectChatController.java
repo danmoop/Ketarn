@@ -120,6 +120,11 @@ public class ProjectChatController {
         return "redirect:/dashboard";
     }
 
+    /**
+     * This function has to be called if a user is banned
+     *
+     * @return a page, which says a user is banned
+     */
     private String userIsBanned() {
         SecurityContextHolder.clearContext();
         return "handlingPages/youarebanned";

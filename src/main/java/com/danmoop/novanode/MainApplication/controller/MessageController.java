@@ -88,8 +88,8 @@ public class MessageController {
      * This request is handled when user wants to delete message forever
      * It will be deleted from 'Read' list
      *
-     * @param messageKey is a message id, taken from a hidden input field
      * @param auth       is a logged-in user object
+     * @param messageKey is a message id, taken from a hidden input field
      * @return dashboard page
      */
     @PostMapping("/deleteMessage")
@@ -114,6 +114,11 @@ public class MessageController {
         return "redirect:/dashboard";
     }
 
+    /**
+     * This function has to be called if a user is banned
+     *
+     * @return a page, which says a user is banned
+     */
     private String userIsBanned() {
         SecurityContextHolder.clearContext();
         return "handlingPages/youarebanned";
