@@ -6,9 +6,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @ToString
@@ -30,9 +28,9 @@ public class User {
     private List<InboxMessage> readMessages;
     private List<Task> tasks;
     private List<Task> completedTasks;
-    private List<String> createdProjects;
-    private List<String> projectsTakePartIn;
-    private List<Integer> workSuccessPoints;
+    private Set<String> createdProjects;
+    private Set<String> projectsTakePartIn;
+    private Set<Integer> workSuccessPoints;
 
     private long registerDate;
     private boolean banned;
@@ -44,12 +42,13 @@ public class User {
         this.password = password;
 
         this.messages = new ArrayList<>();
-        this.readMessages = new ArrayList<>();
-        this.createdProjects = new ArrayList<>();
-        this.projectsTakePartIn = new ArrayList<>();
-        this.workSuccessPoints = new ArrayList<>();
+        this.readMessages = new ArrayList<>();;
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
+
+        this.createdProjects = new HashSet<>();
+        this.projectsTakePartIn = new HashSet<>();
+        this.workSuccessPoints = new HashSet<>();
 
         this.registerDate = new Date().getTime();
         this.banned = false;
