@@ -1,6 +1,6 @@
 # Ketarn - project management system (Java, Spring, MongoDB)
 
-[Open Ketarn App](https://ketarn.herokuapp.com). **!!! It can take up to 1 minute to open**
+[Open Ketarn App](https://ketarn.herokuapp.com).
 
 Ketarn is used to manage your work within a team. If you are an admin, you can assign tasks, display notification and set your project budget. Every member has score - how well they are doing tasks assigned by project admins (from 0% to 100%).
 
